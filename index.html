@@ -136,6 +136,7 @@ header{
 .rb-new{background:rgba(59,130,246,.12);color:var(--blue);border:1px solid rgba(59,130,246,.25);}
 .rb-risk{background:rgba(244,63,94,.12);color:var(--red);border:1px solid rgba(244,63,94,.25);}
 .rb-loyal{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.25);}
+.rb-gold{background:rgba(245,158,11,.12);color:var(--gold);border:1px solid rgba(245,158,11,.25);}
 
 /* ── LEADERBOARD ── */
 .lb-items{display:flex;flex-direction:column;gap:0;}
@@ -281,6 +282,7 @@ tr:hover td{background:var(--faint);}
   <button class="tab on" onclick="go('dashboard')">Dashboard</button>
   <button class="tab" onclick="go('schedule')">Schedule</button>
   <button class="tab" onclick="go('members')">Members</button>
+  <button class="tab" onclick="go('care')">Member Care</button>
   <button class="tab" onclick="go('analytics')">Analytics</button>
 </div>
 
@@ -391,6 +393,81 @@ tr:hover td{background:var(--faint);}
       </table>
     </div>
   </div>
+</div>
+
+<!-- ══════════════════ MEMBER CARE ════════════════════ -->
+<div class="panel" id="p-care" style="grid-template-columns:repeat(12,1fr);gap:14px;">
+
+  <!-- Premium never posted -->
+  <div class="card gc-12" style="border-color:rgba(244,63,94,.2)">
+    <div class="ch">
+      <div><div class="ct">🚨 Premium Never Featured</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Paying for Premium but never posted — fix this first</div></div>
+      <span class="cs" id="care-prem-never-cs"></span>
+    </div>
+    <div class="risk-items" id="care-prem-never"></div>
+  </div>
+
+  <!-- Waiting longest -->
+  <div class="card gc-6">
+    <div class="ch">
+      <div><div class="ct">⏳ Waiting Longest</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Last featured the longest time ago</div></div>
+      <span class="cs" id="care-waiting-cs"></span>
+    </div>
+    <div class="risk-items" id="care-waiting"></div>
+    <div class="insight" style="margin-top:12px">
+      <div class="insight-icon">💬</div>
+      <div class="insight-text" id="care-waiting-insight">Loading…</div>
+    </div>
+  </div>
+
+  <!-- Recently joined -->
+  <div class="card gc-6">
+    <div class="ch">
+      <div><div class="ct">👋 New Members</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Joined in the last 30 days — give them a warm start</div></div>
+      <span class="cs" id="care-new-cs"></span>
+    </div>
+    <div class="risk-items" id="care-new"></div>
+    <div class="insight" style="margin-top:12px">
+      <div class="insight-icon">🌱</div>
+      <div class="insight-text" id="care-new-insight">Loading…</div>
+    </div>
+  </div>
+
+  <!-- Anniversaries this month -->
+  <div class="card gc-6">
+    <div class="ch">
+      <div><div class="ct">🎂 Anniversaries This Month</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Hitting a year milestone — worth a shoutout</div></div>
+      <span class="cs" id="care-anni-cs"></span>
+    </div>
+    <div class="risk-items" id="care-anni"></div>
+    <div class="insight" style="margin-top:12px">
+      <div class="insight-icon">🏆</div>
+      <div class="insight-text" id="care-anni-insight">Loading…</div>
+    </div>
+  </div>
+
+  <!-- Currently featured -->
+  <div class="card gc-6">
+    <div class="ch">
+      <div><div class="ct">📌 Currently Featured</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Members with an active feature post right now</div></div>
+      <span class="cs" id="care-feat-cs"></span>
+    </div>
+    <div class="risk-items" id="care-feat"></div>
+    <div class="insight" style="margin-top:12px">
+      <div class="insight-icon">📸</div>
+      <div class="insight-text" id="care-feat-insight">Loading…</div>
+    </div>
+  </div>
+
+  <!-- Never featured full grid -->
+  <div class="card gc-12">
+    <div class="ch">
+      <div><div class="ct">😶 Never Featured — Full List</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Every member who has never had a post, sorted by how long they have been waiting</div></div>
+      <span class="cs" id="care-never-cs"></span>
+    </div>
+    <div id="care-never-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;"></div>
+  </div>
+
 </div>
 
 <!-- ══════════════════ ANALYTICS ══════════════════════ -->
@@ -768,8 +845,7 @@ function genPremSched(){
 function go(tab){
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
   document.querySelector(`.tab[onclick*="${tab}"]`).classList.add('on');
-  // hide all
-  ['dashboard','schedule','members','analytics'].forEach(t=>{
+  ['dashboard','schedule','members','care','analytics'].forEach(t=>{
     const el=document.getElementById('p-'+t);
     if(!el)return;
     if(t==='members'){el.style.display='none';}
@@ -780,19 +856,965 @@ function go(tab){
   if(tab==='members'){target.style.display='flex';}
   else{target.classList.add('on');}
   if(tab==='analytics')renderAnalytics();
+  if(tab==='care')renderCare();
 }
 
 // ── Member actions
-async function changeTier(i,t){const m=members[i];const{error}=await sb.from('members').update({tier:t}).eq('id',m.id);if(error){setStatus('error','err');return;}setStatus('updated');await loadMembers();}
-async function del2(i){const m=members[i];if(!m.id)return;const{error}=await sb.from('members').delete().eq('id',m.id);if(error){setStatus('error','err');return;}setStatus('deleted');await loadMembers();}
-async function toggleFeat(i){const m=members[i],f=!m.featured,ll=f?new Date().toLocaleDateString('en-GB'):m.lastFeature;const{error}=await sb.from('members').update({featured:f,last_feature:ll}).eq('id',m.id);if(error){setStatus('error','err');return;}setStatus(f?'posted ✓':'unposted');await loadMembers();}
+async function changeTier(i,t){const m=members[i];const{error}=await sb.from('members').update({tier:t}).eq('id',m.id);if(error){setStatus('error','err');return;}setStatus('updated');await 
+// ── MEMBER CARE ──────────────────────────────────────
+function renderCare(){
+  renderCare_PremiumNever();
+  renderCare_WaitingLongest();
+  renderCare_NewMembers();
+  renderCare_Anniversaries();
+  renderCare_CurrentlyFeatured();
+  renderCare_NeverFeaturedGrid();
+}
+
+function careItem(m, badge, badgeClass, detail){
+  return `<div class="risk-item">
+    <div class="risk-dot" style="background:${badgeClass==='rb-new'?'#3b82f6':badgeClass==='rb-risk'?'#f43f5e':badgeClass==='rb-gold'?'#f59e0b':'#a855f7'}"></div>
+    <div class="risk-info">
+      <div class="risk-handle">${m.handle}</div>
+      <div class="risk-detail">${detail}</div>
+    </div>
+    <span class="risk-badge ${badgeClass}">${badge}</span>
+  </div>`;
+}
+
+// 1. Premium members who have NEVER been featured
+function renderCare_PremiumNever(){
+  const el=document.getElementById('care-prem-never');
+  const cs=document.getElementById('care-prem-never-cs');
+  const list=members
+    .filter(m=>(m.tier==='Premium'||m.tier==='Premium+')&&!m.featured&&!m.lastFeature)
+    .map(m=>({...m,mo:mos(m.joinDateISO)}))
+    .sort((a,b)=>b.mo-a.mo);
+  cs.textContent=list.length?`${list.length} need attention`:'All good ✓';
+  if(!list.length){el.innerHTML='<div class="empty">All Premium members have been featured. Great work. 🎉</div>';return;}
+  el.innerHTML=list.map(m=>careItem(m,m.tier,'rb-risk',`${m.mo} months subscribed · never posted`)).join('');
+}
+
+// 2. Members who have been posted before but are waiting the longest for their next feature
+function renderCare_WaitingLongest(){
+  const el=document.getElementById('care-waiting');
+  const cs=document.getElementById('care-waiting-cs');
+  const ins=document.getElementById('care-waiting-insight');
+
+  // Parse lastFeature date (format: DD/MM/YYYY)
+  function parseLastFeat(s){
+    if(!s)return null;
+    const p=s.split('/');
+    if(p.length===3)return new Date(`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`);
+    return new Date(s);
+  }
+
+  const now=new Date();
+  const list=members
+    .filter(m=>m.lastFeature&&!m.featured)
+    .map(m=>{
+      const d=parseLastFeat(m.lastFeature);
+      const daysAgo=d?Math.floor((now-d)/(1000*60*60*24)):0;
+      return{...m,daysAgo};
+    })
+    .sort((a,b)=>b.daysAgo-a.daysAgo)
+    .slice(0,6);
+
+  cs.textContent=`${list.length} shown`;
+  if(!list.length){el.innerHTML='<div class="empty">No post history yet.</div>';ins.innerHTML='No data.';return;}
+
+  el.innerHTML=list.map(m=>{
+    const wks=Math.floor(m.daysAgo/7);
+    const label=m.daysAgo<7?`${m.daysAgo}d ago`:wks<8?`${wks}w ago`:`${Math.floor(wks/4)}mo ago`;
+    const cls=m.daysAgo>60?'rb-risk':m.daysAgo>21?'rb-loyal':'rb-new';
+    return careItem(m,label,cls,`${m.tier} · last post: ${m.lastFeature}`);
+  }).join('');
+
+  const oldest=list[0];
+  ins.innerHTML=`<b>${oldest.handle}</b> has been waiting <b>${oldest.daysAgo} days</b> since their last feature. Consider prioritising them soon.`;
+}
+
+// 3. Members who joined in the last 30 days
+function renderCare_NewMembers(){
+  const el=document.getElementById('care-new');
+  const cs=document.getElementById('care-new-cs');
+  const ins=document.getElementById('care-new-insight');
+
+  const now=new Date();
+  const list=members
+    .filter(m=>{
+      if(!m.joinDateISO)return false;
+      const d=new Date(m.joinDateISO);
+      return(now-d)/(1000*60*60*24)<=30;
+    })
+    .map(m=>{
+      const d=new Date(m.joinDateISO);
+      const daysAgo=Math.floor((now-d)/(1000*60*60*24));
+      return{...m,daysAgo};
+    })
+    .sort((a,b)=>a.daysAgo-b.daysAgo);
+
+  cs.textContent=list.length?`${list.length} this month`:'None this month';
+  if(!list.length){el.innerHTML='<div class="empty">No new members in the last 30 days.</div>';ins.innerHTML='No recent joins.';return;}
+
+  el.innerHTML=list.map(m=>{
+    const label=m.daysAgo===0?'Today':m.daysAgo===1?'Yesterday':`${m.daysAgo}d ago`;
+    return careItem(m,label,'rb-new',`${m.tier} · joined ${m.joinDate||'recently'}`);
+  }).join('');
+
+  ins.innerHTML=`<b>${list.length} new member${list.length!==1?'s':''}</b> joined in the last 30 days. A welcome DM or quick interaction goes a long way for retention.`;
+}
+
+// 4. Members whose join anniversary falls this month (1yr, 2yr, 3yr…)
+function renderCare_Anniversaries(){
+  const el=document.getElementById('care-anni');
+  const cs=document.getElementById('care-anni-cs');
+  const ins=document.getElementById('care-anni-insight');
+
+  const now=new Date();
+  const thisMonth=now.getMonth();
+  const thisYear=now.getFullYear();
+
+  const list=members
+    .filter(m=>{
+      if(!m.joinDateISO)return false;
+      const d=new Date(m.joinDateISO);
+      const years=thisYear-d.getFullYear();
+      return years>0&&d.getMonth()===thisMonth;
+    })
+    .map(m=>{
+      const d=new Date(m.joinDateISO);
+      const years=thisYear-d.getFullYear();
+      return{...m,years};
+    })
+    .sort((a,b)=>b.years-a.years);
+
+  cs.textContent=list.length?`${list.length} this month`:'None this month';
+  if(!list.length){el.innerHTML='<div class="empty">No anniversaries this month.</div>';ins.innerHTML='Check back next month.';return;}
+
+  el.innerHTML=list.map(m=>{
+    const label=`${m.years}yr`;
+    const cls=m.years>=3?'rb-loyal':m.years>=2?'rb-gold':'rb-new';
+    return careItem(m,label,cls,`${m.tier} · member since ${m.joinDate||m.joinDateISO}`);
+  }).join('');
+
+  const multi=list.filter(m=>m.years>=2).length;
+  ins.innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> celebrating ${list.length===1?'an':'their'} anniversary this month${multi?`, including <b>${multi}</b> with 2+ years`:''}. A shoutout post is a great engagement boost.`;
+}
+
+// 5. Currently featured members
+function renderCare_CurrentlyFeatured(){
+  const el=document.getElementById('care-feat');
+  const cs=document.getElementById('care-feat-cs');
+  const ins=document.getElementById('care-feat-insight');
+
+  const list=members.filter(m=>m.featured);
+  cs.textContent=`${list.length} active`;
+
+  if(!list.length){
+    el.innerHTML='<div class="empty">No one is currently featured.</div>';
+    ins.innerHTML='Hit Post on any member in the Members tab to mark them as featured.';
+    return;
+  }
+
+  el.innerHTML=list.map(m=>careItem(m,'Live','rb-loyal',`${m.tier} · posted ${m.lastFeature||'recently'}`)).join('');
+  ins.innerHTML=`<b>${list.length} post${list.length!==1?'s':''}</b> currently live. When done, hit Unpost to keep your records clean and queue the next member.`;
+}
+
+// 6. Never featured — full grid
+function renderCare_NeverFeaturedGrid(){
+  const el=document.getElementById('care-never-grid');
+  const cs=document.getElementById('care-never-cs');
+
+  const list=members
+    .filter(m=>!m.featured&&!m.lastFeature)
+    .map(m=>({...m,mo:mos(m.joinDateISO)}))
+    .sort((a,b)=>b.mo-a.mo);
+
+  cs.textContent=`${list.length} members`;
+  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">Every member has been featured at least once. 🎉</div>';return;}
+
+  el.innerHTML=list.map(m=>{
+    const mo=m.mo;
+    const urgency=mo>12?'rgba(244,63,94,.15)':mo>3?'rgba(245,158,11,.1)':'rgba(59,130,246,.1)';
+    const border=mo>12?'rgba(244,63,94,.25)':mo>3?'rgba(245,158,11,.2)':'rgba(59,130,246,.2)';
+    const dotColor=mo>12?'#f43f5e':mo>3?'#f59e0b':'#3b82f6';
+    return`<div style="background:${urgency};border:1px solid ${border};border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:9px">
+      <div style="width:6px;height:6px;border-radius:50%;background:${dotColor};flex-shrink:0"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.handle}</div>
+        <div style="font-family:var(--m);font-size:9px;color:var(--sub);margin-top:2px">${m.tier} · ${mo}mo</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+loadMembers();}
+async function del2(i){const m=members[i];if(!m.id)return;const{error}=await sb.from('members').delete().eq('id',m.id);if(error){setStatus('error','err');return;}setStatus('deleted');await 
+// ── MEMBER CARE ──────────────────────────────────────
+function renderCare(){
+  renderCare_PremiumNever();
+  renderCare_WaitingLongest();
+  renderCare_NewMembers();
+  renderCare_Anniversaries();
+  renderCare_CurrentlyFeatured();
+  renderCare_NeverFeaturedGrid();
+}
+
+function careItem(m, badge, badgeClass, detail){
+  return `<div class="risk-item">
+    <div class="risk-dot" style="background:${badgeClass==='rb-new'?'#3b82f6':badgeClass==='rb-risk'?'#f43f5e':badgeClass==='rb-gold'?'#f59e0b':'#a855f7'}"></div>
+    <div class="risk-info">
+      <div class="risk-handle">${m.handle}</div>
+      <div class="risk-detail">${detail}</div>
+    </div>
+    <span class="risk-badge ${badgeClass}">${badge}</span>
+  </div>`;
+}
+
+// 1. Premium members who have NEVER been featured
+function renderCare_PremiumNever(){
+  const el=document.getElementById('care-prem-never');
+  const cs=document.getElementById('care-prem-never-cs');
+  const list=members
+    .filter(m=>(m.tier==='Premium'||m.tier==='Premium+')&&!m.featured&&!m.lastFeature)
+    .map(m=>({...m,mo:mos(m.joinDateISO)}))
+    .sort((a,b)=>b.mo-a.mo);
+  cs.textContent=list.length?`${list.length} need attention`:'All good ✓';
+  if(!list.length){el.innerHTML='<div class="empty">All Premium members have been featured. Great work. 🎉</div>';return;}
+  el.innerHTML=list.map(m=>careItem(m,m.tier,'rb-risk',`${m.mo} months subscribed · never posted`)).join('');
+}
+
+// 2. Members who have been posted before but are waiting the longest for their next feature
+function renderCare_WaitingLongest(){
+  const el=document.getElementById('care-waiting');
+  const cs=document.getElementById('care-waiting-cs');
+  const ins=document.getElementById('care-waiting-insight');
+
+  // Parse lastFeature date (format: DD/MM/YYYY)
+  function parseLastFeat(s){
+    if(!s)return null;
+    const p=s.split('/');
+    if(p.length===3)return new Date(`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`);
+    return new Date(s);
+  }
+
+  const now=new Date();
+  const list=members
+    .filter(m=>m.lastFeature&&!m.featured)
+    .map(m=>{
+      const d=parseLastFeat(m.lastFeature);
+      const daysAgo=d?Math.floor((now-d)/(1000*60*60*24)):0;
+      return{...m,daysAgo};
+    })
+    .sort((a,b)=>b.daysAgo-a.daysAgo)
+    .slice(0,6);
+
+  cs.textContent=`${list.length} shown`;
+  if(!list.length){el.innerHTML='<div class="empty">No post history yet.</div>';ins.innerHTML='No data.';return;}
+
+  el.innerHTML=list.map(m=>{
+    const wks=Math.floor(m.daysAgo/7);
+    const label=m.daysAgo<7?`${m.daysAgo}d ago`:wks<8?`${wks}w ago`:`${Math.floor(wks/4)}mo ago`;
+    const cls=m.daysAgo>60?'rb-risk':m.daysAgo>21?'rb-loyal':'rb-new';
+    return careItem(m,label,cls,`${m.tier} · last post: ${m.lastFeature}`);
+  }).join('');
+
+  const oldest=list[0];
+  ins.innerHTML=`<b>${oldest.handle}</b> has been waiting <b>${oldest.daysAgo} days</b> since their last feature. Consider prioritising them soon.`;
+}
+
+// 3. Members who joined in the last 30 days
+function renderCare_NewMembers(){
+  const el=document.getElementById('care-new');
+  const cs=document.getElementById('care-new-cs');
+  const ins=document.getElementById('care-new-insight');
+
+  const now=new Date();
+  const list=members
+    .filter(m=>{
+      if(!m.joinDateISO)return false;
+      const d=new Date(m.joinDateISO);
+      return(now-d)/(1000*60*60*24)<=30;
+    })
+    .map(m=>{
+      const d=new Date(m.joinDateISO);
+      const daysAgo=Math.floor((now-d)/(1000*60*60*24));
+      return{...m,daysAgo};
+    })
+    .sort((a,b)=>a.daysAgo-b.daysAgo);
+
+  cs.textContent=list.length?`${list.length} this month`:'None this month';
+  if(!list.length){el.innerHTML='<div class="empty">No new members in the last 30 days.</div>';ins.innerHTML='No recent joins.';return;}
+
+  el.innerHTML=list.map(m=>{
+    const label=m.daysAgo===0?'Today':m.daysAgo===1?'Yesterday':`${m.daysAgo}d ago`;
+    return careItem(m,label,'rb-new',`${m.tier} · joined ${m.joinDate||'recently'}`);
+  }).join('');
+
+  ins.innerHTML=`<b>${list.length} new member${list.length!==1?'s':''}</b> joined in the last 30 days. A welcome DM or quick interaction goes a long way for retention.`;
+}
+
+// 4. Members whose join anniversary falls this month (1yr, 2yr, 3yr…)
+function renderCare_Anniversaries(){
+  const el=document.getElementById('care-anni');
+  const cs=document.getElementById('care-anni-cs');
+  const ins=document.getElementById('care-anni-insight');
+
+  const now=new Date();
+  const thisMonth=now.getMonth();
+  const thisYear=now.getFullYear();
+
+  const list=members
+    .filter(m=>{
+      if(!m.joinDateISO)return false;
+      const d=new Date(m.joinDateISO);
+      const years=thisYear-d.getFullYear();
+      return years>0&&d.getMonth()===thisMonth;
+    })
+    .map(m=>{
+      const d=new Date(m.joinDateISO);
+      const years=thisYear-d.getFullYear();
+      return{...m,years};
+    })
+    .sort((a,b)=>b.years-a.years);
+
+  cs.textContent=list.length?`${list.length} this month`:'None this month';
+  if(!list.length){el.innerHTML='<div class="empty">No anniversaries this month.</div>';ins.innerHTML='Check back next month.';return;}
+
+  el.innerHTML=list.map(m=>{
+    const label=`${m.years}yr`;
+    const cls=m.years>=3?'rb-loyal':m.years>=2?'rb-gold':'rb-new';
+    return careItem(m,label,cls,`${m.tier} · member since ${m.joinDate||m.joinDateISO}`);
+  }).join('');
+
+  const multi=list.filter(m=>m.years>=2).length;
+  ins.innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> celebrating ${list.length===1?'an':'their'} anniversary this month${multi?`, including <b>${multi}</b> with 2+ years`:''}. A shoutout post is a great engagement boost.`;
+}
+
+// 5. Currently featured members
+function renderCare_CurrentlyFeatured(){
+  const el=document.getElementById('care-feat');
+  const cs=document.getElementById('care-feat-cs');
+  const ins=document.getElementById('care-feat-insight');
+
+  const list=members.filter(m=>m.featured);
+  cs.textContent=`${list.length} active`;
+
+  if(!list.length){
+    el.innerHTML='<div class="empty">No one is currently featured.</div>';
+    ins.innerHTML='Hit Post on any member in the Members tab to mark them as featured.';
+    return;
+  }
+
+  el.innerHTML=list.map(m=>careItem(m,'Live','rb-loyal',`${m.tier} · posted ${m.lastFeature||'recently'}`)).join('');
+  ins.innerHTML=`<b>${list.length} post${list.length!==1?'s':''}</b> currently live. When done, hit Unpost to keep your records clean and queue the next member.`;
+}
+
+// 6. Never featured — full grid
+function renderCare_NeverFeaturedGrid(){
+  const el=document.getElementById('care-never-grid');
+  const cs=document.getElementById('care-never-cs');
+
+  const list=members
+    .filter(m=>!m.featured&&!m.lastFeature)
+    .map(m=>({...m,mo:mos(m.joinDateISO)}))
+    .sort((a,b)=>b.mo-a.mo);
+
+  cs.textContent=`${list.length} members`;
+  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">Every member has been featured at least once. 🎉</div>';return;}
+
+  el.innerHTML=list.map(m=>{
+    const mo=m.mo;
+    const urgency=mo>12?'rgba(244,63,94,.15)':mo>3?'rgba(245,158,11,.1)':'rgba(59,130,246,.1)';
+    const border=mo>12?'rgba(244,63,94,.25)':mo>3?'rgba(245,158,11,.2)':'rgba(59,130,246,.2)';
+    const dotColor=mo>12?'#f43f5e':mo>3?'#f59e0b':'#3b82f6';
+    return`<div style="background:${urgency};border:1px solid ${border};border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:9px">
+      <div style="width:6px;height:6px;border-radius:50%;background:${dotColor};flex-shrink:0"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.handle}</div>
+        <div style="font-family:var(--m);font-size:9px;color:var(--sub);margin-top:2px">${m.tier} · ${mo}mo</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+loadMembers();}
+async function toggleFeat(i){const m=members[i],f=!m.featured,ll=f?new Date().toLocaleDateString('en-GB'):m.lastFeature;const{error}=await sb.from('members').update({featured:f,last_feature:ll}).eq('id',m.id);if(error){setStatus('error','err');return;}setStatus(f?'posted ✓':'unposted');await 
+// ── MEMBER CARE ──────────────────────────────────────
+function renderCare(){
+  renderCare_PremiumNever();
+  renderCare_WaitingLongest();
+  renderCare_NewMembers();
+  renderCare_Anniversaries();
+  renderCare_CurrentlyFeatured();
+  renderCare_NeverFeaturedGrid();
+}
+
+function careItem(m, badge, badgeClass, detail){
+  return `<div class="risk-item">
+    <div class="risk-dot" style="background:${badgeClass==='rb-new'?'#3b82f6':badgeClass==='rb-risk'?'#f43f5e':badgeClass==='rb-gold'?'#f59e0b':'#a855f7'}"></div>
+    <div class="risk-info">
+      <div class="risk-handle">${m.handle}</div>
+      <div class="risk-detail">${detail}</div>
+    </div>
+    <span class="risk-badge ${badgeClass}">${badge}</span>
+  </div>`;
+}
+
+// 1. Premium members who have NEVER been featured
+function renderCare_PremiumNever(){
+  const el=document.getElementById('care-prem-never');
+  const cs=document.getElementById('care-prem-never-cs');
+  const list=members
+    .filter(m=>(m.tier==='Premium'||m.tier==='Premium+')&&!m.featured&&!m.lastFeature)
+    .map(m=>({...m,mo:mos(m.joinDateISO)}))
+    .sort((a,b)=>b.mo-a.mo);
+  cs.textContent=list.length?`${list.length} need attention`:'All good ✓';
+  if(!list.length){el.innerHTML='<div class="empty">All Premium members have been featured. Great work. 🎉</div>';return;}
+  el.innerHTML=list.map(m=>careItem(m,m.tier,'rb-risk',`${m.mo} months subscribed · never posted`)).join('');
+}
+
+// 2. Members who have been posted before but are waiting the longest for their next feature
+function renderCare_WaitingLongest(){
+  const el=document.getElementById('care-waiting');
+  const cs=document.getElementById('care-waiting-cs');
+  const ins=document.getElementById('care-waiting-insight');
+
+  // Parse lastFeature date (format: DD/MM/YYYY)
+  function parseLastFeat(s){
+    if(!s)return null;
+    const p=s.split('/');
+    if(p.length===3)return new Date(`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`);
+    return new Date(s);
+  }
+
+  const now=new Date();
+  const list=members
+    .filter(m=>m.lastFeature&&!m.featured)
+    .map(m=>{
+      const d=parseLastFeat(m.lastFeature);
+      const daysAgo=d?Math.floor((now-d)/(1000*60*60*24)):0;
+      return{...m,daysAgo};
+    })
+    .sort((a,b)=>b.daysAgo-a.daysAgo)
+    .slice(0,6);
+
+  cs.textContent=`${list.length} shown`;
+  if(!list.length){el.innerHTML='<div class="empty">No post history yet.</div>';ins.innerHTML='No data.';return;}
+
+  el.innerHTML=list.map(m=>{
+    const wks=Math.floor(m.daysAgo/7);
+    const label=m.daysAgo<7?`${m.daysAgo}d ago`:wks<8?`${wks}w ago`:`${Math.floor(wks/4)}mo ago`;
+    const cls=m.daysAgo>60?'rb-risk':m.daysAgo>21?'rb-loyal':'rb-new';
+    return careItem(m,label,cls,`${m.tier} · last post: ${m.lastFeature}`);
+  }).join('');
+
+  const oldest=list[0];
+  ins.innerHTML=`<b>${oldest.handle}</b> has been waiting <b>${oldest.daysAgo} days</b> since their last feature. Consider prioritising them soon.`;
+}
+
+// 3. Members who joined in the last 30 days
+function renderCare_NewMembers(){
+  const el=document.getElementById('care-new');
+  const cs=document.getElementById('care-new-cs');
+  const ins=document.getElementById('care-new-insight');
+
+  const now=new Date();
+  const list=members
+    .filter(m=>{
+      if(!m.joinDateISO)return false;
+      const d=new Date(m.joinDateISO);
+      return(now-d)/(1000*60*60*24)<=30;
+    })
+    .map(m=>{
+      const d=new Date(m.joinDateISO);
+      const daysAgo=Math.floor((now-d)/(1000*60*60*24));
+      return{...m,daysAgo};
+    })
+    .sort((a,b)=>a.daysAgo-b.daysAgo);
+
+  cs.textContent=list.length?`${list.length} this month`:'None this month';
+  if(!list.length){el.innerHTML='<div class="empty">No new members in the last 30 days.</div>';ins.innerHTML='No recent joins.';return;}
+
+  el.innerHTML=list.map(m=>{
+    const label=m.daysAgo===0?'Today':m.daysAgo===1?'Yesterday':`${m.daysAgo}d ago`;
+    return careItem(m,label,'rb-new',`${m.tier} · joined ${m.joinDate||'recently'}`);
+  }).join('');
+
+  ins.innerHTML=`<b>${list.length} new member${list.length!==1?'s':''}</b> joined in the last 30 days. A welcome DM or quick interaction goes a long way for retention.`;
+}
+
+// 4. Members whose join anniversary falls this month (1yr, 2yr, 3yr…)
+function renderCare_Anniversaries(){
+  const el=document.getElementById('care-anni');
+  const cs=document.getElementById('care-anni-cs');
+  const ins=document.getElementById('care-anni-insight');
+
+  const now=new Date();
+  const thisMonth=now.getMonth();
+  const thisYear=now.getFullYear();
+
+  const list=members
+    .filter(m=>{
+      if(!m.joinDateISO)return false;
+      const d=new Date(m.joinDateISO);
+      const years=thisYear-d.getFullYear();
+      return years>0&&d.getMonth()===thisMonth;
+    })
+    .map(m=>{
+      const d=new Date(m.joinDateISO);
+      const years=thisYear-d.getFullYear();
+      return{...m,years};
+    })
+    .sort((a,b)=>b.years-a.years);
+
+  cs.textContent=list.length?`${list.length} this month`:'None this month';
+  if(!list.length){el.innerHTML='<div class="empty">No anniversaries this month.</div>';ins.innerHTML='Check back next month.';return;}
+
+  el.innerHTML=list.map(m=>{
+    const label=`${m.years}yr`;
+    const cls=m.years>=3?'rb-loyal':m.years>=2?'rb-gold':'rb-new';
+    return careItem(m,label,cls,`${m.tier} · member since ${m.joinDate||m.joinDateISO}`);
+  }).join('');
+
+  const multi=list.filter(m=>m.years>=2).length;
+  ins.innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> celebrating ${list.length===1?'an':'their'} anniversary this month${multi?`, including <b>${multi}</b> with 2+ years`:''}. A shoutout post is a great engagement boost.`;
+}
+
+// 5. Currently featured members
+function renderCare_CurrentlyFeatured(){
+  const el=document.getElementById('care-feat');
+  const cs=document.getElementById('care-feat-cs');
+  const ins=document.getElementById('care-feat-insight');
+
+  const list=members.filter(m=>m.featured);
+  cs.textContent=`${list.length} active`;
+
+  if(!list.length){
+    el.innerHTML='<div class="empty">No one is currently featured.</div>';
+    ins.innerHTML='Hit Post on any member in the Members tab to mark them as featured.';
+    return;
+  }
+
+  el.innerHTML=list.map(m=>careItem(m,'Live','rb-loyal',`${m.tier} · posted ${m.lastFeature||'recently'}`)).join('');
+  ins.innerHTML=`<b>${list.length} post${list.length!==1?'s':''}</b> currently live. When done, hit Unpost to keep your records clean and queue the next member.`;
+}
+
+// 6. Never featured — full grid
+function renderCare_NeverFeaturedGrid(){
+  const el=document.getElementById('care-never-grid');
+  const cs=document.getElementById('care-never-cs');
+
+  const list=members
+    .filter(m=>!m.featured&&!m.lastFeature)
+    .map(m=>({...m,mo:mos(m.joinDateISO)}))
+    .sort((a,b)=>b.mo-a.mo);
+
+  cs.textContent=`${list.length} members`;
+  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">Every member has been featured at least once. 🎉</div>';return;}
+
+  el.innerHTML=list.map(m=>{
+    const mo=m.mo;
+    const urgency=mo>12?'rgba(244,63,94,.15)':mo>3?'rgba(245,158,11,.1)':'rgba(59,130,246,.1)';
+    const border=mo>12?'rgba(244,63,94,.25)':mo>3?'rgba(245,158,11,.2)':'rgba(59,130,246,.2)';
+    const dotColor=mo>12?'#f43f5e':mo>3?'#f59e0b':'#3b82f6';
+    return`<div style="background:${urgency};border:1px solid ${border};border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:9px">
+      <div style="width:6px;height:6px;border-radius:50%;background:${dotColor};flex-shrink:0"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.handle}</div>
+        <div style="font-family:var(--m);font-size:9px;color:var(--sub);margin-top:2px">${m.tier} · ${mo}mo</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+loadMembers();}
 
 // ── PayPal sync
 async function syncPayPal(){
   const btn=document.getElementById('btn-sync');
   btn.textContent='syncing…';btn.disabled=true;
-  try{const r=await fetch('/api/paypal?action=sync');const d=await r.json();if(d.success){setStatus(`synced · +${d.added} added`,'ok');await loadMembers();}else setStatus('sync failed','err');}catch{setStatus('sync error','err');}
+  try{const r=await fetch('/api/paypal?action=sync');const d=await r.json();if(d.success){setStatus(`synced · +${d.added} added`,'ok');await 
+// ── MEMBER CARE ──────────────────────────────────────
+function renderCare(){
+  renderCare_PremiumNever();
+  renderCare_WaitingLongest();
+  renderCare_NewMembers();
+  renderCare_Anniversaries();
+  renderCare_CurrentlyFeatured();
+  renderCare_NeverFeaturedGrid();
+}
+
+function careItem(m, badge, badgeClass, detail){
+  return `<div class="risk-item">
+    <div class="risk-dot" style="background:${badgeClass==='rb-new'?'#3b82f6':badgeClass==='rb-risk'?'#f43f5e':badgeClass==='rb-gold'?'#f59e0b':'#a855f7'}"></div>
+    <div class="risk-info">
+      <div class="risk-handle">${m.handle}</div>
+      <div class="risk-detail">${detail}</div>
+    </div>
+    <span class="risk-badge ${badgeClass}">${badge}</span>
+  </div>`;
+}
+
+// 1. Premium members who have NEVER been featured
+function renderCare_PremiumNever(){
+  const el=document.getElementById('care-prem-never');
+  const cs=document.getElementById('care-prem-never-cs');
+  const list=members
+    .filter(m=>(m.tier==='Premium'||m.tier==='Premium+')&&!m.featured&&!m.lastFeature)
+    .map(m=>({...m,mo:mos(m.joinDateISO)}))
+    .sort((a,b)=>b.mo-a.mo);
+  cs.textContent=list.length?`${list.length} need attention`:'All good ✓';
+  if(!list.length){el.innerHTML='<div class="empty">All Premium members have been featured. Great work. 🎉</div>';return;}
+  el.innerHTML=list.map(m=>careItem(m,m.tier,'rb-risk',`${m.mo} months subscribed · never posted`)).join('');
+}
+
+// 2. Members who have been posted before but are waiting the longest for their next feature
+function renderCare_WaitingLongest(){
+  const el=document.getElementById('care-waiting');
+  const cs=document.getElementById('care-waiting-cs');
+  const ins=document.getElementById('care-waiting-insight');
+
+  // Parse lastFeature date (format: DD/MM/YYYY)
+  function parseLastFeat(s){
+    if(!s)return null;
+    const p=s.split('/');
+    if(p.length===3)return new Date(`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`);
+    return new Date(s);
+  }
+
+  const now=new Date();
+  const list=members
+    .filter(m=>m.lastFeature&&!m.featured)
+    .map(m=>{
+      const d=parseLastFeat(m.lastFeature);
+      const daysAgo=d?Math.floor((now-d)/(1000*60*60*24)):0;
+      return{...m,daysAgo};
+    })
+    .sort((a,b)=>b.daysAgo-a.daysAgo)
+    .slice(0,6);
+
+  cs.textContent=`${list.length} shown`;
+  if(!list.length){el.innerHTML='<div class="empty">No post history yet.</div>';ins.innerHTML='No data.';return;}
+
+  el.innerHTML=list.map(m=>{
+    const wks=Math.floor(m.daysAgo/7);
+    const label=m.daysAgo<7?`${m.daysAgo}d ago`:wks<8?`${wks}w ago`:`${Math.floor(wks/4)}mo ago`;
+    const cls=m.daysAgo>60?'rb-risk':m.daysAgo>21?'rb-loyal':'rb-new';
+    return careItem(m,label,cls,`${m.tier} · last post: ${m.lastFeature}`);
+  }).join('');
+
+  const oldest=list[0];
+  ins.innerHTML=`<b>${oldest.handle}</b> has been waiting <b>${oldest.daysAgo} days</b> since their last feature. Consider prioritising them soon.`;
+}
+
+// 3. Members who joined in the last 30 days
+function renderCare_NewMembers(){
+  const el=document.getElementById('care-new');
+  const cs=document.getElementById('care-new-cs');
+  const ins=document.getElementById('care-new-insight');
+
+  const now=new Date();
+  const list=members
+    .filter(m=>{
+      if(!m.joinDateISO)return false;
+      const d=new Date(m.joinDateISO);
+      return(now-d)/(1000*60*60*24)<=30;
+    })
+    .map(m=>{
+      const d=new Date(m.joinDateISO);
+      const daysAgo=Math.floor((now-d)/(1000*60*60*24));
+      return{...m,daysAgo};
+    })
+    .sort((a,b)=>a.daysAgo-b.daysAgo);
+
+  cs.textContent=list.length?`${list.length} this month`:'None this month';
+  if(!list.length){el.innerHTML='<div class="empty">No new members in the last 30 days.</div>';ins.innerHTML='No recent joins.';return;}
+
+  el.innerHTML=list.map(m=>{
+    const label=m.daysAgo===0?'Today':m.daysAgo===1?'Yesterday':`${m.daysAgo}d ago`;
+    return careItem(m,label,'rb-new',`${m.tier} · joined ${m.joinDate||'recently'}`);
+  }).join('');
+
+  ins.innerHTML=`<b>${list.length} new member${list.length!==1?'s':''}</b> joined in the last 30 days. A welcome DM or quick interaction goes a long way for retention.`;
+}
+
+// 4. Members whose join anniversary falls this month (1yr, 2yr, 3yr…)
+function renderCare_Anniversaries(){
+  const el=document.getElementById('care-anni');
+  const cs=document.getElementById('care-anni-cs');
+  const ins=document.getElementById('care-anni-insight');
+
+  const now=new Date();
+  const thisMonth=now.getMonth();
+  const thisYear=now.getFullYear();
+
+  const list=members
+    .filter(m=>{
+      if(!m.joinDateISO)return false;
+      const d=new Date(m.joinDateISO);
+      const years=thisYear-d.getFullYear();
+      return years>0&&d.getMonth()===thisMonth;
+    })
+    .map(m=>{
+      const d=new Date(m.joinDateISO);
+      const years=thisYear-d.getFullYear();
+      return{...m,years};
+    })
+    .sort((a,b)=>b.years-a.years);
+
+  cs.textContent=list.length?`${list.length} this month`:'None this month';
+  if(!list.length){el.innerHTML='<div class="empty">No anniversaries this month.</div>';ins.innerHTML='Check back next month.';return;}
+
+  el.innerHTML=list.map(m=>{
+    const label=`${m.years}yr`;
+    const cls=m.years>=3?'rb-loyal':m.years>=2?'rb-gold':'rb-new';
+    return careItem(m,label,cls,`${m.tier} · member since ${m.joinDate||m.joinDateISO}`);
+  }).join('');
+
+  const multi=list.filter(m=>m.years>=2).length;
+  ins.innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> celebrating ${list.length===1?'an':'their'} anniversary this month${multi?`, including <b>${multi}</b> with 2+ years`:''}. A shoutout post is a great engagement boost.`;
+}
+
+// 5. Currently featured members
+function renderCare_CurrentlyFeatured(){
+  const el=document.getElementById('care-feat');
+  const cs=document.getElementById('care-feat-cs');
+  const ins=document.getElementById('care-feat-insight');
+
+  const list=members.filter(m=>m.featured);
+  cs.textContent=`${list.length} active`;
+
+  if(!list.length){
+    el.innerHTML='<div class="empty">No one is currently featured.</div>';
+    ins.innerHTML='Hit Post on any member in the Members tab to mark them as featured.';
+    return;
+  }
+
+  el.innerHTML=list.map(m=>careItem(m,'Live','rb-loyal',`${m.tier} · posted ${m.lastFeature||'recently'}`)).join('');
+  ins.innerHTML=`<b>${list.length} post${list.length!==1?'s':''}</b> currently live. When done, hit Unpost to keep your records clean and queue the next member.`;
+}
+
+// 6. Never featured — full grid
+function renderCare_NeverFeaturedGrid(){
+  const el=document.getElementById('care-never-grid');
+  const cs=document.getElementById('care-never-cs');
+
+  const list=members
+    .filter(m=>!m.featured&&!m.lastFeature)
+    .map(m=>({...m,mo:mos(m.joinDateISO)}))
+    .sort((a,b)=>b.mo-a.mo);
+
+  cs.textContent=`${list.length} members`;
+  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">Every member has been featured at least once. 🎉</div>';return;}
+
+  el.innerHTML=list.map(m=>{
+    const mo=m.mo;
+    const urgency=mo>12?'rgba(244,63,94,.15)':mo>3?'rgba(245,158,11,.1)':'rgba(59,130,246,.1)';
+    const border=mo>12?'rgba(244,63,94,.25)':mo>3?'rgba(245,158,11,.2)':'rgba(59,130,246,.2)';
+    const dotColor=mo>12?'#f43f5e':mo>3?'#f59e0b':'#3b82f6';
+    return`<div style="background:${urgency};border:1px solid ${border};border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:9px">
+      <div style="width:6px;height:6px;border-radius:50%;background:${dotColor};flex-shrink:0"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.handle}</div>
+        <div style="font-family:var(--m);font-size:9px;color:var(--sub);margin-top:2px">${m.tier} · ${mo}mo</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+loadMembers();}else setStatus('sync failed','err');}catch{setStatus('sync error','err');}
   btn.textContent='⟳ Sync PayPal';btn.disabled=false;
+}
+
+
+// ── MEMBER CARE ──────────────────────────────────────
+function renderCare(){
+  renderCare_PremiumNever();
+  renderCare_WaitingLongest();
+  renderCare_NewMembers();
+  renderCare_Anniversaries();
+  renderCare_CurrentlyFeatured();
+  renderCare_NeverFeaturedGrid();
+}
+
+function careItem(m, badge, badgeClass, detail){
+  return `<div class="risk-item">
+    <div class="risk-dot" style="background:${badgeClass==='rb-new'?'#3b82f6':badgeClass==='rb-risk'?'#f43f5e':badgeClass==='rb-gold'?'#f59e0b':'#a855f7'}"></div>
+    <div class="risk-info">
+      <div class="risk-handle">${m.handle}</div>
+      <div class="risk-detail">${detail}</div>
+    </div>
+    <span class="risk-badge ${badgeClass}">${badge}</span>
+  </div>`;
+}
+
+// 1. Premium members who have NEVER been featured
+function renderCare_PremiumNever(){
+  const el=document.getElementById('care-prem-never');
+  const cs=document.getElementById('care-prem-never-cs');
+  const list=members
+    .filter(m=>(m.tier==='Premium'||m.tier==='Premium+')&&!m.featured&&!m.lastFeature)
+    .map(m=>({...m,mo:mos(m.joinDateISO)}))
+    .sort((a,b)=>b.mo-a.mo);
+  cs.textContent=list.length?`${list.length} need attention`:'All good ✓';
+  if(!list.length){el.innerHTML='<div class="empty">All Premium members have been featured. Great work. 🎉</div>';return;}
+  el.innerHTML=list.map(m=>careItem(m,m.tier,'rb-risk',`${m.mo} months subscribed · never posted`)).join('');
+}
+
+// 2. Members who have been posted before but are waiting the longest for their next feature
+function renderCare_WaitingLongest(){
+  const el=document.getElementById('care-waiting');
+  const cs=document.getElementById('care-waiting-cs');
+  const ins=document.getElementById('care-waiting-insight');
+
+  // Parse lastFeature date (format: DD/MM/YYYY)
+  function parseLastFeat(s){
+    if(!s)return null;
+    const p=s.split('/');
+    if(p.length===3)return new Date(`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`);
+    return new Date(s);
+  }
+
+  const now=new Date();
+  const list=members
+    .filter(m=>m.lastFeature&&!m.featured)
+    .map(m=>{
+      const d=parseLastFeat(m.lastFeature);
+      const daysAgo=d?Math.floor((now-d)/(1000*60*60*24)):0;
+      return{...m,daysAgo};
+    })
+    .sort((a,b)=>b.daysAgo-a.daysAgo)
+    .slice(0,6);
+
+  cs.textContent=`${list.length} shown`;
+  if(!list.length){el.innerHTML='<div class="empty">No post history yet.</div>';ins.innerHTML='No data.';return;}
+
+  el.innerHTML=list.map(m=>{
+    const wks=Math.floor(m.daysAgo/7);
+    const label=m.daysAgo<7?`${m.daysAgo}d ago`:wks<8?`${wks}w ago`:`${Math.floor(wks/4)}mo ago`;
+    const cls=m.daysAgo>60?'rb-risk':m.daysAgo>21?'rb-loyal':'rb-new';
+    return careItem(m,label,cls,`${m.tier} · last post: ${m.lastFeature}`);
+  }).join('');
+
+  const oldest=list[0];
+  ins.innerHTML=`<b>${oldest.handle}</b> has been waiting <b>${oldest.daysAgo} days</b> since their last feature. Consider prioritising them soon.`;
+}
+
+// 3. Members who joined in the last 30 days
+function renderCare_NewMembers(){
+  const el=document.getElementById('care-new');
+  const cs=document.getElementById('care-new-cs');
+  const ins=document.getElementById('care-new-insight');
+
+  const now=new Date();
+  const list=members
+    .filter(m=>{
+      if(!m.joinDateISO)return false;
+      const d=new Date(m.joinDateISO);
+      return(now-d)/(1000*60*60*24)<=30;
+    })
+    .map(m=>{
+      const d=new Date(m.joinDateISO);
+      const daysAgo=Math.floor((now-d)/(1000*60*60*24));
+      return{...m,daysAgo};
+    })
+    .sort((a,b)=>a.daysAgo-b.daysAgo);
+
+  cs.textContent=list.length?`${list.length} this month`:'None this month';
+  if(!list.length){el.innerHTML='<div class="empty">No new members in the last 30 days.</div>';ins.innerHTML='No recent joins.';return;}
+
+  el.innerHTML=list.map(m=>{
+    const label=m.daysAgo===0?'Today':m.daysAgo===1?'Yesterday':`${m.daysAgo}d ago`;
+    return careItem(m,label,'rb-new',`${m.tier} · joined ${m.joinDate||'recently'}`);
+  }).join('');
+
+  ins.innerHTML=`<b>${list.length} new member${list.length!==1?'s':''}</b> joined in the last 30 days. A welcome DM or quick interaction goes a long way for retention.`;
+}
+
+// 4. Members whose join anniversary falls this month (1yr, 2yr, 3yr…)
+function renderCare_Anniversaries(){
+  const el=document.getElementById('care-anni');
+  const cs=document.getElementById('care-anni-cs');
+  const ins=document.getElementById('care-anni-insight');
+
+  const now=new Date();
+  const thisMonth=now.getMonth();
+  const thisYear=now.getFullYear();
+
+  const list=members
+    .filter(m=>{
+      if(!m.joinDateISO)return false;
+      const d=new Date(m.joinDateISO);
+      const years=thisYear-d.getFullYear();
+      return years>0&&d.getMonth()===thisMonth;
+    })
+    .map(m=>{
+      const d=new Date(m.joinDateISO);
+      const years=thisYear-d.getFullYear();
+      return{...m,years};
+    })
+    .sort((a,b)=>b.years-a.years);
+
+  cs.textContent=list.length?`${list.length} this month`:'None this month';
+  if(!list.length){el.innerHTML='<div class="empty">No anniversaries this month.</div>';ins.innerHTML='Check back next month.';return;}
+
+  el.innerHTML=list.map(m=>{
+    const label=`${m.years}yr`;
+    const cls=m.years>=3?'rb-loyal':m.years>=2?'rb-gold':'rb-new';
+    return careItem(m,label,cls,`${m.tier} · member since ${m.joinDate||m.joinDateISO}`);
+  }).join('');
+
+  const multi=list.filter(m=>m.years>=2).length;
+  ins.innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> celebrating ${list.length===1?'an':'their'} anniversary this month${multi?`, including <b>${multi}</b> with 2+ years`:''}. A shoutout post is a great engagement boost.`;
+}
+
+// 5. Currently featured members
+function renderCare_CurrentlyFeatured(){
+  const el=document.getElementById('care-feat');
+  const cs=document.getElementById('care-feat-cs');
+  const ins=document.getElementById('care-feat-insight');
+
+  const list=members.filter(m=>m.featured);
+  cs.textContent=`${list.length} active`;
+
+  if(!list.length){
+    el.innerHTML='<div class="empty">No one is currently featured.</div>';
+    ins.innerHTML='Hit Post on any member in the Members tab to mark them as featured.';
+    return;
+  }
+
+  el.innerHTML=list.map(m=>careItem(m,'Live','rb-loyal',`${m.tier} · posted ${m.lastFeature||'recently'}`)).join('');
+  ins.innerHTML=`<b>${list.length} post${list.length!==1?'s':''}</b> currently live. When done, hit Unpost to keep your records clean and queue the next member.`;
+}
+
+// 6. Never featured — full grid
+function renderCare_NeverFeaturedGrid(){
+  const el=document.getElementById('care-never-grid');
+  const cs=document.getElementById('care-never-cs');
+
+  const list=members
+    .filter(m=>!m.featured&&!m.lastFeature)
+    .map(m=>({...m,mo:mos(m.joinDateISO)}))
+    .sort((a,b)=>b.mo-a.mo);
+
+  cs.textContent=`${list.length} members`;
+  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">Every member has been featured at least once. 🎉</div>';return;}
+
+  el.innerHTML=list.map(m=>{
+    const mo=m.mo;
+    const urgency=mo>12?'rgba(244,63,94,.15)':mo>3?'rgba(245,158,11,.1)':'rgba(59,130,246,.1)';
+    const border=mo>12?'rgba(244,63,94,.25)':mo>3?'rgba(245,158,11,.2)':'rgba(59,130,246,.2)';
+    const dotColor=mo>12?'#f43f5e':mo>3?'#f59e0b':'#3b82f6';
+    return`<div style="background:${urgency};border:1px solid ${border};border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:9px">
+      <div style="width:6px;height:6px;border-radius:50%;background:${dotColor};flex-shrink:0"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.handle}</div>
+        <div style="font-family:var(--m);font-size:9px;color:var(--sub);margin-top:2px">${m.tier} · ${mo}mo</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 loadMembers();
