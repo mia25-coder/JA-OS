@@ -274,6 +274,7 @@ tr:hover td{background:var(--faint);}
   <div class="h-right">
     <div class="pill" id="status-pill"><div class="pill-dot"></div><span id="status-text">connecting</span></div>
     <button class="btn-sync" id="btn-sync" onclick="syncPayPal()">⟳ Sync PayPal</button>
+    <button class="btn-sync" id="btn-sync-countries" onclick="syncCountries()" style="color:var(--teal);border-color:rgba(6,182,212,.3);background:rgba(6,182,212,.06)">🌍 Sync Countries</button>
   </div>
 </header>
 
@@ -937,6 +938,18 @@ async function toggleFeat(i){
 }
 
 // ── PayPal sync
+async function syncCountries(){
+  const btn=document.getElementById('btn-sync-countries');
+  btn.textContent='updating…';btn.disabled=true;
+  try{
+    const r=await fetch('/api/paypal?action=sync-countries');
+    const d=await r.json();
+    if(d.success){setStatus(`countries updated · ${d.updated} members`,'ok');await loadMembers();}
+    else setStatus('country sync failed','err');
+  }catch{setStatus('error','err');}
+  btn.textContent='🌍 Sync Countries';btn.disabled=false;
+}
+
 async function syncPayPal(){
   const btn=document.getElementById('btn-sync');
   btn.textContent='syncing…';btn.disabled=true;
