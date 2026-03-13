@@ -221,16 +221,30 @@ export default async function handler(req, res) {
     if (req.method === 'GET' && req.query.action === 'debug') {
       const token = await getPayPalToken();
       const active = await fetchAllPages(token);
-      const details = await Promise.all(active.map(s => getSubscriptionDetail(token, s.id)));
-      const unknown = details.filter(d => !PLAN_TIER_MAP[d.plan_id]);
-      const known = details.filter(d => PLAN_TIER_MAP[d.plan_id]);
+      const details = [];
+      for (const sub of active.slice(0, 5)) {
+        try {
+          const d = await getSubscriptionDetail(token, sub.id);
+          details.push({
+            list_id: sub.id,
+            list_status: sub.status,
+            detail_id: d.id,
+            plan_id: d.plan_id,
+            email: d.subscriber?.email_address,
+            country: d.subscriber?.shipping_address?.country_code || d.subscriber?.address?.country_code || null,
+            raw_subscriber_keys: d.subscriber ? Object.keys(d.subscriber) : [],
+          });
+        } catch(e) {
+          details.push({ list_id: sub.id, error: e.message });
+        }
+      }
       const tierCount = {};
-      known.forEach(d => { const t = PLAN_TIER_MAP[d.plan_id]; tierCount[t] = (tierCount[t]||0)+1; });
+      details.forEach(d => { const t = PLAN_TIER_MAP[d.plan_id]; if(t) tierCount[t] = (tierCount[t]||0)+1; });
       return res.status(200).json({
-        total_active: active.length,
+        total_found: active.length,
+        first_5_details: details,
         tier_counts: tierCount,
-        unknown_plan_ids: [...new Set(unknown.map(d => d.plan_id))],
-        unknown_subs: unknown.map(d => ({ id: d.id, plan_id: d.plan_id, email: d.subscriber?.email_address }))
+        plan_ids_in_map: Object.keys(PLAN_TIER_MAP),
       });
     }
 
