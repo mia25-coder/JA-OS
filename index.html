@@ -335,9 +335,11 @@ tr:hover td{background:var(--faint);}
   /* cards */
   .card{padding:14px;}
 
-  /* donut stacked on mobile */
-  .donut-wrap{flex-direction:column;align-items:flex-start;}
-  .dc{width:100%;height:180px;}
+  /* donut on mobile — fixed size canvas, legend below */
+  .donut-wrap{flex-direction:column;align-items:center;}
+  .dc{width:160px !important;height:160px !important;flex-shrink:0;}
+  .dl{width:100%;}
+  .dl-row{padding:6px 0;}
 
   /* big numbers smaller */
   .big{font-size:26px;}
@@ -474,7 +476,7 @@ tr:hover td{background:var(--faint);}
     <div class="card">
       <div class="ch"><div><div class="ct">Revenue Split</div></div></div>
       <div class="donut-wrap">
-        <canvas id="c-donut" class="dc"></canvas>
+        <canvas id="c-donut" class="dc" width="160" height="160"></canvas>
         <div class="dl" id="d-dlegend"></div>
       </div>
     </div>
@@ -814,9 +816,12 @@ function renderDonut(){
   members.forEach(m=>{if(c[m.tier]!==undefined)c[m.tier]++;});
   const ppR=c['Premium+']*19.99,prR=c['Premium']*9.99,baR=c['Basic']*3.50,tot=ppR+prR+baR||1;
   killChart('donut');
-  const ctx=$('c-donut').getContext('2d');
+  const canvas=$('c-donut');
+  const isMob=window.innerWidth<=768;
+  if(isMob){canvas.width=160;canvas.height=160;}
+  const ctx=canvas.getContext('2d');
   charts['donut']=new Chart(ctx,{type:'doughnut',data:{labels:['Premium+','Premium','Basic'],datasets:[{data:[ppR,prR,baR],backgroundColor:['#7c5cfc','#5070f0','#2a2a3d'],borderWidth:0,hoverOffset:4}]},
-    options:{...COPT,cutout:'72%',plugins:{...COPT.plugins,tooltip:{...COPT.plugins.tooltip,callbacks:{label:i=>`€${i.raw.toFixed(0)}/mo`}}}}});
+    options:{...COPT,maintainAspectRatio:true,cutout:'72%',plugins:{...COPT.plugins,tooltip:{...COPT.plugins.tooltip,callbacks:{label:i=>`€${i.raw.toFixed(0)}/mo`}}}}});
   html('d-dlegend',[['Premium+','#7c5cfc',ppR,c['Premium+']],['Premium','#5070f0',prR,c['Premium']],['Basic','#2a2a3d',baR,c['Basic']]].map(([n,col,r,cnt])=>
     `<div class="dl-row"><div class="dl-l"><div class="dl-dot" style="background:${col}"></div><div><div class="dl-name">${n}<span class="dl-cnt">×${cnt}</span></div></div></div><div class="dl-r"><div class="dl-rev">€${r.toFixed(0)}</div><div class="dl-pct">${pct(r,tot)}%</div></div></div>`
   ).join(''));
@@ -1139,6 +1144,7 @@ function go(tab){
   window.scrollTo(0,0);
   // Resize all charts after layout settles (fixes mobile 0-width canvas bug)
   setTimeout(()=>Object.values(charts).forEach(c=>{try{c.resize();}catch(e){}}),50);
+  if(tab==='dashboard')setTimeout(renderDonut,80);
   if(tab==='analytics')setTimeout(renderAnalytics,80);
   if(tab==='revenue')setTimeout(renderRevenue,80);
   if(tab==='care')setTimeout(renderCare,80);
