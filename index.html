@@ -756,39 +756,49 @@ function renderWorldMap(){
   const ins=document.getElementById('a-map-insight');
   if(!el)return;
 
+  // Build counts — normalise to lowercase for matching
   const counts={};
+  const rawCounts={};
   members.forEach(m=>{
-    const c=(m.country&&m.country!=='—')?m.country.trim():null;
-    if(c)counts[c]=(counts[c]||0)+1;
+    const c=(m.country&&m.country!=='—'&&m.country!=='-')?m.country.trim():null;
+    if(!c)return;
+    const key=c.toLowerCase();
+    counts[key]=(counts[key]||0)+1;
+    rawCounts[key]=c; // keep original casing for display
   });
   const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
 
   if(!sorted.length){
-    el.innerHTML='<div class="empty" style="padding:60px 0;text-align:center">No country data yet — run a PayPal sync to populate.</div>';
+    el.innerHTML='<div style="padding:60px 0;text-align:center;font-family:var(--m);font-size:10px;color:var(--sub)">No country data yet — add countries to member profiles to see the map.</div>';
     if(cs)cs.textContent='No data';
-    if(ins)ins.innerHTML='Sync PayPal to get country data from subscriber addresses.';
+    if(ins)ins.innerHTML='Edit member country fields in the Members tab to populate this map.';
     return;
   }
 
-  if(cs)cs.textContent=`${sorted.length} countries · ${members.filter(m=>m.country&&m.country!=='—').length} mapped`;
-  if(ins)ins.innerHTML=`Members across <b>${sorted.length} countries</b>. Top: <b>${sorted.slice(0,3).map(([c,n])=>`${c} (${n})`).join(', ')}</b>.`;
+  const mapped=members.filter(m=>m.country&&m.country!=='—'&&m.country!=='-').length;
+  if(cs)cs.textContent=`${sorted.length} countries · ${mapped} members mapped`;
+  if(ins)ins.innerHTML=`Members across <b>${sorted.length} countries</b>. Top: <b>${sorted.slice(0,3).map(([k,n])=>`${rawCounts[k]} (${n})`).join(', ')}</b>.`;
 
   const maxCount=sorted[0][1];
-  const nameToISO={
-    'Afghanistan':'AF','Albania':'AL','Algeria':'DZ','Argentina':'AR','Australia':'AU',
-    'Austria':'AT','Belgium':'BE','Brazil':'BR','Bulgaria':'BG','Canada':'CA',
-    'Chile':'CL','China':'CN','Colombia':'CO','Croatia':'HR','Czech Republic':'CZ',
-    'Denmark':'DK','Egypt':'EG','Finland':'FI','France':'FR','Germany':'DE',
-    'Greece':'GR','Hungary':'HU','India':'IN','Indonesia':'ID','Ireland':'IE',
-    'Israel':'IL','Italy':'IT','Japan':'JP','Jordan':'JO','Kenya':'KE',
-    'Kuwait':'KW','Lebanon':'LB','Lithuania':'LT','Luxembourg':'LU','Malaysia':'MY',
-    'Mexico':'MX','Morocco':'MA','Netherlands':'NL','New Zealand':'NZ','Nigeria':'NG',
-    'Norway':'NO','Oman':'OM','Pakistan':'PK','Peru':'PE','Philippines':'PH',
-    'Poland':'PL','Portugal':'PT','Qatar':'QA','Romania':'RO','Russia':'RU',
-    'Saudi Arabia':'SA','Serbia':'RS','Singapore':'SG','Slovakia':'SK','South Africa':'ZA',
-    'Spain':'ES','Sweden':'SE','Switzerland':'CH','Taiwan':'TW','Thailand':'TH',
-    'Tunisia':'TN','Turkey':'TR','Ukraine':'UA','UAE':'AE','United Kingdom':'GB',
-    'United States':'US','Uruguay':'UY','Venezuela':'VE','Vietnam':'VN'
+
+  // Flexible lookup — matches by lowercase, aliases, partial
+  const isoMap={
+    'afghanistan':'AF','albania':'AL','algeria':'DZ','argentina':'AR','australia':'AU',
+    'austria':'AT','belgium':'BE','brazil':'BR','bulgaria':'BG','canada':'CA',
+    'chile':'CL','china':'CN','colombia':'CO','croatia':'HR','czech republic':'CZ','czechia':'CZ',
+    'denmark':'DK','egypt':'EG','finland':'FI','france':'FR','germany':'DE',
+    'greece':'GR','hungary':'HU','india':'IN','indonesia':'ID','ireland':'IE',
+    'israel':'IL','italy':'IT','italia':'IT','japan':'JP','jordan':'JO','kenya':'KE',
+    'kuwait':'KW','lebanon':'LB','lithuania':'LT','luxembourg':'LU','malaysia':'MY',
+    'mexico':'MX','morocco':'MA','netherlands':'NL','holland':'NL','new zealand':'NZ',
+    'nigeria':'NG','norway':'NO','oman':'OM','pakistan':'PK','peru':'PE','philippines':'PH',
+    'poland':'PL','portugal':'PT','qatar':'QA','romania':'RO','russia':'RU',
+    'saudi arabia':'SA','serbia':'RS','singapore':'SG','slovakia':'SK','south africa':'ZA',
+    'spain':'ES','españa':'ES','sweden':'SE','switzerland':'CH','taiwan':'TW','thailand':'TH',
+    'tunisia':'TN','turkey':'TR','ukraine':'UA','uae':'AE','united arab emirates':'AE',
+    'united kingdom':'GB','uk':'GB','england':'GB','great britain':'GB',
+    'united states':'US','usa':'US','us':'US','america':'US',
+    'uruguay':'UY','venezuela':'VE','vietnam':'VN'
   };
   const coords={
     'AF':[67,34],'AL':[20,41],'DZ':[3,28],'AR':[-64,-34],'AU':[133,-27],
@@ -807,25 +817,45 @@ function renderWorldMap(){
     'US':[-98,39],'UY':[-56,-33],'VE':[-66,8],'VN':[108,14]
   };
 
-  const W=el.getBoundingClientRect().width||el.parentElement?.getBoundingClientRect().width||800,H=320;
+  const W=900,H=340;
   function project(lng,lat){return[(lng+180)*(W/360),(90-lat)*(H/180)];}
 
   const gridLines=[];
-  for(let lng=-180;lng<=180;lng+=30){const[x]=project(lng,0);gridLines.push(`<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`);}
-  for(let lat=-60;lat<=60;lat+=30){const[,y]=project(0,lat);gridLines.push(`<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`);}
+  for(let lng=-180;lng<=180;lng+=30){const x=(lng+180)*(W/360);gridLines.push(`<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="rgba(255,255,255,.05)" stroke-width="1"/>`);}
+  for(let lat=-60;lat<=90;lat+=30){const y=(90-lat)*(H/180);gridLines.push(`<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="rgba(255,255,255,.05)" stroke-width="1"/>`);}
 
-  const dots=sorted.map(([country,count])=>{
-    const iso=nameToISO[country]||country;
-    const coord=coords[iso];
-    if(!coord)return'';
+  // Equator and prime meridian highlights
+  const eqY=(90-0)*(H/180);
+  const pmX=(0+180)*(W/360);
+  gridLines.push(`<line x1="0" y1="${eqY}" x2="${W}" y2="${eqY}" stroke="rgba(255,255,255,.1)" stroke-width="1"/>`);
+  gridLines.push(`<line x1="${pmX}" y1="0" x2="${pmX}" y2="${H}" stroke="rgba(255,255,255,.1)" stroke-width="1"/>`);
+
+  let dotsHtml='';
+  let unmapped=[];
+  sorted.forEach(([key,count])=>{
+    const iso=isoMap[key];
+    const coord=iso?coords[iso]:null;
+    if(!coord){unmapped.push(rawCounts[key]);return;}
     const[x,y]=project(coord[0],coord[1]);
-    const r=Math.max(5,Math.min(24,5+Math.sqrt(count/maxCount)*20));
-    const opacity=(0.4+0.6*(count/maxCount)).toFixed(2);
-    return`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="#a855f7" opacity="${opacity}" stroke="#c084fc" stroke-width="0.5"><title>${country}: ${count} member${count!==1?'s':''}</title></circle>`;
-  }).join('');
+    const r=Math.max(6,Math.min(26,6+Math.sqrt(count/maxCount)*22));
+    const opacity=(0.35+0.65*(count/maxCount)).toFixed(2);
+    const label=rawCounts[key];
+    dotsHtml+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="#a855f7" opacity="${opacity}" stroke="#c084fc" stroke-width="1"><title>${label}: ${count} member${count!==1?'s':''}</title></circle>`;
+    // Label for large dots
+    if(count>=3){
+      dotsHtml+=`<text x="${x.toFixed(1)}" y="${(y+r+10).toFixed(1)}" text-anchor="middle" fill="rgba(255,255,255,.5)" font-size="9" font-family="Space Mono">${count}</text>`;
+    }
+  });
 
-  el.innerHTML=`<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;border-radius:8px">${gridLines.join('')}${dots}</svg>`;
+  if(unmapped.length)console.log('Map: unrecognised countries:',unmapped);
+
+  el.innerHTML=`<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;border-radius:8px;background:rgba(255,255,255,.02)">
+    ${gridLines.join('')}
+    ${dotsHtml}
+  </svg>`;
+  if(unmapped.length&&ins)ins.innerHTML+=` <span style="color:var(--sub);font-size:9px">(${unmapped.length} unrecognised: ${unmapped.join(', ')})</span>`;
 }
+
 
 function renderCountryChart(){
   const cnt={};members.forEach(m=>{const c=(m.country&&m.country!=='—')?m.country.trim():'Unknown';cnt[c]=(cnt[c]||0)+1;});
