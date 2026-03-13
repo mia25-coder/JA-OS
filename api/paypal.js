@@ -218,6 +218,41 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, ...results });
     }
 
+    if (req.method === 'GET' && req.query.action === 'sync-countries') {
+      const token = await getPayPalToken();
+      const results = { updated: 0, skipped: 0, errors: [] };
+
+      // Get all members from Supabase that have a subscription ID but no country
+      const existing = await supabaseFetch('/members?select=id,paypal_subscription_id,country&paypal_subscription_id=not.is.null');
+      const toUpdate = (existing || []).filter(m => !m.country || m.country === '—');
+
+      // Batch 10 at a time
+      const BATCH = 10;
+      for (let i = 0; i < toUpdate.length; i += BATCH) {
+        const batch = toUpdate.slice(i, i + BATCH);
+        await Promise.all(batch.map(async member => {
+          try {
+            const detail = await getSubscriptionDetail(token, member.paypal_subscription_id);
+            const countryCode =
+              detail.subscriber?.shipping_address?.country_code ||
+              detail.subscriber?.address?.country_code ||
+              null;
+            if (countryCode) {
+              const country = isoToCountry(countryCode);
+              await supabaseFetch(`/members?id=eq.${member.id}`, 'PATCH', { country });
+              results.updated++;
+            } else {
+              results.skipped++;
+            }
+          } catch(e) {
+            results.errors.push({ id: member.id, error: e.message });
+          }
+        }));
+      }
+
+      return res.status(200).json({ success: true, ...results });
+    }
+
     if (req.method === 'GET' && req.query.action === 'debug') {
       const token = await getPayPalToken();
       const active = await fetchAllPages(token);
