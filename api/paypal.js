@@ -218,6 +218,16 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, ...results });
     }
 
+    if (req.method === 'GET' && req.query.action === 'raw-sub') {
+      // Show the complete raw PayPal response for one subscription
+      const token = await getPayPalToken();
+      const existing = await supabaseFetch('/members?select=paypal_subscription_id&paypal_subscription_id=not.is.null&limit=1');
+      const subId = existing?.[0]?.paypal_subscription_id;
+      if (!subId) return res.status(200).json({ error: 'no subscription found' });
+      const detail = await getSubscriptionDetail(token, subId);
+      return res.status(200).json({ subId, detail });
+    }
+
     if (req.method === 'GET' && req.query.action === 'sync-countries') {
       const token = await getPayPalToken();
       const results = { updated: 0, skipped: 0, errors: [] };
