@@ -398,80 +398,86 @@ tr:hover td{background:var(--faint);}
 <!-- ══════════════════ MEMBER CARE ════════════════════ -->
 <div class="panel" id="p-care" style="grid-template-columns:repeat(12,1fr);gap:14px;">
 
-  <!-- Premium never posted -->
-  <div class="card gc-12" style="border-color:rgba(244,63,94,.2)">
-    <div class="ch">
-      <div><div class="ct">🚨 Premium Never Featured</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Paying for Premium but never posted — fix this first</div></div>
-      <span class="cs" id="care-prem-never-cs"></span>
-    </div>
-    <div class="risk-items" id="care-prem-never"></div>
-  </div>
-
-  <!-- Waiting longest -->
+  <!-- Anniversaries this month — col 6 -->
   <div class="card gc-6">
     <div class="ch">
-      <div><div class="ct">⏳ Waiting Longest</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Last featured the longest time ago</div></div>
-      <span class="cs" id="care-waiting-cs"></span>
-    </div>
-    <div class="risk-items" id="care-waiting"></div>
-    <div class="insight" style="margin-top:12px">
-      <div class="insight-icon">💬</div>
-      <div class="insight-text" id="care-waiting-insight">Loading…</div>
-    </div>
-  </div>
-
-  <!-- Recently joined -->
-  <div class="card gc-6">
-    <div class="ch">
-      <div><div class="ct">👋 New Members</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Joined in the last 30 days — give them a warm start</div></div>
-      <span class="cs" id="care-new-cs"></span>
-    </div>
-    <div class="risk-items" id="care-new"></div>
-    <div class="insight" style="margin-top:12px">
-      <div class="insight-icon">🌱</div>
-      <div class="insight-text" id="care-new-insight">Loading…</div>
-    </div>
-  </div>
-
-  <!-- Anniversaries this month -->
-  <div class="card gc-6">
-    <div class="ch">
-      <div><div class="ct">🎂 Anniversaries This Month</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Hitting a year milestone — worth a shoutout</div></div>
+      <div><div class="ct">🎂 Anniversaries This Month</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Members hitting a year milestone — worth a personal DM or story shoutout</div></div>
       <span class="cs" id="care-anni-cs"></span>
     </div>
     <div class="risk-items" id="care-anni"></div>
-    <div class="insight" style="margin-top:12px">
-      <div class="insight-icon">🏆</div>
-      <div class="insight-text" id="care-anni-insight">Loading…</div>
-    </div>
+    <div class="insight" style="margin-top:12px"><div class="insight-icon">🏆</div><div class="insight-text" id="care-anni-insight">Loading…</div></div>
   </div>
 
-  <!-- Currently featured -->
+  <!-- New members — col 6 -->
   <div class="card gc-6">
     <div class="ch">
-      <div><div class="ct">📌 Currently Featured</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Members with an active feature post right now</div></div>
-      <span class="cs" id="care-feat-cs"></span>
+      <div><div class="ct">👋 New Members</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Joined in the last 30 days — most likely to cancel if they feel invisible</div></div>
+      <span class="cs" id="care-new-cs"></span>
     </div>
-    <div class="risk-items" id="care-feat"></div>
-    <div class="insight" style="margin-top:12px">
-      <div class="insight-icon">📸</div>
-      <div class="insight-text" id="care-feat-insight">Loading…</div>
-    </div>
+    <div class="risk-items" id="care-new"></div>
+    <div class="insight" style="margin-top:12px"><div class="insight-icon">🌱</div><div class="insight-text" id="care-new-insight">Loading…</div></div>
   </div>
 
-  <!-- Never featured full grid -->
+  <!-- Premium+ VIPs — col 6 -->
+  <div class="card gc-6" style="border-color:rgba(168,85,247,.2)">
+    <div class="ch">
+      <div><div class="ct">👑 Premium+ VIPs</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Paying €19.99/mo — they should feel like insiders, not just subscribers</div></div>
+      <span class="cs" id="care-vip-cs"></span>
+    </div>
+    <div class="risk-items" id="care-vip"></div>
+    <div class="insight" style="margin-top:12px"><div class="insight-icon">💎</div><div class="insight-text" id="care-vip-insight">Loading…</div></div>
+  </div>
+
+  <!-- Upgrade candidates — col 6 -->
+  <div class="card gc-6">
+    <div class="ch">
+      <div><div class="ct">⬆️ Upgrade Candidates</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Basic members active 6+ months — love the club, might be ready for more</div></div>
+      <span class="cs" id="care-upgrade-cs"></span>
+    </div>
+    <div class="risk-items" id="care-upgrade"></div>
+    <div class="insight" style="margin-top:12px"><div class="insight-icon">🚀</div><div class="insight-text" id="care-upgrade-insight">Loading…</div></div>
+  </div>
+
+  <!-- At risk of churning — col 6 -->
+  <div class="card gc-6" style="border-color:rgba(244,63,94,.15)">
+    <div class="ch">
+      <div><div class="ct">⚠️ At Risk of Leaving</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Basic members with only 1–2 months — highest churn probability</div></div>
+      <span class="cs" id="care-risk-cs"></span>
+    </div>
+    <div class="risk-items" id="care-risk"></div>
+    <div class="insight" style="margin-top:12px"><div class="insight-icon">🔴</div><div class="insight-text" id="care-risk-insight">Loading…</div></div>
+  </div>
+
+  <!-- Veterans — col 6 -->
+  <div class="card gc-6">
+    <div class="ch">
+      <div><div class="ct">🦁 Veterans</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">18+ months subscribed — your best word-of-mouth, ask them for referrals or testimonials</div></div>
+      <span class="cs" id="care-veteran-cs"></span>
+    </div>
+    <div class="risk-items" id="care-veteran"></div>
+    <div class="insight" style="margin-top:12px"><div class="insight-icon">❤️</div><div class="insight-text" id="care-veteran-insight">Loading…</div></div>
+  </div>
+
+  <!-- Incomplete profiles — col 12 -->
   <div class="card gc-12">
     <div class="ch">
-      <div><div class="ct">😶 Never Featured — Full List</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Every member who has never had a post, sorted by how long they have been waiting</div></div>
-      <span class="cs" id="care-never-cs"></span>
+      <div><div class="ct">📋 Incomplete Profiles</div><div style="font-family:var(--m);font-size:10px;color:var(--sub);margin-top:2px">Members missing Instagram handle or car info — a quick DM gets them properly onboarded</div></div>
+      <span class="cs" id="care-incomplete-cs"></span>
     </div>
-    <div id="care-never-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;"></div>
+    <div id="care-incomplete-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;"></div>
   </div>
 
 </div>
 
 <!-- ══════════════════ ANALYTICS ══════════════════════ -->
 <div class="panel" id="p-analytics">
+
+  <!-- World map — full -->
+  <div class="card ac-full">
+    <div class="ch"><div class="ct">🌍 Members Worldwide</div><span class="cs" id="a-map-cs"></span></div>
+    <div id="world-map" style="width:100%;height:340px;position:relative;"></div>
+    <div class="insight" style="margin-top:10px"><div class="insight-icon">🗺️</div><div class="insight-text" id="a-map-insight">Loading…</div></div>
+  </div>
 
   <!-- Country bar — full -->
   <div class="card ac-full">
@@ -863,570 +869,711 @@ function go(tab){
 async function changeTier(i,t){const m=members[i];const{error}=await sb.from('members').update({tier:t}).eq('id',m.id);if(error){setStatus('error','err');return;}setStatus('updated');await 
 // ── MEMBER CARE ──────────────────────────────────────
 function renderCare(){
-  renderCare_PremiumNever();
-  renderCare_WaitingLongest();
-  renderCare_NewMembers();
   renderCare_Anniversaries();
-  renderCare_CurrentlyFeatured();
-  renderCare_NeverFeaturedGrid();
+  renderCare_NewMembers();
+  renderCare_VIPs();
+  renderCare_UpgradeCandidates();
+  renderCare_AtRisk();
+  renderCare_Veterans();
+  renderCare_IncompleteProfiles();
 }
 
-function careItem(m, badge, badgeClass, detail){
+function careItem(m, badge, dotColor, detail){
   return `<div class="risk-item">
-    <div class="risk-dot" style="background:${badgeClass==='rb-new'?'#3b82f6':badgeClass==='rb-risk'?'#f43f5e':badgeClass==='rb-gold'?'#f59e0b':'#a855f7'}"></div>
+    <div class="risk-dot" style="background:${dotColor}"></div>
     <div class="risk-info">
-      <div class="risk-handle">${m.handle}</div>
+      <div class="risk-handle">${m.handle||m.paypalEmail||'Unknown'}</div>
       <div class="risk-detail">${detail}</div>
     </div>
-    <span class="risk-badge ${badgeClass}">${badge}</span>
+    <span class="risk-badge" style="background:${dotColor}18;color:${dotColor};border:1px solid ${dotColor}30">${badge}</span>
   </div>`;
 }
 
-// 1. Premium members who have NEVER been featured
-function renderCare_PremiumNever(){
-  const el=document.getElementById('care-prem-never');
-  const cs=document.getElementById('care-prem-never-cs');
-  const list=members
-    .filter(m=>(m.tier==='Premium'||m.tier==='Premium+')&&!m.featured&&!m.lastFeature)
-    .map(m=>({...m,mo:mos(m.joinDateISO)}))
-    .sort((a,b)=>b.mo-a.mo);
-  cs.textContent=list.length?`${list.length} need attention`:'All good ✓';
-  if(!list.length){el.innerHTML='<div class="empty">All Premium members have been featured. Great work. 🎉</div>';return;}
-  el.innerHTML=list.map(m=>careItem(m,m.tier,'rb-risk',`${m.mo} months subscribed · never posted`)).join('');
+// 1. Anniversaries this month (1yr, 2yr, 3yr…)
+function renderCare_Anniversaries(){
+  const now=new Date(), thisMonth=now.getMonth(), thisYear=now.getFullYear();
+  const list=members.filter(m=>{
+    if(!m.joinDateISO)return false;
+    const d=new Date(m.joinDateISO);
+    return(thisYear-d.getFullYear())>0 && d.getMonth()===thisMonth;
+  }).map(m=>{
+    const years=thisYear-new Date(m.joinDateISO).getFullYear();
+    return{...m,years};
+  }).sort((a,b)=>b.years-a.years);
+
+  document.getElementById('care-anni-cs').textContent=list.length?`${list.length} this month`:'None this month';
+  const el=document.getElementById('care-anni');
+  if(!list.length){el.innerHTML='<div class="empty">No anniversaries this month.</div>';document.getElementById('care-anni-insight').innerHTML='Check back next month.';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.years}yr`,'#f59e0b',`${m.tier} · member since ${m.joinDate||m.joinDateISO}`)).join('');
+  const top=list[0];
+  const multi=list.filter(m=>m.years>=2).length;
+  document.getElementById('care-anni-insight').innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> celebrating ${list.length===1?'an anniversary':'anniversaries'} this month${multi?`, including <b>${multi}</b> with 2+ years`:''}.  A story mention or personal DM goes a long way.`;
 }
 
-// 2. Members who have been posted before but are waiting the longest for their next feature
-function renderCare_WaitingLongest(){
-  const el=document.getElementById('care-waiting');
-  const cs=document.getElementById('care-waiting-cs');
-  const ins=document.getElementById('care-waiting-insight');
-
-  // Parse lastFeature date (format: DD/MM/YYYY)
-  function parseLastFeat(s){
-    if(!s)return null;
-    const p=s.split('/');
-    if(p.length===3)return new Date(`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`);
-    return new Date(s);
-  }
-
-  const now=new Date();
-  const list=members
-    .filter(m=>m.lastFeature&&!m.featured)
-    .map(m=>{
-      const d=parseLastFeat(m.lastFeature);
-      const daysAgo=d?Math.floor((now-d)/(1000*60*60*24)):0;
-      return{...m,daysAgo};
-    })
-    .sort((a,b)=>b.daysAgo-a.daysAgo)
-    .slice(0,6);
-
-  cs.textContent=`${list.length} shown`;
-  if(!list.length){el.innerHTML='<div class="empty">No post history yet.</div>';ins.innerHTML='No data.';return;}
-
-  el.innerHTML=list.map(m=>{
-    const wks=Math.floor(m.daysAgo/7);
-    const label=m.daysAgo<7?`${m.daysAgo}d ago`:wks<8?`${wks}w ago`:`${Math.floor(wks/4)}mo ago`;
-    const cls=m.daysAgo>60?'rb-risk':m.daysAgo>21?'rb-loyal':'rb-new';
-    return careItem(m,label,cls,`${m.tier} · last post: ${m.lastFeature}`);
-  }).join('');
-
-  const oldest=list[0];
-  ins.innerHTML=`<b>${oldest.handle}</b> has been waiting <b>${oldest.daysAgo} days</b> since their last feature. Consider prioritising them soon.`;
-}
-
-// 3. Members who joined in the last 30 days
+// 2. New members — joined last 30 days
 function renderCare_NewMembers(){
-  const el=document.getElementById('care-new');
-  const cs=document.getElementById('care-new-cs');
-  const ins=document.getElementById('care-new-insight');
-
   const now=new Date();
-  const list=members
-    .filter(m=>{
-      if(!m.joinDateISO)return false;
-      const d=new Date(m.joinDateISO);
-      return(now-d)/(1000*60*60*24)<=30;
-    })
-    .map(m=>{
-      const d=new Date(m.joinDateISO);
-      const daysAgo=Math.floor((now-d)/(1000*60*60*24));
-      return{...m,daysAgo};
-    })
-    .sort((a,b)=>a.daysAgo-b.daysAgo);
+  const list=members.filter(m=>{
+    if(!m.joinDateISO)return false;
+    return(now-new Date(m.joinDateISO))/(1000*60*60*24)<=30;
+  }).map(m=>{
+    const daysAgo=Math.floor((now-new Date(m.joinDateISO))/(1000*60*60*24));
+    return{...m,daysAgo};
+  }).sort((a,b)=>a.daysAgo-b.daysAgo);
 
-  cs.textContent=list.length?`${list.length} this month`:'None this month';
-  if(!list.length){el.innerHTML='<div class="empty">No new members in the last 30 days.</div>';ins.innerHTML='No recent joins.';return;}
-
+  document.getElementById('care-new-cs').textContent=list.length?`${list.length} this month`:'None this month';
+  const el=document.getElementById('care-new');
+  if(!list.length){el.innerHTML='<div class="empty">No new members in the last 30 days.</div>';document.getElementById('care-new-insight').innerHTML='No recent joins.';return;}
   el.innerHTML=list.map(m=>{
     const label=m.daysAgo===0?'Today':m.daysAgo===1?'Yesterday':`${m.daysAgo}d ago`;
-    return careItem(m,label,'rb-new',`${m.tier} · joined ${m.joinDate||'recently'}`);
+    return careItem(m,label,'#3b82f6',`${m.tier} · joined ${m.joinDate||'recently'}`);
   }).join('');
-
-  ins.innerHTML=`<b>${list.length} new member${list.length!==1?'s':''}</b> joined in the last 30 days. A welcome DM or quick interaction goes a long way for retention.`;
+  document.getElementById('care-new-insight').innerHTML=`<b>${list.length} new member${list.length!==1?'s':''}</b> this month. A welcome comment on their profile or a DM dramatically improves 30-day retention.`;
 }
 
-// 4. Members whose join anniversary falls this month (1yr, 2yr, 3yr…)
-function renderCare_Anniversaries(){
-  const el=document.getElementById('care-anni');
-  const cs=document.getElementById('care-anni-cs');
-  const ins=document.getElementById('care-anni-insight');
-
-  const now=new Date();
-  const thisMonth=now.getMonth();
-  const thisYear=now.getFullYear();
-
-  const list=members
-    .filter(m=>{
-      if(!m.joinDateISO)return false;
-      const d=new Date(m.joinDateISO);
-      const years=thisYear-d.getFullYear();
-      return years>0&&d.getMonth()===thisMonth;
-    })
-    .map(m=>{
-      const d=new Date(m.joinDateISO);
-      const years=thisYear-d.getFullYear();
-      return{...m,years};
-    })
-    .sort((a,b)=>b.years-a.years);
-
-  cs.textContent=list.length?`${list.length} this month`:'None this month';
-  if(!list.length){el.innerHTML='<div class="empty">No anniversaries this month.</div>';ins.innerHTML='Check back next month.';return;}
-
-  el.innerHTML=list.map(m=>{
-    const label=`${m.years}yr`;
-    const cls=m.years>=3?'rb-loyal':m.years>=2?'rb-gold':'rb-new';
-    return careItem(m,label,cls,`${m.tier} · member since ${m.joinDate||m.joinDateISO}`);
-  }).join('');
-
-  const multi=list.filter(m=>m.years>=2).length;
-  ins.innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> celebrating ${list.length===1?'an':'their'} anniversary this month${multi?`, including <b>${multi}</b> with 2+ years`:''}. A shoutout post is a great engagement boost.`;
+// 3. Premium+ VIPs — all of them, always
+function renderCare_VIPs(){
+  const list=[...members].filter(m=>m.tier==='Premium+').map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo);
+  document.getElementById('care-vip-cs').textContent=`${list.length} members`;
+  const el=document.getElementById('care-vip');
+  if(!list.length){el.innerHTML='<div class="empty">No Premium+ members yet.</div>';document.getElementById('care-vip-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.mo}mo`,'#a855f7',`€19.99/mo · ${m.country&&m.country!=='—'?m.country:'location unknown'}`)).join('');
+  const avgMo=Math.round(list.reduce((s,m)=>s+m.mo,0)/list.length);
+  document.getElementById('care-vip-insight').innerHTML=`Your <b>${list.length} Premium+ members</b> average <b>${avgMo} months</b> subscribed and generate <b>€${(list.length*19.99).toFixed(0)}/mo</b>. Check in personally — they are your top supporters.`;
 }
 
-// 5. Currently featured members
-function renderCare_CurrentlyFeatured(){
-  const el=document.getElementById('care-feat');
-  const cs=document.getElementById('care-feat-cs');
-  const ins=document.getElementById('care-feat-insight');
-
-  const list=members.filter(m=>m.featured);
-  cs.textContent=`${list.length} active`;
-
-  if(!list.length){
-    el.innerHTML='<div class="empty">No one is currently featured.</div>';
-    ins.innerHTML='Hit Post on any member in the Members tab to mark them as featured.';
-    return;
-  }
-
-  el.innerHTML=list.map(m=>careItem(m,'Live','rb-loyal',`${m.tier} · posted ${m.lastFeature||'recently'}`)).join('');
-  ins.innerHTML=`<b>${list.length} post${list.length!==1?'s':''}</b> currently live. When done, hit Unpost to keep your records clean and queue the next member.`;
+// 4. Upgrade candidates — Basic 6+ months, never upgraded
+function renderCare_UpgradeCandidates(){
+  const list=members.filter(m=>m.tier==='Basic'&&mos(m.joinDateISO)>=6).map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo).slice(0,8);
+  document.getElementById('care-upgrade-cs').textContent=`${members.filter(m=>m.tier==='Basic'&&mos(m.joinDateISO)>=6).length} candidates`;
+  const el=document.getElementById('care-upgrade');
+  if(!list.length){el.innerHTML='<div class="empty">No long-term Basic members yet.</div>';document.getElementById('care-upgrade-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.mo}mo`,'#06b6d4',`Basic · joined ${m.joinDate||'—'}`)).join('');
+  const revPotential=(list.length*(9.99-3.50)).toFixed(0);
+  document.getElementById('care-upgrade-insight').innerHTML=`<b>${list.length} loyal Basic members</b> have been around 6+ months. If just half upgraded to Premium, that would be <b>+€${Math.round(list.length/2*(9.99-3.50))}/mo</b>. A personal mention in their feature post can trigger upgrades.`;
 }
 
-// 6. Never featured — full grid
-function renderCare_NeverFeaturedGrid(){
-  const el=document.getElementById('care-never-grid');
-  const cs=document.getElementById('care-never-cs');
+// 5. At risk of churning — Basic with 1-2 months
+function renderCare_AtRisk(){
+  const list=members.filter(m=>m.tier==='Basic').map(m=>({...m,mo:mos(m.joinDateISO)})).filter(m=>m.mo<=2).sort((a,b)=>a.mo-b.mo);
+  document.getElementById('care-risk-cs').textContent=`${list.length} at risk`;
+  const el=document.getElementById('care-risk');
+  if(!list.length){el.innerHTML='<div class="empty">No high-risk members right now.</div>';document.getElementById('care-risk-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,m.mo===0?'<1mo':`${m.mo}mo`,'#f43f5e',`Basic · joined ${m.joinDate||'recently'}`)).join('');
+  document.getElementById('care-risk-insight').innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> in their first 2 months — the highest-risk window for cancellation. Engagement right now has an outsized impact on whether they stay.`;
+}
 
-  const list=members
-    .filter(m=>!m.featured&&!m.lastFeature)
-    .map(m=>({...m,mo:mos(m.joinDateISO)}))
-    .sort((a,b)=>b.mo-a.mo);
+// 6. Veterans — 18+ months
+function renderCare_Veterans(){
+  const list=members.filter(m=>mos(m.joinDateISO)>=18).map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo);
+  document.getElementById('care-veteran-cs').textContent=`${list.length} veterans`;
+  const el=document.getElementById('care-veteran');
+  if(!list.length){el.innerHTML='<div class="empty">No 18+ month members yet.</div>';document.getElementById('care-veteran-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.mo}mo`,'#10b981',`${m.tier} · since ${m.joinDate||'—'}`)).join('');
+  const oldest=list[0];
+  document.getElementById('care-veteran-insight').innerHTML=`<b>${oldest.handle}</b> is your longest member at <b>${oldest.mo} months</b>. Veterans like these are your most credible advocates — a shoutout or a "thanks for being here since the beginning" DM costs nothing.`;
+}
 
+// 7. Incomplete profiles — missing handle (looks like email) or missing car
+function renderCare_IncompleteProfiles(){
+  const el=document.getElementById('care-incomplete-grid');
+  const cs=document.getElementById('care-incomplete-cs');
+  const list=members.filter(m=>{
+    const handleLooksLikeEmail=m.handle&&m.handle.includes('@')&&m.handle.includes('.');
+    const missingCar=!m.car||m.car==='—';
+    return handleLooksLikeEmail||missingCar;
+  });
   cs.textContent=`${list.length} members`;
-  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">Every member has been featured at least once. 🎉</div>';return;}
-
+  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">All profiles look complete. 👍</div>';return;}
   el.innerHTML=list.map(m=>{
-    const mo=m.mo;
-    const urgency=mo>12?'rgba(244,63,94,.15)':mo>3?'rgba(245,158,11,.1)':'rgba(59,130,246,.1)';
-    const border=mo>12?'rgba(244,63,94,.25)':mo>3?'rgba(245,158,11,.2)':'rgba(59,130,246,.2)';
-    const dotColor=mo>12?'#f43f5e':mo>3?'#f59e0b':'#3b82f6';
-    return`<div style="background:${urgency};border:1px solid ${border};border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:9px">
-      <div style="width:6px;height:6px;border-radius:50%;background:${dotColor};flex-shrink:0"></div>
+    const issues=[];
+    if(m.handle&&m.handle.includes('@')&&m.handle.includes('.'))issues.push('No IG handle');
+    if(!m.car||m.car==='—')issues.push('No car info');
+    return`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:9px">
+      <div style="width:6px;height:6px;border-radius:50%;background:#f59e0b;flex-shrink:0"></div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.handle}</div>
-        <div style="font-family:var(--m);font-size:9px;color:var(--sub);margin-top:2px">${m.tier} · ${mo}mo</div>
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.handle||m.paypalEmail}</div>
+        <div style="font-family:var(--m);font-size:9px;color:var(--sub);margin-top:2px">${issues.join(' · ')} · ${m.tier}</div>
       </div>
     </div>`;
   }).join('');
+}
+
+// ── WORLD MAP ─────────────────────────────────────────
+function renderWorldMap(){
+  const el=document.getElementById('world-map');
+  const cs=document.getElementById('a-map-cs');
+  const ins=document.getElementById('a-map-insight');
+  if(!el)return;
+
+  // Build country counts
+  const counts={};
+  members.forEach(m=>{
+    const c=(m.country&&m.country!=='—')?m.country.trim():null;
+    if(c)counts[c]=(counts[c]||0)+1;
+  });
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  if(!sorted.length){
+    el.innerHTML='<div class="empty" style="padding:60px 0">No country data yet — run a PayPal sync to populate.</div>';
+    if(cs)cs.textContent='No data';
+    if(ins)ins.innerHTML='Sync PayPal to get country data from subscriber addresses.';
+    return;
+  }
+
+  if(cs)cs.textContent=`${sorted.length} countries · ${members.filter(m=>m.country&&m.country!=='—').length} members mapped`;
+  if(ins)ins.innerHTML=`Members in <b>${sorted.length} countries</b>. Top: <b>${sorted.slice(0,3).map(([c,n])=>`${c} (${n})`).join(', ')}</b>.`;
+
+  const maxCount=sorted[0][1];
+
+  // Country name → ISO 2 (reverse lookup for map)
+  const nameToISO={
+    'Afghanistan':'AF','Albania':'AL','Algeria':'DZ','Argentina':'AR','Australia':'AU',
+    'Austria':'AT','Belgium':'BE','Brazil':'BR','Bulgaria':'BG','Canada':'CA',
+    'Chile':'CL','China':'CN','Colombia':'CO','Croatia':'HR','Czech Republic':'CZ',
+    'Denmark':'DK','Egypt':'EG','Finland':'FI','France':'FR','Germany':'DE',
+    'Greece':'GR','Hungary':'HU','India':'IN','Indonesia':'ID','Ireland':'IE',
+    'Israel':'IL','Italy':'IT','Japan':'JP','Jordan':'JO','Kenya':'KE',
+    'Kuwait':'KW','Lebanon':'LB','Lithuania':'LT','Luxembourg':'LU','Malaysia':'MY',
+    'Mexico':'MX','Morocco':'MA','Netherlands':'NL','New Zealand':'NZ','Nigeria':'NG',
+    'Norway':'NO','Oman':'OM','Pakistan':'PK','Peru':'PE','Philippines':'PH',
+    'Poland':'PL','Portugal':'PT','Qatar':'QA','Romania':'RO','Russia':'RU',
+    'Saudi Arabia':'SA','Serbia':'RS','Singapore':'SG','Slovakia':'SK','South Africa':'ZA',
+    'Spain':'ES','Sweden':'SE','Switzerland':'CH','Taiwan':'TW','Thailand':'TH',
+    'Tunisia':'TN','Turkey':'TR','Ukraine':'UA','UAE':'AE','United Kingdom':'GB',
+    'United States':'US','Uruguay':'UY','Venezuela':'VE','Vietnam':'VN'
+  };
+
+  // Build SVG world map using simplified country paths
+  // We use a lightweight approach: circles on approximate lat/lng positions
+  const coords={
+    'AF':[67,34],'AL':[20,41],'DZ':[3,28],'AR':[-64,-34],'AU':[133,-27],
+    'AT':[14,47],'BE':[4,51],'BR':[-51,-10],'BG':[25,43],'CA':[-96,60],
+    'CL':[-71,-30],'CN':[105,35],'CO':[-74,4],'HR':[16,45],'CZ':[16,50],
+    'DK':[10,56],'EG':[30,27],'FI':[26,64],'FR':[2,46],'DE':[10,51],
+    'GR':[22,39],'HU':[19,47],'IN':[78,20],'ID':[120,-5],'IE':[-8,53],
+    'IL':[35,31],'IT':[12,42],'JP':[138,36],'JO':[37,31],'KE':[38,1],
+    'KW':[48,29],'LB':[36,34],'LT':[24,56],'LU':[6,50],'MY':[110,4],
+    'MX':[-102,24],'MA':[-5,32],'NL':[5,52],'NZ':[172,-41],'NG':[8,10],
+    'NO':[10,62],'OM':[57,21],'PK':[70,30],'PE':[-76,-10],'PH':[122,13],
+    'PL':[20,52],'PT':[-8,39],'QA':[51,25],'RO':[25,46],'RU':[105,60],
+    'SA':[45,24],'RS':[21,44],'SG':[104,1],'SK':[19,49],'ZA':[25,-29],
+    'ES':[-3,40],'SE':[18,62],'CH':[8,47],'TW':[121,24],'TH':[101,15],
+    'TN':[9,34],'TR':[35,39],'UA':[32,49],'AE':[54,24],'GB':[-2,54],
+    'US':[-98,39],'UY':[-56,-33],'VE':[-66,8],'VN':[108,14]
+  };
+
+  // Map projection (simple equirectangular)
+  const W=el.offsetWidth||700, H=340;
+  function project(lng,lat){
+    const x=(lng+180)*(W/360);
+    const y=(90-lat)*(H/180);
+    return[x,y];
+  }
+
+  // Build dots
+  const dots=sorted.map(([country,count])=>{
+    const iso=nameToISO[country]||country;
+    const coord=coords[iso];
+    if(!coord)return'';
+    const[x,y]=project(coord[0],coord[1]);
+    const r=Math.max(5,Math.min(22,5+Math.sqrt(count/maxCount)*18));
+    const opacity=0.4+0.6*(count/maxCount);
+    const alpha=Math.round(opacity*255).toString(16).padStart(2,'0');
+    return`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="#a855f7${alpha}" stroke="#a855f7" stroke-width="1" opacity="${opacity.toFixed(2)}">
+      <title>${country}: ${count} member${count!==1?'s':''}</title>
+    </circle>`;
+  }).join('');
+
+  // Grid lines
+  const gridLines=[];
+  for(let lng=-180;lng<=180;lng+=30){
+    const[x1]=project(lng,90);const[,y1]=project(lng,90);const[,y2]=project(lng,-90);
+    gridLines.push(`<line x1="${x1}" y1="${y1}" x2="${x1}" y2="${y2}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`);
+  }
+  for(let lat=-60;lat<=60;lat+=30){
+    const[x1,y1]=project(-180,lat);const[x2]=project(180,lat);
+    gridLines.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y1}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`);
+  }
+
+  el.innerHTML=`<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block">
+    <rect width="${W}" height="${H}" fill="transparent"/>
+    ${gridLines.join('')}
+    ${dots}
+  </svg>`;
 }
 
 loadMembers();}
 async function del2(i){const m=members[i];if(!m.id)return;const{error}=await sb.from('members').delete().eq('id',m.id);if(error){setStatus('error','err');return;}setStatus('deleted');await 
 // ── MEMBER CARE ──────────────────────────────────────
 function renderCare(){
-  renderCare_PremiumNever();
-  renderCare_WaitingLongest();
-  renderCare_NewMembers();
   renderCare_Anniversaries();
-  renderCare_CurrentlyFeatured();
-  renderCare_NeverFeaturedGrid();
+  renderCare_NewMembers();
+  renderCare_VIPs();
+  renderCare_UpgradeCandidates();
+  renderCare_AtRisk();
+  renderCare_Veterans();
+  renderCare_IncompleteProfiles();
 }
 
-function careItem(m, badge, badgeClass, detail){
+function careItem(m, badge, dotColor, detail){
   return `<div class="risk-item">
-    <div class="risk-dot" style="background:${badgeClass==='rb-new'?'#3b82f6':badgeClass==='rb-risk'?'#f43f5e':badgeClass==='rb-gold'?'#f59e0b':'#a855f7'}"></div>
+    <div class="risk-dot" style="background:${dotColor}"></div>
     <div class="risk-info">
-      <div class="risk-handle">${m.handle}</div>
+      <div class="risk-handle">${m.handle||m.paypalEmail||'Unknown'}</div>
       <div class="risk-detail">${detail}</div>
     </div>
-    <span class="risk-badge ${badgeClass}">${badge}</span>
+    <span class="risk-badge" style="background:${dotColor}18;color:${dotColor};border:1px solid ${dotColor}30">${badge}</span>
   </div>`;
 }
 
-// 1. Premium members who have NEVER been featured
-function renderCare_PremiumNever(){
-  const el=document.getElementById('care-prem-never');
-  const cs=document.getElementById('care-prem-never-cs');
-  const list=members
-    .filter(m=>(m.tier==='Premium'||m.tier==='Premium+')&&!m.featured&&!m.lastFeature)
-    .map(m=>({...m,mo:mos(m.joinDateISO)}))
-    .sort((a,b)=>b.mo-a.mo);
-  cs.textContent=list.length?`${list.length} need attention`:'All good ✓';
-  if(!list.length){el.innerHTML='<div class="empty">All Premium members have been featured. Great work. 🎉</div>';return;}
-  el.innerHTML=list.map(m=>careItem(m,m.tier,'rb-risk',`${m.mo} months subscribed · never posted`)).join('');
+// 1. Anniversaries this month (1yr, 2yr, 3yr…)
+function renderCare_Anniversaries(){
+  const now=new Date(), thisMonth=now.getMonth(), thisYear=now.getFullYear();
+  const list=members.filter(m=>{
+    if(!m.joinDateISO)return false;
+    const d=new Date(m.joinDateISO);
+    return(thisYear-d.getFullYear())>0 && d.getMonth()===thisMonth;
+  }).map(m=>{
+    const years=thisYear-new Date(m.joinDateISO).getFullYear();
+    return{...m,years};
+  }).sort((a,b)=>b.years-a.years);
+
+  document.getElementById('care-anni-cs').textContent=list.length?`${list.length} this month`:'None this month';
+  const el=document.getElementById('care-anni');
+  if(!list.length){el.innerHTML='<div class="empty">No anniversaries this month.</div>';document.getElementById('care-anni-insight').innerHTML='Check back next month.';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.years}yr`,'#f59e0b',`${m.tier} · member since ${m.joinDate||m.joinDateISO}`)).join('');
+  const top=list[0];
+  const multi=list.filter(m=>m.years>=2).length;
+  document.getElementById('care-anni-insight').innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> celebrating ${list.length===1?'an anniversary':'anniversaries'} this month${multi?`, including <b>${multi}</b> with 2+ years`:''}.  A story mention or personal DM goes a long way.`;
 }
 
-// 2. Members who have been posted before but are waiting the longest for their next feature
-function renderCare_WaitingLongest(){
-  const el=document.getElementById('care-waiting');
-  const cs=document.getElementById('care-waiting-cs');
-  const ins=document.getElementById('care-waiting-insight');
-
-  // Parse lastFeature date (format: DD/MM/YYYY)
-  function parseLastFeat(s){
-    if(!s)return null;
-    const p=s.split('/');
-    if(p.length===3)return new Date(`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`);
-    return new Date(s);
-  }
-
-  const now=new Date();
-  const list=members
-    .filter(m=>m.lastFeature&&!m.featured)
-    .map(m=>{
-      const d=parseLastFeat(m.lastFeature);
-      const daysAgo=d?Math.floor((now-d)/(1000*60*60*24)):0;
-      return{...m,daysAgo};
-    })
-    .sort((a,b)=>b.daysAgo-a.daysAgo)
-    .slice(0,6);
-
-  cs.textContent=`${list.length} shown`;
-  if(!list.length){el.innerHTML='<div class="empty">No post history yet.</div>';ins.innerHTML='No data.';return;}
-
-  el.innerHTML=list.map(m=>{
-    const wks=Math.floor(m.daysAgo/7);
-    const label=m.daysAgo<7?`${m.daysAgo}d ago`:wks<8?`${wks}w ago`:`${Math.floor(wks/4)}mo ago`;
-    const cls=m.daysAgo>60?'rb-risk':m.daysAgo>21?'rb-loyal':'rb-new';
-    return careItem(m,label,cls,`${m.tier} · last post: ${m.lastFeature}`);
-  }).join('');
-
-  const oldest=list[0];
-  ins.innerHTML=`<b>${oldest.handle}</b> has been waiting <b>${oldest.daysAgo} days</b> since their last feature. Consider prioritising them soon.`;
-}
-
-// 3. Members who joined in the last 30 days
+// 2. New members — joined last 30 days
 function renderCare_NewMembers(){
-  const el=document.getElementById('care-new');
-  const cs=document.getElementById('care-new-cs');
-  const ins=document.getElementById('care-new-insight');
-
   const now=new Date();
-  const list=members
-    .filter(m=>{
-      if(!m.joinDateISO)return false;
-      const d=new Date(m.joinDateISO);
-      return(now-d)/(1000*60*60*24)<=30;
-    })
-    .map(m=>{
-      const d=new Date(m.joinDateISO);
-      const daysAgo=Math.floor((now-d)/(1000*60*60*24));
-      return{...m,daysAgo};
-    })
-    .sort((a,b)=>a.daysAgo-b.daysAgo);
+  const list=members.filter(m=>{
+    if(!m.joinDateISO)return false;
+    return(now-new Date(m.joinDateISO))/(1000*60*60*24)<=30;
+  }).map(m=>{
+    const daysAgo=Math.floor((now-new Date(m.joinDateISO))/(1000*60*60*24));
+    return{...m,daysAgo};
+  }).sort((a,b)=>a.daysAgo-b.daysAgo);
 
-  cs.textContent=list.length?`${list.length} this month`:'None this month';
-  if(!list.length){el.innerHTML='<div class="empty">No new members in the last 30 days.</div>';ins.innerHTML='No recent joins.';return;}
-
+  document.getElementById('care-new-cs').textContent=list.length?`${list.length} this month`:'None this month';
+  const el=document.getElementById('care-new');
+  if(!list.length){el.innerHTML='<div class="empty">No new members in the last 30 days.</div>';document.getElementById('care-new-insight').innerHTML='No recent joins.';return;}
   el.innerHTML=list.map(m=>{
     const label=m.daysAgo===0?'Today':m.daysAgo===1?'Yesterday':`${m.daysAgo}d ago`;
-    return careItem(m,label,'rb-new',`${m.tier} · joined ${m.joinDate||'recently'}`);
+    return careItem(m,label,'#3b82f6',`${m.tier} · joined ${m.joinDate||'recently'}`);
   }).join('');
-
-  ins.innerHTML=`<b>${list.length} new member${list.length!==1?'s':''}</b> joined in the last 30 days. A welcome DM or quick interaction goes a long way for retention.`;
+  document.getElementById('care-new-insight').innerHTML=`<b>${list.length} new member${list.length!==1?'s':''}</b> this month. A welcome comment on their profile or a DM dramatically improves 30-day retention.`;
 }
 
-// 4. Members whose join anniversary falls this month (1yr, 2yr, 3yr…)
-function renderCare_Anniversaries(){
-  const el=document.getElementById('care-anni');
-  const cs=document.getElementById('care-anni-cs');
-  const ins=document.getElementById('care-anni-insight');
-
-  const now=new Date();
-  const thisMonth=now.getMonth();
-  const thisYear=now.getFullYear();
-
-  const list=members
-    .filter(m=>{
-      if(!m.joinDateISO)return false;
-      const d=new Date(m.joinDateISO);
-      const years=thisYear-d.getFullYear();
-      return years>0&&d.getMonth()===thisMonth;
-    })
-    .map(m=>{
-      const d=new Date(m.joinDateISO);
-      const years=thisYear-d.getFullYear();
-      return{...m,years};
-    })
-    .sort((a,b)=>b.years-a.years);
-
-  cs.textContent=list.length?`${list.length} this month`:'None this month';
-  if(!list.length){el.innerHTML='<div class="empty">No anniversaries this month.</div>';ins.innerHTML='Check back next month.';return;}
-
-  el.innerHTML=list.map(m=>{
-    const label=`${m.years}yr`;
-    const cls=m.years>=3?'rb-loyal':m.years>=2?'rb-gold':'rb-new';
-    return careItem(m,label,cls,`${m.tier} · member since ${m.joinDate||m.joinDateISO}`);
-  }).join('');
-
-  const multi=list.filter(m=>m.years>=2).length;
-  ins.innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> celebrating ${list.length===1?'an':'their'} anniversary this month${multi?`, including <b>${multi}</b> with 2+ years`:''}. A shoutout post is a great engagement boost.`;
+// 3. Premium+ VIPs — all of them, always
+function renderCare_VIPs(){
+  const list=[...members].filter(m=>m.tier==='Premium+').map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo);
+  document.getElementById('care-vip-cs').textContent=`${list.length} members`;
+  const el=document.getElementById('care-vip');
+  if(!list.length){el.innerHTML='<div class="empty">No Premium+ members yet.</div>';document.getElementById('care-vip-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.mo}mo`,'#a855f7',`€19.99/mo · ${m.country&&m.country!=='—'?m.country:'location unknown'}`)).join('');
+  const avgMo=Math.round(list.reduce((s,m)=>s+m.mo,0)/list.length);
+  document.getElementById('care-vip-insight').innerHTML=`Your <b>${list.length} Premium+ members</b> average <b>${avgMo} months</b> subscribed and generate <b>€${(list.length*19.99).toFixed(0)}/mo</b>. Check in personally — they are your top supporters.`;
 }
 
-// 5. Currently featured members
-function renderCare_CurrentlyFeatured(){
-  const el=document.getElementById('care-feat');
-  const cs=document.getElementById('care-feat-cs');
-  const ins=document.getElementById('care-feat-insight');
-
-  const list=members.filter(m=>m.featured);
-  cs.textContent=`${list.length} active`;
-
-  if(!list.length){
-    el.innerHTML='<div class="empty">No one is currently featured.</div>';
-    ins.innerHTML='Hit Post on any member in the Members tab to mark them as featured.';
-    return;
-  }
-
-  el.innerHTML=list.map(m=>careItem(m,'Live','rb-loyal',`${m.tier} · posted ${m.lastFeature||'recently'}`)).join('');
-  ins.innerHTML=`<b>${list.length} post${list.length!==1?'s':''}</b> currently live. When done, hit Unpost to keep your records clean and queue the next member.`;
+// 4. Upgrade candidates — Basic 6+ months, never upgraded
+function renderCare_UpgradeCandidates(){
+  const list=members.filter(m=>m.tier==='Basic'&&mos(m.joinDateISO)>=6).map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo).slice(0,8);
+  document.getElementById('care-upgrade-cs').textContent=`${members.filter(m=>m.tier==='Basic'&&mos(m.joinDateISO)>=6).length} candidates`;
+  const el=document.getElementById('care-upgrade');
+  if(!list.length){el.innerHTML='<div class="empty">No long-term Basic members yet.</div>';document.getElementById('care-upgrade-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.mo}mo`,'#06b6d4',`Basic · joined ${m.joinDate||'—'}`)).join('');
+  const revPotential=(list.length*(9.99-3.50)).toFixed(0);
+  document.getElementById('care-upgrade-insight').innerHTML=`<b>${list.length} loyal Basic members</b> have been around 6+ months. If just half upgraded to Premium, that would be <b>+€${Math.round(list.length/2*(9.99-3.50))}/mo</b>. A personal mention in their feature post can trigger upgrades.`;
 }
 
-// 6. Never featured — full grid
-function renderCare_NeverFeaturedGrid(){
-  const el=document.getElementById('care-never-grid');
-  const cs=document.getElementById('care-never-cs');
+// 5. At risk of churning — Basic with 1-2 months
+function renderCare_AtRisk(){
+  const list=members.filter(m=>m.tier==='Basic').map(m=>({...m,mo:mos(m.joinDateISO)})).filter(m=>m.mo<=2).sort((a,b)=>a.mo-b.mo);
+  document.getElementById('care-risk-cs').textContent=`${list.length} at risk`;
+  const el=document.getElementById('care-risk');
+  if(!list.length){el.innerHTML='<div class="empty">No high-risk members right now.</div>';document.getElementById('care-risk-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,m.mo===0?'<1mo':`${m.mo}mo`,'#f43f5e',`Basic · joined ${m.joinDate||'recently'}`)).join('');
+  document.getElementById('care-risk-insight').innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> in their first 2 months — the highest-risk window for cancellation. Engagement right now has an outsized impact on whether they stay.`;
+}
 
-  const list=members
-    .filter(m=>!m.featured&&!m.lastFeature)
-    .map(m=>({...m,mo:mos(m.joinDateISO)}))
-    .sort((a,b)=>b.mo-a.mo);
+// 6. Veterans — 18+ months
+function renderCare_Veterans(){
+  const list=members.filter(m=>mos(m.joinDateISO)>=18).map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo);
+  document.getElementById('care-veteran-cs').textContent=`${list.length} veterans`;
+  const el=document.getElementById('care-veteran');
+  if(!list.length){el.innerHTML='<div class="empty">No 18+ month members yet.</div>';document.getElementById('care-veteran-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.mo}mo`,'#10b981',`${m.tier} · since ${m.joinDate||'—'}`)).join('');
+  const oldest=list[0];
+  document.getElementById('care-veteran-insight').innerHTML=`<b>${oldest.handle}</b> is your longest member at <b>${oldest.mo} months</b>. Veterans like these are your most credible advocates — a shoutout or a "thanks for being here since the beginning" DM costs nothing.`;
+}
 
+// 7. Incomplete profiles — missing handle (looks like email) or missing car
+function renderCare_IncompleteProfiles(){
+  const el=document.getElementById('care-incomplete-grid');
+  const cs=document.getElementById('care-incomplete-cs');
+  const list=members.filter(m=>{
+    const handleLooksLikeEmail=m.handle&&m.handle.includes('@')&&m.handle.includes('.');
+    const missingCar=!m.car||m.car==='—';
+    return handleLooksLikeEmail||missingCar;
+  });
   cs.textContent=`${list.length} members`;
-  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">Every member has been featured at least once. 🎉</div>';return;}
-
+  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">All profiles look complete. 👍</div>';return;}
   el.innerHTML=list.map(m=>{
-    const mo=m.mo;
-    const urgency=mo>12?'rgba(244,63,94,.15)':mo>3?'rgba(245,158,11,.1)':'rgba(59,130,246,.1)';
-    const border=mo>12?'rgba(244,63,94,.25)':mo>3?'rgba(245,158,11,.2)':'rgba(59,130,246,.2)';
-    const dotColor=mo>12?'#f43f5e':mo>3?'#f59e0b':'#3b82f6';
-    return`<div style="background:${urgency};border:1px solid ${border};border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:9px">
-      <div style="width:6px;height:6px;border-radius:50%;background:${dotColor};flex-shrink:0"></div>
+    const issues=[];
+    if(m.handle&&m.handle.includes('@')&&m.handle.includes('.'))issues.push('No IG handle');
+    if(!m.car||m.car==='—')issues.push('No car info');
+    return`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:9px">
+      <div style="width:6px;height:6px;border-radius:50%;background:#f59e0b;flex-shrink:0"></div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.handle}</div>
-        <div style="font-family:var(--m);font-size:9px;color:var(--sub);margin-top:2px">${m.tier} · ${mo}mo</div>
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.handle||m.paypalEmail}</div>
+        <div style="font-family:var(--m);font-size:9px;color:var(--sub);margin-top:2px">${issues.join(' · ')} · ${m.tier}</div>
       </div>
     </div>`;
   }).join('');
+}
+
+// ── WORLD MAP ─────────────────────────────────────────
+function renderWorldMap(){
+  const el=document.getElementById('world-map');
+  const cs=document.getElementById('a-map-cs');
+  const ins=document.getElementById('a-map-insight');
+  if(!el)return;
+
+  // Build country counts
+  const counts={};
+  members.forEach(m=>{
+    const c=(m.country&&m.country!=='—')?m.country.trim():null;
+    if(c)counts[c]=(counts[c]||0)+1;
+  });
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  if(!sorted.length){
+    el.innerHTML='<div class="empty" style="padding:60px 0">No country data yet — run a PayPal sync to populate.</div>';
+    if(cs)cs.textContent='No data';
+    if(ins)ins.innerHTML='Sync PayPal to get country data from subscriber addresses.';
+    return;
+  }
+
+  if(cs)cs.textContent=`${sorted.length} countries · ${members.filter(m=>m.country&&m.country!=='—').length} members mapped`;
+  if(ins)ins.innerHTML=`Members in <b>${sorted.length} countries</b>. Top: <b>${sorted.slice(0,3).map(([c,n])=>`${c} (${n})`).join(', ')}</b>.`;
+
+  const maxCount=sorted[0][1];
+
+  // Country name → ISO 2 (reverse lookup for map)
+  const nameToISO={
+    'Afghanistan':'AF','Albania':'AL','Algeria':'DZ','Argentina':'AR','Australia':'AU',
+    'Austria':'AT','Belgium':'BE','Brazil':'BR','Bulgaria':'BG','Canada':'CA',
+    'Chile':'CL','China':'CN','Colombia':'CO','Croatia':'HR','Czech Republic':'CZ',
+    'Denmark':'DK','Egypt':'EG','Finland':'FI','France':'FR','Germany':'DE',
+    'Greece':'GR','Hungary':'HU','India':'IN','Indonesia':'ID','Ireland':'IE',
+    'Israel':'IL','Italy':'IT','Japan':'JP','Jordan':'JO','Kenya':'KE',
+    'Kuwait':'KW','Lebanon':'LB','Lithuania':'LT','Luxembourg':'LU','Malaysia':'MY',
+    'Mexico':'MX','Morocco':'MA','Netherlands':'NL','New Zealand':'NZ','Nigeria':'NG',
+    'Norway':'NO','Oman':'OM','Pakistan':'PK','Peru':'PE','Philippines':'PH',
+    'Poland':'PL','Portugal':'PT','Qatar':'QA','Romania':'RO','Russia':'RU',
+    'Saudi Arabia':'SA','Serbia':'RS','Singapore':'SG','Slovakia':'SK','South Africa':'ZA',
+    'Spain':'ES','Sweden':'SE','Switzerland':'CH','Taiwan':'TW','Thailand':'TH',
+    'Tunisia':'TN','Turkey':'TR','Ukraine':'UA','UAE':'AE','United Kingdom':'GB',
+    'United States':'US','Uruguay':'UY','Venezuela':'VE','Vietnam':'VN'
+  };
+
+  // Build SVG world map using simplified country paths
+  // We use a lightweight approach: circles on approximate lat/lng positions
+  const coords={
+    'AF':[67,34],'AL':[20,41],'DZ':[3,28],'AR':[-64,-34],'AU':[133,-27],
+    'AT':[14,47],'BE':[4,51],'BR':[-51,-10],'BG':[25,43],'CA':[-96,60],
+    'CL':[-71,-30],'CN':[105,35],'CO':[-74,4],'HR':[16,45],'CZ':[16,50],
+    'DK':[10,56],'EG':[30,27],'FI':[26,64],'FR':[2,46],'DE':[10,51],
+    'GR':[22,39],'HU':[19,47],'IN':[78,20],'ID':[120,-5],'IE':[-8,53],
+    'IL':[35,31],'IT':[12,42],'JP':[138,36],'JO':[37,31],'KE':[38,1],
+    'KW':[48,29],'LB':[36,34],'LT':[24,56],'LU':[6,50],'MY':[110,4],
+    'MX':[-102,24],'MA':[-5,32],'NL':[5,52],'NZ':[172,-41],'NG':[8,10],
+    'NO':[10,62],'OM':[57,21],'PK':[70,30],'PE':[-76,-10],'PH':[122,13],
+    'PL':[20,52],'PT':[-8,39],'QA':[51,25],'RO':[25,46],'RU':[105,60],
+    'SA':[45,24],'RS':[21,44],'SG':[104,1],'SK':[19,49],'ZA':[25,-29],
+    'ES':[-3,40],'SE':[18,62],'CH':[8,47],'TW':[121,24],'TH':[101,15],
+    'TN':[9,34],'TR':[35,39],'UA':[32,49],'AE':[54,24],'GB':[-2,54],
+    'US':[-98,39],'UY':[-56,-33],'VE':[-66,8],'VN':[108,14]
+  };
+
+  // Map projection (simple equirectangular)
+  const W=el.offsetWidth||700, H=340;
+  function project(lng,lat){
+    const x=(lng+180)*(W/360);
+    const y=(90-lat)*(H/180);
+    return[x,y];
+  }
+
+  // Build dots
+  const dots=sorted.map(([country,count])=>{
+    const iso=nameToISO[country]||country;
+    const coord=coords[iso];
+    if(!coord)return'';
+    const[x,y]=project(coord[0],coord[1]);
+    const r=Math.max(5,Math.min(22,5+Math.sqrt(count/maxCount)*18));
+    const opacity=0.4+0.6*(count/maxCount);
+    const alpha=Math.round(opacity*255).toString(16).padStart(2,'0');
+    return`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="#a855f7${alpha}" stroke="#a855f7" stroke-width="1" opacity="${opacity.toFixed(2)}">
+      <title>${country}: ${count} member${count!==1?'s':''}</title>
+    </circle>`;
+  }).join('');
+
+  // Grid lines
+  const gridLines=[];
+  for(let lng=-180;lng<=180;lng+=30){
+    const[x1]=project(lng,90);const[,y1]=project(lng,90);const[,y2]=project(lng,-90);
+    gridLines.push(`<line x1="${x1}" y1="${y1}" x2="${x1}" y2="${y2}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`);
+  }
+  for(let lat=-60;lat<=60;lat+=30){
+    const[x1,y1]=project(-180,lat);const[x2]=project(180,lat);
+    gridLines.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y1}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`);
+  }
+
+  el.innerHTML=`<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block">
+    <rect width="${W}" height="${H}" fill="transparent"/>
+    ${gridLines.join('')}
+    ${dots}
+  </svg>`;
 }
 
 loadMembers();}
 async function toggleFeat(i){const m=members[i],f=!m.featured,ll=f?new Date().toLocaleDateString('en-GB'):m.lastFeature;const{error}=await sb.from('members').update({featured:f,last_feature:ll}).eq('id',m.id);if(error){setStatus('error','err');return;}setStatus(f?'posted ✓':'unposted');await 
 // ── MEMBER CARE ──────────────────────────────────────
 function renderCare(){
-  renderCare_PremiumNever();
-  renderCare_WaitingLongest();
-  renderCare_NewMembers();
   renderCare_Anniversaries();
-  renderCare_CurrentlyFeatured();
-  renderCare_NeverFeaturedGrid();
+  renderCare_NewMembers();
+  renderCare_VIPs();
+  renderCare_UpgradeCandidates();
+  renderCare_AtRisk();
+  renderCare_Veterans();
+  renderCare_IncompleteProfiles();
 }
 
-function careItem(m, badge, badgeClass, detail){
+function careItem(m, badge, dotColor, detail){
   return `<div class="risk-item">
-    <div class="risk-dot" style="background:${badgeClass==='rb-new'?'#3b82f6':badgeClass==='rb-risk'?'#f43f5e':badgeClass==='rb-gold'?'#f59e0b':'#a855f7'}"></div>
+    <div class="risk-dot" style="background:${dotColor}"></div>
     <div class="risk-info">
-      <div class="risk-handle">${m.handle}</div>
+      <div class="risk-handle">${m.handle||m.paypalEmail||'Unknown'}</div>
       <div class="risk-detail">${detail}</div>
     </div>
-    <span class="risk-badge ${badgeClass}">${badge}</span>
+    <span class="risk-badge" style="background:${dotColor}18;color:${dotColor};border:1px solid ${dotColor}30">${badge}</span>
   </div>`;
 }
 
-// 1. Premium members who have NEVER been featured
-function renderCare_PremiumNever(){
-  const el=document.getElementById('care-prem-never');
-  const cs=document.getElementById('care-prem-never-cs');
-  const list=members
-    .filter(m=>(m.tier==='Premium'||m.tier==='Premium+')&&!m.featured&&!m.lastFeature)
-    .map(m=>({...m,mo:mos(m.joinDateISO)}))
-    .sort((a,b)=>b.mo-a.mo);
-  cs.textContent=list.length?`${list.length} need attention`:'All good ✓';
-  if(!list.length){el.innerHTML='<div class="empty">All Premium members have been featured. Great work. 🎉</div>';return;}
-  el.innerHTML=list.map(m=>careItem(m,m.tier,'rb-risk',`${m.mo} months subscribed · never posted`)).join('');
+// 1. Anniversaries this month (1yr, 2yr, 3yr…)
+function renderCare_Anniversaries(){
+  const now=new Date(), thisMonth=now.getMonth(), thisYear=now.getFullYear();
+  const list=members.filter(m=>{
+    if(!m.joinDateISO)return false;
+    const d=new Date(m.joinDateISO);
+    return(thisYear-d.getFullYear())>0 && d.getMonth()===thisMonth;
+  }).map(m=>{
+    const years=thisYear-new Date(m.joinDateISO).getFullYear();
+    return{...m,years};
+  }).sort((a,b)=>b.years-a.years);
+
+  document.getElementById('care-anni-cs').textContent=list.length?`${list.length} this month`:'None this month';
+  const el=document.getElementById('care-anni');
+  if(!list.length){el.innerHTML='<div class="empty">No anniversaries this month.</div>';document.getElementById('care-anni-insight').innerHTML='Check back next month.';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.years}yr`,'#f59e0b',`${m.tier} · member since ${m.joinDate||m.joinDateISO}`)).join('');
+  const top=list[0];
+  const multi=list.filter(m=>m.years>=2).length;
+  document.getElementById('care-anni-insight').innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> celebrating ${list.length===1?'an anniversary':'anniversaries'} this month${multi?`, including <b>${multi}</b> with 2+ years`:''}.  A story mention or personal DM goes a long way.`;
 }
 
-// 2. Members who have been posted before but are waiting the longest for their next feature
-function renderCare_WaitingLongest(){
-  const el=document.getElementById('care-waiting');
-  const cs=document.getElementById('care-waiting-cs');
-  const ins=document.getElementById('care-waiting-insight');
-
-  // Parse lastFeature date (format: DD/MM/YYYY)
-  function parseLastFeat(s){
-    if(!s)return null;
-    const p=s.split('/');
-    if(p.length===3)return new Date(`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`);
-    return new Date(s);
-  }
-
-  const now=new Date();
-  const list=members
-    .filter(m=>m.lastFeature&&!m.featured)
-    .map(m=>{
-      const d=parseLastFeat(m.lastFeature);
-      const daysAgo=d?Math.floor((now-d)/(1000*60*60*24)):0;
-      return{...m,daysAgo};
-    })
-    .sort((a,b)=>b.daysAgo-a.daysAgo)
-    .slice(0,6);
-
-  cs.textContent=`${list.length} shown`;
-  if(!list.length){el.innerHTML='<div class="empty">No post history yet.</div>';ins.innerHTML='No data.';return;}
-
-  el.innerHTML=list.map(m=>{
-    const wks=Math.floor(m.daysAgo/7);
-    const label=m.daysAgo<7?`${m.daysAgo}d ago`:wks<8?`${wks}w ago`:`${Math.floor(wks/4)}mo ago`;
-    const cls=m.daysAgo>60?'rb-risk':m.daysAgo>21?'rb-loyal':'rb-new';
-    return careItem(m,label,cls,`${m.tier} · last post: ${m.lastFeature}`);
-  }).join('');
-
-  const oldest=list[0];
-  ins.innerHTML=`<b>${oldest.handle}</b> has been waiting <b>${oldest.daysAgo} days</b> since their last feature. Consider prioritising them soon.`;
-}
-
-// 3. Members who joined in the last 30 days
+// 2. New members — joined last 30 days
 function renderCare_NewMembers(){
-  const el=document.getElementById('care-new');
-  const cs=document.getElementById('care-new-cs');
-  const ins=document.getElementById('care-new-insight');
-
   const now=new Date();
-  const list=members
-    .filter(m=>{
-      if(!m.joinDateISO)return false;
-      const d=new Date(m.joinDateISO);
-      return(now-d)/(1000*60*60*24)<=30;
-    })
-    .map(m=>{
-      const d=new Date(m.joinDateISO);
-      const daysAgo=Math.floor((now-d)/(1000*60*60*24));
-      return{...m,daysAgo};
-    })
-    .sort((a,b)=>a.daysAgo-b.daysAgo);
+  const list=members.filter(m=>{
+    if(!m.joinDateISO)return false;
+    return(now-new Date(m.joinDateISO))/(1000*60*60*24)<=30;
+  }).map(m=>{
+    const daysAgo=Math.floor((now-new Date(m.joinDateISO))/(1000*60*60*24));
+    return{...m,daysAgo};
+  }).sort((a,b)=>a.daysAgo-b.daysAgo);
 
-  cs.textContent=list.length?`${list.length} this month`:'None this month';
-  if(!list.length){el.innerHTML='<div class="empty">No new members in the last 30 days.</div>';ins.innerHTML='No recent joins.';return;}
-
+  document.getElementById('care-new-cs').textContent=list.length?`${list.length} this month`:'None this month';
+  const el=document.getElementById('care-new');
+  if(!list.length){el.innerHTML='<div class="empty">No new members in the last 30 days.</div>';document.getElementById('care-new-insight').innerHTML='No recent joins.';return;}
   el.innerHTML=list.map(m=>{
     const label=m.daysAgo===0?'Today':m.daysAgo===1?'Yesterday':`${m.daysAgo}d ago`;
-    return careItem(m,label,'rb-new',`${m.tier} · joined ${m.joinDate||'recently'}`);
+    return careItem(m,label,'#3b82f6',`${m.tier} · joined ${m.joinDate||'recently'}`);
   }).join('');
-
-  ins.innerHTML=`<b>${list.length} new member${list.length!==1?'s':''}</b> joined in the last 30 days. A welcome DM or quick interaction goes a long way for retention.`;
+  document.getElementById('care-new-insight').innerHTML=`<b>${list.length} new member${list.length!==1?'s':''}</b> this month. A welcome comment on their profile or a DM dramatically improves 30-day retention.`;
 }
 
-// 4. Members whose join anniversary falls this month (1yr, 2yr, 3yr…)
-function renderCare_Anniversaries(){
-  const el=document.getElementById('care-anni');
-  const cs=document.getElementById('care-anni-cs');
-  const ins=document.getElementById('care-anni-insight');
-
-  const now=new Date();
-  const thisMonth=now.getMonth();
-  const thisYear=now.getFullYear();
-
-  const list=members
-    .filter(m=>{
-      if(!m.joinDateISO)return false;
-      const d=new Date(m.joinDateISO);
-      const years=thisYear-d.getFullYear();
-      return years>0&&d.getMonth()===thisMonth;
-    })
-    .map(m=>{
-      const d=new Date(m.joinDateISO);
-      const years=thisYear-d.getFullYear();
-      return{...m,years};
-    })
-    .sort((a,b)=>b.years-a.years);
-
-  cs.textContent=list.length?`${list.length} this month`:'None this month';
-  if(!list.length){el.innerHTML='<div class="empty">No anniversaries this month.</div>';ins.innerHTML='Check back next month.';return;}
-
-  el.innerHTML=list.map(m=>{
-    const label=`${m.years}yr`;
-    const cls=m.years>=3?'rb-loyal':m.years>=2?'rb-gold':'rb-new';
-    return careItem(m,label,cls,`${m.tier} · member since ${m.joinDate||m.joinDateISO}`);
-  }).join('');
-
-  const multi=list.filter(m=>m.years>=2).length;
-  ins.innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> celebrating ${list.length===1?'an':'their'} anniversary this month${multi?`, including <b>${multi}</b> with 2+ years`:''}. A shoutout post is a great engagement boost.`;
+// 3. Premium+ VIPs — all of them, always
+function renderCare_VIPs(){
+  const list=[...members].filter(m=>m.tier==='Premium+').map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo);
+  document.getElementById('care-vip-cs').textContent=`${list.length} members`;
+  const el=document.getElementById('care-vip');
+  if(!list.length){el.innerHTML='<div class="empty">No Premium+ members yet.</div>';document.getElementById('care-vip-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.mo}mo`,'#a855f7',`€19.99/mo · ${m.country&&m.country!=='—'?m.country:'location unknown'}`)).join('');
+  const avgMo=Math.round(list.reduce((s,m)=>s+m.mo,0)/list.length);
+  document.getElementById('care-vip-insight').innerHTML=`Your <b>${list.length} Premium+ members</b> average <b>${avgMo} months</b> subscribed and generate <b>€${(list.length*19.99).toFixed(0)}/mo</b>. Check in personally — they are your top supporters.`;
 }
 
-// 5. Currently featured members
-function renderCare_CurrentlyFeatured(){
-  const el=document.getElementById('care-feat');
-  const cs=document.getElementById('care-feat-cs');
-  const ins=document.getElementById('care-feat-insight');
-
-  const list=members.filter(m=>m.featured);
-  cs.textContent=`${list.length} active`;
-
-  if(!list.length){
-    el.innerHTML='<div class="empty">No one is currently featured.</div>';
-    ins.innerHTML='Hit Post on any member in the Members tab to mark them as featured.';
-    return;
-  }
-
-  el.innerHTML=list.map(m=>careItem(m,'Live','rb-loyal',`${m.tier} · posted ${m.lastFeature||'recently'}`)).join('');
-  ins.innerHTML=`<b>${list.length} post${list.length!==1?'s':''}</b> currently live. When done, hit Unpost to keep your records clean and queue the next member.`;
+// 4. Upgrade candidates — Basic 6+ months, never upgraded
+function renderCare_UpgradeCandidates(){
+  const list=members.filter(m=>m.tier==='Basic'&&mos(m.joinDateISO)>=6).map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo).slice(0,8);
+  document.getElementById('care-upgrade-cs').textContent=`${members.filter(m=>m.tier==='Basic'&&mos(m.joinDateISO)>=6).length} candidates`;
+  const el=document.getElementById('care-upgrade');
+  if(!list.length){el.innerHTML='<div class="empty">No long-term Basic members yet.</div>';document.getElementById('care-upgrade-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.mo}mo`,'#06b6d4',`Basic · joined ${m.joinDate||'—'}`)).join('');
+  const revPotential=(list.length*(9.99-3.50)).toFixed(0);
+  document.getElementById('care-upgrade-insight').innerHTML=`<b>${list.length} loyal Basic members</b> have been around 6+ months. If just half upgraded to Premium, that would be <b>+€${Math.round(list.length/2*(9.99-3.50))}/mo</b>. A personal mention in their feature post can trigger upgrades.`;
 }
 
-// 6. Never featured — full grid
-function renderCare_NeverFeaturedGrid(){
-  const el=document.getElementById('care-never-grid');
-  const cs=document.getElementById('care-never-cs');
+// 5. At risk of churning — Basic with 1-2 months
+function renderCare_AtRisk(){
+  const list=members.filter(m=>m.tier==='Basic').map(m=>({...m,mo:mos(m.joinDateISO)})).filter(m=>m.mo<=2).sort((a,b)=>a.mo-b.mo);
+  document.getElementById('care-risk-cs').textContent=`${list.length} at risk`;
+  const el=document.getElementById('care-risk');
+  if(!list.length){el.innerHTML='<div class="empty">No high-risk members right now.</div>';document.getElementById('care-risk-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,m.mo===0?'<1mo':`${m.mo}mo`,'#f43f5e',`Basic · joined ${m.joinDate||'recently'}`)).join('');
+  document.getElementById('care-risk-insight').innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> in their first 2 months — the highest-risk window for cancellation. Engagement right now has an outsized impact on whether they stay.`;
+}
 
-  const list=members
-    .filter(m=>!m.featured&&!m.lastFeature)
-    .map(m=>({...m,mo:mos(m.joinDateISO)}))
-    .sort((a,b)=>b.mo-a.mo);
+// 6. Veterans — 18+ months
+function renderCare_Veterans(){
+  const list=members.filter(m=>mos(m.joinDateISO)>=18).map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo);
+  document.getElementById('care-veteran-cs').textContent=`${list.length} veterans`;
+  const el=document.getElementById('care-veteran');
+  if(!list.length){el.innerHTML='<div class="empty">No 18+ month members yet.</div>';document.getElementById('care-veteran-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.mo}mo`,'#10b981',`${m.tier} · since ${m.joinDate||'—'}`)).join('');
+  const oldest=list[0];
+  document.getElementById('care-veteran-insight').innerHTML=`<b>${oldest.handle}</b> is your longest member at <b>${oldest.mo} months</b>. Veterans like these are your most credible advocates — a shoutout or a "thanks for being here since the beginning" DM costs nothing.`;
+}
 
+// 7. Incomplete profiles — missing handle (looks like email) or missing car
+function renderCare_IncompleteProfiles(){
+  const el=document.getElementById('care-incomplete-grid');
+  const cs=document.getElementById('care-incomplete-cs');
+  const list=members.filter(m=>{
+    const handleLooksLikeEmail=m.handle&&m.handle.includes('@')&&m.handle.includes('.');
+    const missingCar=!m.car||m.car==='—';
+    return handleLooksLikeEmail||missingCar;
+  });
   cs.textContent=`${list.length} members`;
-  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">Every member has been featured at least once. 🎉</div>';return;}
-
+  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">All profiles look complete. 👍</div>';return;}
   el.innerHTML=list.map(m=>{
-    const mo=m.mo;
-    const urgency=mo>12?'rgba(244,63,94,.15)':mo>3?'rgba(245,158,11,.1)':'rgba(59,130,246,.1)';
-    const border=mo>12?'rgba(244,63,94,.25)':mo>3?'rgba(245,158,11,.2)':'rgba(59,130,246,.2)';
-    const dotColor=mo>12?'#f43f5e':mo>3?'#f59e0b':'#3b82f6';
-    return`<div style="background:${urgency};border:1px solid ${border};border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:9px">
-      <div style="width:6px;height:6px;border-radius:50%;background:${dotColor};flex-shrink:0"></div>
+    const issues=[];
+    if(m.handle&&m.handle.includes('@')&&m.handle.includes('.'))issues.push('No IG handle');
+    if(!m.car||m.car==='—')issues.push('No car info');
+    return`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:9px">
+      <div style="width:6px;height:6px;border-radius:50%;background:#f59e0b;flex-shrink:0"></div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.handle}</div>
-        <div style="font-family:var(--m);font-size:9px;color:var(--sub);margin-top:2px">${m.tier} · ${mo}mo</div>
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.handle||m.paypalEmail}</div>
+        <div style="font-family:var(--m);font-size:9px;color:var(--sub);margin-top:2px">${issues.join(' · ')} · ${m.tier}</div>
       </div>
     </div>`;
   }).join('');
+}
+
+// ── WORLD MAP ─────────────────────────────────────────
+function renderWorldMap(){
+  const el=document.getElementById('world-map');
+  const cs=document.getElementById('a-map-cs');
+  const ins=document.getElementById('a-map-insight');
+  if(!el)return;
+
+  // Build country counts
+  const counts={};
+  members.forEach(m=>{
+    const c=(m.country&&m.country!=='—')?m.country.trim():null;
+    if(c)counts[c]=(counts[c]||0)+1;
+  });
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  if(!sorted.length){
+    el.innerHTML='<div class="empty" style="padding:60px 0">No country data yet — run a PayPal sync to populate.</div>';
+    if(cs)cs.textContent='No data';
+    if(ins)ins.innerHTML='Sync PayPal to get country data from subscriber addresses.';
+    return;
+  }
+
+  if(cs)cs.textContent=`${sorted.length} countries · ${members.filter(m=>m.country&&m.country!=='—').length} members mapped`;
+  if(ins)ins.innerHTML=`Members in <b>${sorted.length} countries</b>. Top: <b>${sorted.slice(0,3).map(([c,n])=>`${c} (${n})`).join(', ')}</b>.`;
+
+  const maxCount=sorted[0][1];
+
+  // Country name → ISO 2 (reverse lookup for map)
+  const nameToISO={
+    'Afghanistan':'AF','Albania':'AL','Algeria':'DZ','Argentina':'AR','Australia':'AU',
+    'Austria':'AT','Belgium':'BE','Brazil':'BR','Bulgaria':'BG','Canada':'CA',
+    'Chile':'CL','China':'CN','Colombia':'CO','Croatia':'HR','Czech Republic':'CZ',
+    'Denmark':'DK','Egypt':'EG','Finland':'FI','France':'FR','Germany':'DE',
+    'Greece':'GR','Hungary':'HU','India':'IN','Indonesia':'ID','Ireland':'IE',
+    'Israel':'IL','Italy':'IT','Japan':'JP','Jordan':'JO','Kenya':'KE',
+    'Kuwait':'KW','Lebanon':'LB','Lithuania':'LT','Luxembourg':'LU','Malaysia':'MY',
+    'Mexico':'MX','Morocco':'MA','Netherlands':'NL','New Zealand':'NZ','Nigeria':'NG',
+    'Norway':'NO','Oman':'OM','Pakistan':'PK','Peru':'PE','Philippines':'PH',
+    'Poland':'PL','Portugal':'PT','Qatar':'QA','Romania':'RO','Russia':'RU',
+    'Saudi Arabia':'SA','Serbia':'RS','Singapore':'SG','Slovakia':'SK','South Africa':'ZA',
+    'Spain':'ES','Sweden':'SE','Switzerland':'CH','Taiwan':'TW','Thailand':'TH',
+    'Tunisia':'TN','Turkey':'TR','Ukraine':'UA','UAE':'AE','United Kingdom':'GB',
+    'United States':'US','Uruguay':'UY','Venezuela':'VE','Vietnam':'VN'
+  };
+
+  // Build SVG world map using simplified country paths
+  // We use a lightweight approach: circles on approximate lat/lng positions
+  const coords={
+    'AF':[67,34],'AL':[20,41],'DZ':[3,28],'AR':[-64,-34],'AU':[133,-27],
+    'AT':[14,47],'BE':[4,51],'BR':[-51,-10],'BG':[25,43],'CA':[-96,60],
+    'CL':[-71,-30],'CN':[105,35],'CO':[-74,4],'HR':[16,45],'CZ':[16,50],
+    'DK':[10,56],'EG':[30,27],'FI':[26,64],'FR':[2,46],'DE':[10,51],
+    'GR':[22,39],'HU':[19,47],'IN':[78,20],'ID':[120,-5],'IE':[-8,53],
+    'IL':[35,31],'IT':[12,42],'JP':[138,36],'JO':[37,31],'KE':[38,1],
+    'KW':[48,29],'LB':[36,34],'LT':[24,56],'LU':[6,50],'MY':[110,4],
+    'MX':[-102,24],'MA':[-5,32],'NL':[5,52],'NZ':[172,-41],'NG':[8,10],
+    'NO':[10,62],'OM':[57,21],'PK':[70,30],'PE':[-76,-10],'PH':[122,13],
+    'PL':[20,52],'PT':[-8,39],'QA':[51,25],'RO':[25,46],'RU':[105,60],
+    'SA':[45,24],'RS':[21,44],'SG':[104,1],'SK':[19,49],'ZA':[25,-29],
+    'ES':[-3,40],'SE':[18,62],'CH':[8,47],'TW':[121,24],'TH':[101,15],
+    'TN':[9,34],'TR':[35,39],'UA':[32,49],'AE':[54,24],'GB':[-2,54],
+    'US':[-98,39],'UY':[-56,-33],'VE':[-66,8],'VN':[108,14]
+  };
+
+  // Map projection (simple equirectangular)
+  const W=el.offsetWidth||700, H=340;
+  function project(lng,lat){
+    const x=(lng+180)*(W/360);
+    const y=(90-lat)*(H/180);
+    return[x,y];
+  }
+
+  // Build dots
+  const dots=sorted.map(([country,count])=>{
+    const iso=nameToISO[country]||country;
+    const coord=coords[iso];
+    if(!coord)return'';
+    const[x,y]=project(coord[0],coord[1]);
+    const r=Math.max(5,Math.min(22,5+Math.sqrt(count/maxCount)*18));
+    const opacity=0.4+0.6*(count/maxCount);
+    const alpha=Math.round(opacity*255).toString(16).padStart(2,'0');
+    return`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="#a855f7${alpha}" stroke="#a855f7" stroke-width="1" opacity="${opacity.toFixed(2)}">
+      <title>${country}: ${count} member${count!==1?'s':''}</title>
+    </circle>`;
+  }).join('');
+
+  // Grid lines
+  const gridLines=[];
+  for(let lng=-180;lng<=180;lng+=30){
+    const[x1]=project(lng,90);const[,y1]=project(lng,90);const[,y2]=project(lng,-90);
+    gridLines.push(`<line x1="${x1}" y1="${y1}" x2="${x1}" y2="${y2}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`);
+  }
+  for(let lat=-60;lat<=60;lat+=30){
+    const[x1,y1]=project(-180,lat);const[x2]=project(180,lat);
+    gridLines.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y1}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`);
+  }
+
+  el.innerHTML=`<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block">
+    <rect width="${W}" height="${H}" fill="transparent"/>
+    ${gridLines.join('')}
+    ${dots}
+  </svg>`;
 }
 
 loadMembers();}
@@ -1438,190 +1585,237 @@ async function syncPayPal(){
   try{const r=await fetch('/api/paypal?action=sync');const d=await r.json();if(d.success){setStatus(`synced · +${d.added} added`,'ok');await 
 // ── MEMBER CARE ──────────────────────────────────────
 function renderCare(){
-  renderCare_PremiumNever();
-  renderCare_WaitingLongest();
-  renderCare_NewMembers();
   renderCare_Anniversaries();
-  renderCare_CurrentlyFeatured();
-  renderCare_NeverFeaturedGrid();
+  renderCare_NewMembers();
+  renderCare_VIPs();
+  renderCare_UpgradeCandidates();
+  renderCare_AtRisk();
+  renderCare_Veterans();
+  renderCare_IncompleteProfiles();
 }
 
-function careItem(m, badge, badgeClass, detail){
+function careItem(m, badge, dotColor, detail){
   return `<div class="risk-item">
-    <div class="risk-dot" style="background:${badgeClass==='rb-new'?'#3b82f6':badgeClass==='rb-risk'?'#f43f5e':badgeClass==='rb-gold'?'#f59e0b':'#a855f7'}"></div>
+    <div class="risk-dot" style="background:${dotColor}"></div>
     <div class="risk-info">
-      <div class="risk-handle">${m.handle}</div>
+      <div class="risk-handle">${m.handle||m.paypalEmail||'Unknown'}</div>
       <div class="risk-detail">${detail}</div>
     </div>
-    <span class="risk-badge ${badgeClass}">${badge}</span>
+    <span class="risk-badge" style="background:${dotColor}18;color:${dotColor};border:1px solid ${dotColor}30">${badge}</span>
   </div>`;
 }
 
-// 1. Premium members who have NEVER been featured
-function renderCare_PremiumNever(){
-  const el=document.getElementById('care-prem-never');
-  const cs=document.getElementById('care-prem-never-cs');
-  const list=members
-    .filter(m=>(m.tier==='Premium'||m.tier==='Premium+')&&!m.featured&&!m.lastFeature)
-    .map(m=>({...m,mo:mos(m.joinDateISO)}))
-    .sort((a,b)=>b.mo-a.mo);
-  cs.textContent=list.length?`${list.length} need attention`:'All good ✓';
-  if(!list.length){el.innerHTML='<div class="empty">All Premium members have been featured. Great work. 🎉</div>';return;}
-  el.innerHTML=list.map(m=>careItem(m,m.tier,'rb-risk',`${m.mo} months subscribed · never posted`)).join('');
+// 1. Anniversaries this month (1yr, 2yr, 3yr…)
+function renderCare_Anniversaries(){
+  const now=new Date(), thisMonth=now.getMonth(), thisYear=now.getFullYear();
+  const list=members.filter(m=>{
+    if(!m.joinDateISO)return false;
+    const d=new Date(m.joinDateISO);
+    return(thisYear-d.getFullYear())>0 && d.getMonth()===thisMonth;
+  }).map(m=>{
+    const years=thisYear-new Date(m.joinDateISO).getFullYear();
+    return{...m,years};
+  }).sort((a,b)=>b.years-a.years);
+
+  document.getElementById('care-anni-cs').textContent=list.length?`${list.length} this month`:'None this month';
+  const el=document.getElementById('care-anni');
+  if(!list.length){el.innerHTML='<div class="empty">No anniversaries this month.</div>';document.getElementById('care-anni-insight').innerHTML='Check back next month.';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.years}yr`,'#f59e0b',`${m.tier} · member since ${m.joinDate||m.joinDateISO}`)).join('');
+  const top=list[0];
+  const multi=list.filter(m=>m.years>=2).length;
+  document.getElementById('care-anni-insight').innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> celebrating ${list.length===1?'an anniversary':'anniversaries'} this month${multi?`, including <b>${multi}</b> with 2+ years`:''}.  A story mention or personal DM goes a long way.`;
 }
 
-// 2. Members who have been posted before but are waiting the longest for their next feature
-function renderCare_WaitingLongest(){
-  const el=document.getElementById('care-waiting');
-  const cs=document.getElementById('care-waiting-cs');
-  const ins=document.getElementById('care-waiting-insight');
-
-  // Parse lastFeature date (format: DD/MM/YYYY)
-  function parseLastFeat(s){
-    if(!s)return null;
-    const p=s.split('/');
-    if(p.length===3)return new Date(`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`);
-    return new Date(s);
-  }
-
-  const now=new Date();
-  const list=members
-    .filter(m=>m.lastFeature&&!m.featured)
-    .map(m=>{
-      const d=parseLastFeat(m.lastFeature);
-      const daysAgo=d?Math.floor((now-d)/(1000*60*60*24)):0;
-      return{...m,daysAgo};
-    })
-    .sort((a,b)=>b.daysAgo-a.daysAgo)
-    .slice(0,6);
-
-  cs.textContent=`${list.length} shown`;
-  if(!list.length){el.innerHTML='<div class="empty">No post history yet.</div>';ins.innerHTML='No data.';return;}
-
-  el.innerHTML=list.map(m=>{
-    const wks=Math.floor(m.daysAgo/7);
-    const label=m.daysAgo<7?`${m.daysAgo}d ago`:wks<8?`${wks}w ago`:`${Math.floor(wks/4)}mo ago`;
-    const cls=m.daysAgo>60?'rb-risk':m.daysAgo>21?'rb-loyal':'rb-new';
-    return careItem(m,label,cls,`${m.tier} · last post: ${m.lastFeature}`);
-  }).join('');
-
-  const oldest=list[0];
-  ins.innerHTML=`<b>${oldest.handle}</b> has been waiting <b>${oldest.daysAgo} days</b> since their last feature. Consider prioritising them soon.`;
-}
-
-// 3. Members who joined in the last 30 days
+// 2. New members — joined last 30 days
 function renderCare_NewMembers(){
-  const el=document.getElementById('care-new');
-  const cs=document.getElementById('care-new-cs');
-  const ins=document.getElementById('care-new-insight');
-
   const now=new Date();
-  const list=members
-    .filter(m=>{
-      if(!m.joinDateISO)return false;
-      const d=new Date(m.joinDateISO);
-      return(now-d)/(1000*60*60*24)<=30;
-    })
-    .map(m=>{
-      const d=new Date(m.joinDateISO);
-      const daysAgo=Math.floor((now-d)/(1000*60*60*24));
-      return{...m,daysAgo};
-    })
-    .sort((a,b)=>a.daysAgo-b.daysAgo);
+  const list=members.filter(m=>{
+    if(!m.joinDateISO)return false;
+    return(now-new Date(m.joinDateISO))/(1000*60*60*24)<=30;
+  }).map(m=>{
+    const daysAgo=Math.floor((now-new Date(m.joinDateISO))/(1000*60*60*24));
+    return{...m,daysAgo};
+  }).sort((a,b)=>a.daysAgo-b.daysAgo);
 
-  cs.textContent=list.length?`${list.length} this month`:'None this month';
-  if(!list.length){el.innerHTML='<div class="empty">No new members in the last 30 days.</div>';ins.innerHTML='No recent joins.';return;}
-
+  document.getElementById('care-new-cs').textContent=list.length?`${list.length} this month`:'None this month';
+  const el=document.getElementById('care-new');
+  if(!list.length){el.innerHTML='<div class="empty">No new members in the last 30 days.</div>';document.getElementById('care-new-insight').innerHTML='No recent joins.';return;}
   el.innerHTML=list.map(m=>{
     const label=m.daysAgo===0?'Today':m.daysAgo===1?'Yesterday':`${m.daysAgo}d ago`;
-    return careItem(m,label,'rb-new',`${m.tier} · joined ${m.joinDate||'recently'}`);
+    return careItem(m,label,'#3b82f6',`${m.tier} · joined ${m.joinDate||'recently'}`);
   }).join('');
-
-  ins.innerHTML=`<b>${list.length} new member${list.length!==1?'s':''}</b> joined in the last 30 days. A welcome DM or quick interaction goes a long way for retention.`;
+  document.getElementById('care-new-insight').innerHTML=`<b>${list.length} new member${list.length!==1?'s':''}</b> this month. A welcome comment on their profile or a DM dramatically improves 30-day retention.`;
 }
 
-// 4. Members whose join anniversary falls this month (1yr, 2yr, 3yr…)
-function renderCare_Anniversaries(){
-  const el=document.getElementById('care-anni');
-  const cs=document.getElementById('care-anni-cs');
-  const ins=document.getElementById('care-anni-insight');
-
-  const now=new Date();
-  const thisMonth=now.getMonth();
-  const thisYear=now.getFullYear();
-
-  const list=members
-    .filter(m=>{
-      if(!m.joinDateISO)return false;
-      const d=new Date(m.joinDateISO);
-      const years=thisYear-d.getFullYear();
-      return years>0&&d.getMonth()===thisMonth;
-    })
-    .map(m=>{
-      const d=new Date(m.joinDateISO);
-      const years=thisYear-d.getFullYear();
-      return{...m,years};
-    })
-    .sort((a,b)=>b.years-a.years);
-
-  cs.textContent=list.length?`${list.length} this month`:'None this month';
-  if(!list.length){el.innerHTML='<div class="empty">No anniversaries this month.</div>';ins.innerHTML='Check back next month.';return;}
-
-  el.innerHTML=list.map(m=>{
-    const label=`${m.years}yr`;
-    const cls=m.years>=3?'rb-loyal':m.years>=2?'rb-gold':'rb-new';
-    return careItem(m,label,cls,`${m.tier} · member since ${m.joinDate||m.joinDateISO}`);
-  }).join('');
-
-  const multi=list.filter(m=>m.years>=2).length;
-  ins.innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> celebrating ${list.length===1?'an':'their'} anniversary this month${multi?`, including <b>${multi}</b> with 2+ years`:''}. A shoutout post is a great engagement boost.`;
+// 3. Premium+ VIPs — all of them, always
+function renderCare_VIPs(){
+  const list=[...members].filter(m=>m.tier==='Premium+').map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo);
+  document.getElementById('care-vip-cs').textContent=`${list.length} members`;
+  const el=document.getElementById('care-vip');
+  if(!list.length){el.innerHTML='<div class="empty">No Premium+ members yet.</div>';document.getElementById('care-vip-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.mo}mo`,'#a855f7',`€19.99/mo · ${m.country&&m.country!=='—'?m.country:'location unknown'}`)).join('');
+  const avgMo=Math.round(list.reduce((s,m)=>s+m.mo,0)/list.length);
+  document.getElementById('care-vip-insight').innerHTML=`Your <b>${list.length} Premium+ members</b> average <b>${avgMo} months</b> subscribed and generate <b>€${(list.length*19.99).toFixed(0)}/mo</b>. Check in personally — they are your top supporters.`;
 }
 
-// 5. Currently featured members
-function renderCare_CurrentlyFeatured(){
-  const el=document.getElementById('care-feat');
-  const cs=document.getElementById('care-feat-cs');
-  const ins=document.getElementById('care-feat-insight');
-
-  const list=members.filter(m=>m.featured);
-  cs.textContent=`${list.length} active`;
-
-  if(!list.length){
-    el.innerHTML='<div class="empty">No one is currently featured.</div>';
-    ins.innerHTML='Hit Post on any member in the Members tab to mark them as featured.';
-    return;
-  }
-
-  el.innerHTML=list.map(m=>careItem(m,'Live','rb-loyal',`${m.tier} · posted ${m.lastFeature||'recently'}`)).join('');
-  ins.innerHTML=`<b>${list.length} post${list.length!==1?'s':''}</b> currently live. When done, hit Unpost to keep your records clean and queue the next member.`;
+// 4. Upgrade candidates — Basic 6+ months, never upgraded
+function renderCare_UpgradeCandidates(){
+  const list=members.filter(m=>m.tier==='Basic'&&mos(m.joinDateISO)>=6).map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo).slice(0,8);
+  document.getElementById('care-upgrade-cs').textContent=`${members.filter(m=>m.tier==='Basic'&&mos(m.joinDateISO)>=6).length} candidates`;
+  const el=document.getElementById('care-upgrade');
+  if(!list.length){el.innerHTML='<div class="empty">No long-term Basic members yet.</div>';document.getElementById('care-upgrade-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.mo}mo`,'#06b6d4',`Basic · joined ${m.joinDate||'—'}`)).join('');
+  const revPotential=(list.length*(9.99-3.50)).toFixed(0);
+  document.getElementById('care-upgrade-insight').innerHTML=`<b>${list.length} loyal Basic members</b> have been around 6+ months. If just half upgraded to Premium, that would be <b>+€${Math.round(list.length/2*(9.99-3.50))}/mo</b>. A personal mention in their feature post can trigger upgrades.`;
 }
 
-// 6. Never featured — full grid
-function renderCare_NeverFeaturedGrid(){
-  const el=document.getElementById('care-never-grid');
-  const cs=document.getElementById('care-never-cs');
+// 5. At risk of churning — Basic with 1-2 months
+function renderCare_AtRisk(){
+  const list=members.filter(m=>m.tier==='Basic').map(m=>({...m,mo:mos(m.joinDateISO)})).filter(m=>m.mo<=2).sort((a,b)=>a.mo-b.mo);
+  document.getElementById('care-risk-cs').textContent=`${list.length} at risk`;
+  const el=document.getElementById('care-risk');
+  if(!list.length){el.innerHTML='<div class="empty">No high-risk members right now.</div>';document.getElementById('care-risk-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,m.mo===0?'<1mo':`${m.mo}mo`,'#f43f5e',`Basic · joined ${m.joinDate||'recently'}`)).join('');
+  document.getElementById('care-risk-insight').innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> in their first 2 months — the highest-risk window for cancellation. Engagement right now has an outsized impact on whether they stay.`;
+}
 
-  const list=members
-    .filter(m=>!m.featured&&!m.lastFeature)
-    .map(m=>({...m,mo:mos(m.joinDateISO)}))
-    .sort((a,b)=>b.mo-a.mo);
+// 6. Veterans — 18+ months
+function renderCare_Veterans(){
+  const list=members.filter(m=>mos(m.joinDateISO)>=18).map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo);
+  document.getElementById('care-veteran-cs').textContent=`${list.length} veterans`;
+  const el=document.getElementById('care-veteran');
+  if(!list.length){el.innerHTML='<div class="empty">No 18+ month members yet.</div>';document.getElementById('care-veteran-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.mo}mo`,'#10b981',`${m.tier} · since ${m.joinDate||'—'}`)).join('');
+  const oldest=list[0];
+  document.getElementById('care-veteran-insight').innerHTML=`<b>${oldest.handle}</b> is your longest member at <b>${oldest.mo} months</b>. Veterans like these are your most credible advocates — a shoutout or a "thanks for being here since the beginning" DM costs nothing.`;
+}
 
+// 7. Incomplete profiles — missing handle (looks like email) or missing car
+function renderCare_IncompleteProfiles(){
+  const el=document.getElementById('care-incomplete-grid');
+  const cs=document.getElementById('care-incomplete-cs');
+  const list=members.filter(m=>{
+    const handleLooksLikeEmail=m.handle&&m.handle.includes('@')&&m.handle.includes('.');
+    const missingCar=!m.car||m.car==='—';
+    return handleLooksLikeEmail||missingCar;
+  });
   cs.textContent=`${list.length} members`;
-  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">Every member has been featured at least once. 🎉</div>';return;}
-
+  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">All profiles look complete. 👍</div>';return;}
   el.innerHTML=list.map(m=>{
-    const mo=m.mo;
-    const urgency=mo>12?'rgba(244,63,94,.15)':mo>3?'rgba(245,158,11,.1)':'rgba(59,130,246,.1)';
-    const border=mo>12?'rgba(244,63,94,.25)':mo>3?'rgba(245,158,11,.2)':'rgba(59,130,246,.2)';
-    const dotColor=mo>12?'#f43f5e':mo>3?'#f59e0b':'#3b82f6';
-    return`<div style="background:${urgency};border:1px solid ${border};border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:9px">
-      <div style="width:6px;height:6px;border-radius:50%;background:${dotColor};flex-shrink:0"></div>
+    const issues=[];
+    if(m.handle&&m.handle.includes('@')&&m.handle.includes('.'))issues.push('No IG handle');
+    if(!m.car||m.car==='—')issues.push('No car info');
+    return`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:9px">
+      <div style="width:6px;height:6px;border-radius:50%;background:#f59e0b;flex-shrink:0"></div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.handle}</div>
-        <div style="font-family:var(--m);font-size:9px;color:var(--sub);margin-top:2px">${m.tier} · ${mo}mo</div>
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.handle||m.paypalEmail}</div>
+        <div style="font-family:var(--m);font-size:9px;color:var(--sub);margin-top:2px">${issues.join(' · ')} · ${m.tier}</div>
       </div>
     </div>`;
   }).join('');
+}
+
+// ── WORLD MAP ─────────────────────────────────────────
+function renderWorldMap(){
+  const el=document.getElementById('world-map');
+  const cs=document.getElementById('a-map-cs');
+  const ins=document.getElementById('a-map-insight');
+  if(!el)return;
+
+  // Build country counts
+  const counts={};
+  members.forEach(m=>{
+    const c=(m.country&&m.country!=='—')?m.country.trim():null;
+    if(c)counts[c]=(counts[c]||0)+1;
+  });
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  if(!sorted.length){
+    el.innerHTML='<div class="empty" style="padding:60px 0">No country data yet — run a PayPal sync to populate.</div>';
+    if(cs)cs.textContent='No data';
+    if(ins)ins.innerHTML='Sync PayPal to get country data from subscriber addresses.';
+    return;
+  }
+
+  if(cs)cs.textContent=`${sorted.length} countries · ${members.filter(m=>m.country&&m.country!=='—').length} members mapped`;
+  if(ins)ins.innerHTML=`Members in <b>${sorted.length} countries</b>. Top: <b>${sorted.slice(0,3).map(([c,n])=>`${c} (${n})`).join(', ')}</b>.`;
+
+  const maxCount=sorted[0][1];
+
+  // Country name → ISO 2 (reverse lookup for map)
+  const nameToISO={
+    'Afghanistan':'AF','Albania':'AL','Algeria':'DZ','Argentina':'AR','Australia':'AU',
+    'Austria':'AT','Belgium':'BE','Brazil':'BR','Bulgaria':'BG','Canada':'CA',
+    'Chile':'CL','China':'CN','Colombia':'CO','Croatia':'HR','Czech Republic':'CZ',
+    'Denmark':'DK','Egypt':'EG','Finland':'FI','France':'FR','Germany':'DE',
+    'Greece':'GR','Hungary':'HU','India':'IN','Indonesia':'ID','Ireland':'IE',
+    'Israel':'IL','Italy':'IT','Japan':'JP','Jordan':'JO','Kenya':'KE',
+    'Kuwait':'KW','Lebanon':'LB','Lithuania':'LT','Luxembourg':'LU','Malaysia':'MY',
+    'Mexico':'MX','Morocco':'MA','Netherlands':'NL','New Zealand':'NZ','Nigeria':'NG',
+    'Norway':'NO','Oman':'OM','Pakistan':'PK','Peru':'PE','Philippines':'PH',
+    'Poland':'PL','Portugal':'PT','Qatar':'QA','Romania':'RO','Russia':'RU',
+    'Saudi Arabia':'SA','Serbia':'RS','Singapore':'SG','Slovakia':'SK','South Africa':'ZA',
+    'Spain':'ES','Sweden':'SE','Switzerland':'CH','Taiwan':'TW','Thailand':'TH',
+    'Tunisia':'TN','Turkey':'TR','Ukraine':'UA','UAE':'AE','United Kingdom':'GB',
+    'United States':'US','Uruguay':'UY','Venezuela':'VE','Vietnam':'VN'
+  };
+
+  // Build SVG world map using simplified country paths
+  // We use a lightweight approach: circles on approximate lat/lng positions
+  const coords={
+    'AF':[67,34],'AL':[20,41],'DZ':[3,28],'AR':[-64,-34],'AU':[133,-27],
+    'AT':[14,47],'BE':[4,51],'BR':[-51,-10],'BG':[25,43],'CA':[-96,60],
+    'CL':[-71,-30],'CN':[105,35],'CO':[-74,4],'HR':[16,45],'CZ':[16,50],
+    'DK':[10,56],'EG':[30,27],'FI':[26,64],'FR':[2,46],'DE':[10,51],
+    'GR':[22,39],'HU':[19,47],'IN':[78,20],'ID':[120,-5],'IE':[-8,53],
+    'IL':[35,31],'IT':[12,42],'JP':[138,36],'JO':[37,31],'KE':[38,1],
+    'KW':[48,29],'LB':[36,34],'LT':[24,56],'LU':[6,50],'MY':[110,4],
+    'MX':[-102,24],'MA':[-5,32],'NL':[5,52],'NZ':[172,-41],'NG':[8,10],
+    'NO':[10,62],'OM':[57,21],'PK':[70,30],'PE':[-76,-10],'PH':[122,13],
+    'PL':[20,52],'PT':[-8,39],'QA':[51,25],'RO':[25,46],'RU':[105,60],
+    'SA':[45,24],'RS':[21,44],'SG':[104,1],'SK':[19,49],'ZA':[25,-29],
+    'ES':[-3,40],'SE':[18,62],'CH':[8,47],'TW':[121,24],'TH':[101,15],
+    'TN':[9,34],'TR':[35,39],'UA':[32,49],'AE':[54,24],'GB':[-2,54],
+    'US':[-98,39],'UY':[-56,-33],'VE':[-66,8],'VN':[108,14]
+  };
+
+  // Map projection (simple equirectangular)
+  const W=el.offsetWidth||700, H=340;
+  function project(lng,lat){
+    const x=(lng+180)*(W/360);
+    const y=(90-lat)*(H/180);
+    return[x,y];
+  }
+
+  // Build dots
+  const dots=sorted.map(([country,count])=>{
+    const iso=nameToISO[country]||country;
+    const coord=coords[iso];
+    if(!coord)return'';
+    const[x,y]=project(coord[0],coord[1]);
+    const r=Math.max(5,Math.min(22,5+Math.sqrt(count/maxCount)*18));
+    const opacity=0.4+0.6*(count/maxCount);
+    const alpha=Math.round(opacity*255).toString(16).padStart(2,'0');
+    return`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="#a855f7${alpha}" stroke="#a855f7" stroke-width="1" opacity="${opacity.toFixed(2)}">
+      <title>${country}: ${count} member${count!==1?'s':''}</title>
+    </circle>`;
+  }).join('');
+
+  // Grid lines
+  const gridLines=[];
+  for(let lng=-180;lng<=180;lng+=30){
+    const[x1]=project(lng,90);const[,y1]=project(lng,90);const[,y2]=project(lng,-90);
+    gridLines.push(`<line x1="${x1}" y1="${y1}" x2="${x1}" y2="${y2}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`);
+  }
+  for(let lat=-60;lat<=60;lat+=30){
+    const[x1,y1]=project(-180,lat);const[x2]=project(180,lat);
+    gridLines.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y1}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`);
+  }
+
+  el.innerHTML=`<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block">
+    <rect width="${W}" height="${H}" fill="transparent"/>
+    ${gridLines.join('')}
+    ${dots}
+  </svg>`;
 }
 
 loadMembers();}else setStatus('sync failed','err');}catch{setStatus('sync error','err');}
@@ -1631,190 +1825,237 @@ loadMembers();}else setStatus('sync failed','err');}catch{setStatus('sync error'
 
 // ── MEMBER CARE ──────────────────────────────────────
 function renderCare(){
-  renderCare_PremiumNever();
-  renderCare_WaitingLongest();
-  renderCare_NewMembers();
   renderCare_Anniversaries();
-  renderCare_CurrentlyFeatured();
-  renderCare_NeverFeaturedGrid();
+  renderCare_NewMembers();
+  renderCare_VIPs();
+  renderCare_UpgradeCandidates();
+  renderCare_AtRisk();
+  renderCare_Veterans();
+  renderCare_IncompleteProfiles();
 }
 
-function careItem(m, badge, badgeClass, detail){
+function careItem(m, badge, dotColor, detail){
   return `<div class="risk-item">
-    <div class="risk-dot" style="background:${badgeClass==='rb-new'?'#3b82f6':badgeClass==='rb-risk'?'#f43f5e':badgeClass==='rb-gold'?'#f59e0b':'#a855f7'}"></div>
+    <div class="risk-dot" style="background:${dotColor}"></div>
     <div class="risk-info">
-      <div class="risk-handle">${m.handle}</div>
+      <div class="risk-handle">${m.handle||m.paypalEmail||'Unknown'}</div>
       <div class="risk-detail">${detail}</div>
     </div>
-    <span class="risk-badge ${badgeClass}">${badge}</span>
+    <span class="risk-badge" style="background:${dotColor}18;color:${dotColor};border:1px solid ${dotColor}30">${badge}</span>
   </div>`;
 }
 
-// 1. Premium members who have NEVER been featured
-function renderCare_PremiumNever(){
-  const el=document.getElementById('care-prem-never');
-  const cs=document.getElementById('care-prem-never-cs');
-  const list=members
-    .filter(m=>(m.tier==='Premium'||m.tier==='Premium+')&&!m.featured&&!m.lastFeature)
-    .map(m=>({...m,mo:mos(m.joinDateISO)}))
-    .sort((a,b)=>b.mo-a.mo);
-  cs.textContent=list.length?`${list.length} need attention`:'All good ✓';
-  if(!list.length){el.innerHTML='<div class="empty">All Premium members have been featured. Great work. 🎉</div>';return;}
-  el.innerHTML=list.map(m=>careItem(m,m.tier,'rb-risk',`${m.mo} months subscribed · never posted`)).join('');
+// 1. Anniversaries this month (1yr, 2yr, 3yr…)
+function renderCare_Anniversaries(){
+  const now=new Date(), thisMonth=now.getMonth(), thisYear=now.getFullYear();
+  const list=members.filter(m=>{
+    if(!m.joinDateISO)return false;
+    const d=new Date(m.joinDateISO);
+    return(thisYear-d.getFullYear())>0 && d.getMonth()===thisMonth;
+  }).map(m=>{
+    const years=thisYear-new Date(m.joinDateISO).getFullYear();
+    return{...m,years};
+  }).sort((a,b)=>b.years-a.years);
+
+  document.getElementById('care-anni-cs').textContent=list.length?`${list.length} this month`:'None this month';
+  const el=document.getElementById('care-anni');
+  if(!list.length){el.innerHTML='<div class="empty">No anniversaries this month.</div>';document.getElementById('care-anni-insight').innerHTML='Check back next month.';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.years}yr`,'#f59e0b',`${m.tier} · member since ${m.joinDate||m.joinDateISO}`)).join('');
+  const top=list[0];
+  const multi=list.filter(m=>m.years>=2).length;
+  document.getElementById('care-anni-insight').innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> celebrating ${list.length===1?'an anniversary':'anniversaries'} this month${multi?`, including <b>${multi}</b> with 2+ years`:''}.  A story mention or personal DM goes a long way.`;
 }
 
-// 2. Members who have been posted before but are waiting the longest for their next feature
-function renderCare_WaitingLongest(){
-  const el=document.getElementById('care-waiting');
-  const cs=document.getElementById('care-waiting-cs');
-  const ins=document.getElementById('care-waiting-insight');
-
-  // Parse lastFeature date (format: DD/MM/YYYY)
-  function parseLastFeat(s){
-    if(!s)return null;
-    const p=s.split('/');
-    if(p.length===3)return new Date(`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`);
-    return new Date(s);
-  }
-
-  const now=new Date();
-  const list=members
-    .filter(m=>m.lastFeature&&!m.featured)
-    .map(m=>{
-      const d=parseLastFeat(m.lastFeature);
-      const daysAgo=d?Math.floor((now-d)/(1000*60*60*24)):0;
-      return{...m,daysAgo};
-    })
-    .sort((a,b)=>b.daysAgo-a.daysAgo)
-    .slice(0,6);
-
-  cs.textContent=`${list.length} shown`;
-  if(!list.length){el.innerHTML='<div class="empty">No post history yet.</div>';ins.innerHTML='No data.';return;}
-
-  el.innerHTML=list.map(m=>{
-    const wks=Math.floor(m.daysAgo/7);
-    const label=m.daysAgo<7?`${m.daysAgo}d ago`:wks<8?`${wks}w ago`:`${Math.floor(wks/4)}mo ago`;
-    const cls=m.daysAgo>60?'rb-risk':m.daysAgo>21?'rb-loyal':'rb-new';
-    return careItem(m,label,cls,`${m.tier} · last post: ${m.lastFeature}`);
-  }).join('');
-
-  const oldest=list[0];
-  ins.innerHTML=`<b>${oldest.handle}</b> has been waiting <b>${oldest.daysAgo} days</b> since their last feature. Consider prioritising them soon.`;
-}
-
-// 3. Members who joined in the last 30 days
+// 2. New members — joined last 30 days
 function renderCare_NewMembers(){
-  const el=document.getElementById('care-new');
-  const cs=document.getElementById('care-new-cs');
-  const ins=document.getElementById('care-new-insight');
-
   const now=new Date();
-  const list=members
-    .filter(m=>{
-      if(!m.joinDateISO)return false;
-      const d=new Date(m.joinDateISO);
-      return(now-d)/(1000*60*60*24)<=30;
-    })
-    .map(m=>{
-      const d=new Date(m.joinDateISO);
-      const daysAgo=Math.floor((now-d)/(1000*60*60*24));
-      return{...m,daysAgo};
-    })
-    .sort((a,b)=>a.daysAgo-b.daysAgo);
+  const list=members.filter(m=>{
+    if(!m.joinDateISO)return false;
+    return(now-new Date(m.joinDateISO))/(1000*60*60*24)<=30;
+  }).map(m=>{
+    const daysAgo=Math.floor((now-new Date(m.joinDateISO))/(1000*60*60*24));
+    return{...m,daysAgo};
+  }).sort((a,b)=>a.daysAgo-b.daysAgo);
 
-  cs.textContent=list.length?`${list.length} this month`:'None this month';
-  if(!list.length){el.innerHTML='<div class="empty">No new members in the last 30 days.</div>';ins.innerHTML='No recent joins.';return;}
-
+  document.getElementById('care-new-cs').textContent=list.length?`${list.length} this month`:'None this month';
+  const el=document.getElementById('care-new');
+  if(!list.length){el.innerHTML='<div class="empty">No new members in the last 30 days.</div>';document.getElementById('care-new-insight').innerHTML='No recent joins.';return;}
   el.innerHTML=list.map(m=>{
     const label=m.daysAgo===0?'Today':m.daysAgo===1?'Yesterday':`${m.daysAgo}d ago`;
-    return careItem(m,label,'rb-new',`${m.tier} · joined ${m.joinDate||'recently'}`);
+    return careItem(m,label,'#3b82f6',`${m.tier} · joined ${m.joinDate||'recently'}`);
   }).join('');
-
-  ins.innerHTML=`<b>${list.length} new member${list.length!==1?'s':''}</b> joined in the last 30 days. A welcome DM or quick interaction goes a long way for retention.`;
+  document.getElementById('care-new-insight').innerHTML=`<b>${list.length} new member${list.length!==1?'s':''}</b> this month. A welcome comment on their profile or a DM dramatically improves 30-day retention.`;
 }
 
-// 4. Members whose join anniversary falls this month (1yr, 2yr, 3yr…)
-function renderCare_Anniversaries(){
-  const el=document.getElementById('care-anni');
-  const cs=document.getElementById('care-anni-cs');
-  const ins=document.getElementById('care-anni-insight');
-
-  const now=new Date();
-  const thisMonth=now.getMonth();
-  const thisYear=now.getFullYear();
-
-  const list=members
-    .filter(m=>{
-      if(!m.joinDateISO)return false;
-      const d=new Date(m.joinDateISO);
-      const years=thisYear-d.getFullYear();
-      return years>0&&d.getMonth()===thisMonth;
-    })
-    .map(m=>{
-      const d=new Date(m.joinDateISO);
-      const years=thisYear-d.getFullYear();
-      return{...m,years};
-    })
-    .sort((a,b)=>b.years-a.years);
-
-  cs.textContent=list.length?`${list.length} this month`:'None this month';
-  if(!list.length){el.innerHTML='<div class="empty">No anniversaries this month.</div>';ins.innerHTML='Check back next month.';return;}
-
-  el.innerHTML=list.map(m=>{
-    const label=`${m.years}yr`;
-    const cls=m.years>=3?'rb-loyal':m.years>=2?'rb-gold':'rb-new';
-    return careItem(m,label,cls,`${m.tier} · member since ${m.joinDate||m.joinDateISO}`);
-  }).join('');
-
-  const multi=list.filter(m=>m.years>=2).length;
-  ins.innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> celebrating ${list.length===1?'an':'their'} anniversary this month${multi?`, including <b>${multi}</b> with 2+ years`:''}. A shoutout post is a great engagement boost.`;
+// 3. Premium+ VIPs — all of them, always
+function renderCare_VIPs(){
+  const list=[...members].filter(m=>m.tier==='Premium+').map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo);
+  document.getElementById('care-vip-cs').textContent=`${list.length} members`;
+  const el=document.getElementById('care-vip');
+  if(!list.length){el.innerHTML='<div class="empty">No Premium+ members yet.</div>';document.getElementById('care-vip-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.mo}mo`,'#a855f7',`€19.99/mo · ${m.country&&m.country!=='—'?m.country:'location unknown'}`)).join('');
+  const avgMo=Math.round(list.reduce((s,m)=>s+m.mo,0)/list.length);
+  document.getElementById('care-vip-insight').innerHTML=`Your <b>${list.length} Premium+ members</b> average <b>${avgMo} months</b> subscribed and generate <b>€${(list.length*19.99).toFixed(0)}/mo</b>. Check in personally — they are your top supporters.`;
 }
 
-// 5. Currently featured members
-function renderCare_CurrentlyFeatured(){
-  const el=document.getElementById('care-feat');
-  const cs=document.getElementById('care-feat-cs');
-  const ins=document.getElementById('care-feat-insight');
-
-  const list=members.filter(m=>m.featured);
-  cs.textContent=`${list.length} active`;
-
-  if(!list.length){
-    el.innerHTML='<div class="empty">No one is currently featured.</div>';
-    ins.innerHTML='Hit Post on any member in the Members tab to mark them as featured.';
-    return;
-  }
-
-  el.innerHTML=list.map(m=>careItem(m,'Live','rb-loyal',`${m.tier} · posted ${m.lastFeature||'recently'}`)).join('');
-  ins.innerHTML=`<b>${list.length} post${list.length!==1?'s':''}</b> currently live. When done, hit Unpost to keep your records clean and queue the next member.`;
+// 4. Upgrade candidates — Basic 6+ months, never upgraded
+function renderCare_UpgradeCandidates(){
+  const list=members.filter(m=>m.tier==='Basic'&&mos(m.joinDateISO)>=6).map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo).slice(0,8);
+  document.getElementById('care-upgrade-cs').textContent=`${members.filter(m=>m.tier==='Basic'&&mos(m.joinDateISO)>=6).length} candidates`;
+  const el=document.getElementById('care-upgrade');
+  if(!list.length){el.innerHTML='<div class="empty">No long-term Basic members yet.</div>';document.getElementById('care-upgrade-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.mo}mo`,'#06b6d4',`Basic · joined ${m.joinDate||'—'}`)).join('');
+  const revPotential=(list.length*(9.99-3.50)).toFixed(0);
+  document.getElementById('care-upgrade-insight').innerHTML=`<b>${list.length} loyal Basic members</b> have been around 6+ months. If just half upgraded to Premium, that would be <b>+€${Math.round(list.length/2*(9.99-3.50))}/mo</b>. A personal mention in their feature post can trigger upgrades.`;
 }
 
-// 6. Never featured — full grid
-function renderCare_NeverFeaturedGrid(){
-  const el=document.getElementById('care-never-grid');
-  const cs=document.getElementById('care-never-cs');
+// 5. At risk of churning — Basic with 1-2 months
+function renderCare_AtRisk(){
+  const list=members.filter(m=>m.tier==='Basic').map(m=>({...m,mo:mos(m.joinDateISO)})).filter(m=>m.mo<=2).sort((a,b)=>a.mo-b.mo);
+  document.getElementById('care-risk-cs').textContent=`${list.length} at risk`;
+  const el=document.getElementById('care-risk');
+  if(!list.length){el.innerHTML='<div class="empty">No high-risk members right now.</div>';document.getElementById('care-risk-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,m.mo===0?'<1mo':`${m.mo}mo`,'#f43f5e',`Basic · joined ${m.joinDate||'recently'}`)).join('');
+  document.getElementById('care-risk-insight').innerHTML=`<b>${list.length} member${list.length!==1?'s':''}</b> in their first 2 months — the highest-risk window for cancellation. Engagement right now has an outsized impact on whether they stay.`;
+}
 
-  const list=members
-    .filter(m=>!m.featured&&!m.lastFeature)
-    .map(m=>({...m,mo:mos(m.joinDateISO)}))
-    .sort((a,b)=>b.mo-a.mo);
+// 6. Veterans — 18+ months
+function renderCare_Veterans(){
+  const list=members.filter(m=>mos(m.joinDateISO)>=18).map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo);
+  document.getElementById('care-veteran-cs').textContent=`${list.length} veterans`;
+  const el=document.getElementById('care-veteran');
+  if(!list.length){el.innerHTML='<div class="empty">No 18+ month members yet.</div>';document.getElementById('care-veteran-insight').innerHTML='';return;}
+  el.innerHTML=list.map(m=>careItem(m,`${m.mo}mo`,'#10b981',`${m.tier} · since ${m.joinDate||'—'}`)).join('');
+  const oldest=list[0];
+  document.getElementById('care-veteran-insight').innerHTML=`<b>${oldest.handle}</b> is your longest member at <b>${oldest.mo} months</b>. Veterans like these are your most credible advocates — a shoutout or a "thanks for being here since the beginning" DM costs nothing.`;
+}
 
+// 7. Incomplete profiles — missing handle (looks like email) or missing car
+function renderCare_IncompleteProfiles(){
+  const el=document.getElementById('care-incomplete-grid');
+  const cs=document.getElementById('care-incomplete-cs');
+  const list=members.filter(m=>{
+    const handleLooksLikeEmail=m.handle&&m.handle.includes('@')&&m.handle.includes('.');
+    const missingCar=!m.car||m.car==='—';
+    return handleLooksLikeEmail||missingCar;
+  });
   cs.textContent=`${list.length} members`;
-  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">Every member has been featured at least once. 🎉</div>';return;}
-
+  if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">All profiles look complete. 👍</div>';return;}
   el.innerHTML=list.map(m=>{
-    const mo=m.mo;
-    const urgency=mo>12?'rgba(244,63,94,.15)':mo>3?'rgba(245,158,11,.1)':'rgba(59,130,246,.1)';
-    const border=mo>12?'rgba(244,63,94,.25)':mo>3?'rgba(245,158,11,.2)':'rgba(59,130,246,.2)';
-    const dotColor=mo>12?'#f43f5e':mo>3?'#f59e0b':'#3b82f6';
-    return`<div style="background:${urgency};border:1px solid ${border};border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:9px">
-      <div style="width:6px;height:6px;border-radius:50%;background:${dotColor};flex-shrink:0"></div>
+    const issues=[];
+    if(m.handle&&m.handle.includes('@')&&m.handle.includes('.'))issues.push('No IG handle');
+    if(!m.car||m.car==='—')issues.push('No car info');
+    return`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:9px">
+      <div style="width:6px;height:6px;border-radius:50%;background:#f59e0b;flex-shrink:0"></div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.handle}</div>
-        <div style="font-family:var(--m);font-size:9px;color:var(--sub);margin-top:2px">${m.tier} · ${mo}mo</div>
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.handle||m.paypalEmail}</div>
+        <div style="font-family:var(--m);font-size:9px;color:var(--sub);margin-top:2px">${issues.join(' · ')} · ${m.tier}</div>
       </div>
     </div>`;
   }).join('');
+}
+
+// ── WORLD MAP ─────────────────────────────────────────
+function renderWorldMap(){
+  const el=document.getElementById('world-map');
+  const cs=document.getElementById('a-map-cs');
+  const ins=document.getElementById('a-map-insight');
+  if(!el)return;
+
+  // Build country counts
+  const counts={};
+  members.forEach(m=>{
+    const c=(m.country&&m.country!=='—')?m.country.trim():null;
+    if(c)counts[c]=(counts[c]||0)+1;
+  });
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  if(!sorted.length){
+    el.innerHTML='<div class="empty" style="padding:60px 0">No country data yet — run a PayPal sync to populate.</div>';
+    if(cs)cs.textContent='No data';
+    if(ins)ins.innerHTML='Sync PayPal to get country data from subscriber addresses.';
+    return;
+  }
+
+  if(cs)cs.textContent=`${sorted.length} countries · ${members.filter(m=>m.country&&m.country!=='—').length} members mapped`;
+  if(ins)ins.innerHTML=`Members in <b>${sorted.length} countries</b>. Top: <b>${sorted.slice(0,3).map(([c,n])=>`${c} (${n})`).join(', ')}</b>.`;
+
+  const maxCount=sorted[0][1];
+
+  // Country name → ISO 2 (reverse lookup for map)
+  const nameToISO={
+    'Afghanistan':'AF','Albania':'AL','Algeria':'DZ','Argentina':'AR','Australia':'AU',
+    'Austria':'AT','Belgium':'BE','Brazil':'BR','Bulgaria':'BG','Canada':'CA',
+    'Chile':'CL','China':'CN','Colombia':'CO','Croatia':'HR','Czech Republic':'CZ',
+    'Denmark':'DK','Egypt':'EG','Finland':'FI','France':'FR','Germany':'DE',
+    'Greece':'GR','Hungary':'HU','India':'IN','Indonesia':'ID','Ireland':'IE',
+    'Israel':'IL','Italy':'IT','Japan':'JP','Jordan':'JO','Kenya':'KE',
+    'Kuwait':'KW','Lebanon':'LB','Lithuania':'LT','Luxembourg':'LU','Malaysia':'MY',
+    'Mexico':'MX','Morocco':'MA','Netherlands':'NL','New Zealand':'NZ','Nigeria':'NG',
+    'Norway':'NO','Oman':'OM','Pakistan':'PK','Peru':'PE','Philippines':'PH',
+    'Poland':'PL','Portugal':'PT','Qatar':'QA','Romania':'RO','Russia':'RU',
+    'Saudi Arabia':'SA','Serbia':'RS','Singapore':'SG','Slovakia':'SK','South Africa':'ZA',
+    'Spain':'ES','Sweden':'SE','Switzerland':'CH','Taiwan':'TW','Thailand':'TH',
+    'Tunisia':'TN','Turkey':'TR','Ukraine':'UA','UAE':'AE','United Kingdom':'GB',
+    'United States':'US','Uruguay':'UY','Venezuela':'VE','Vietnam':'VN'
+  };
+
+  // Build SVG world map using simplified country paths
+  // We use a lightweight approach: circles on approximate lat/lng positions
+  const coords={
+    'AF':[67,34],'AL':[20,41],'DZ':[3,28],'AR':[-64,-34],'AU':[133,-27],
+    'AT':[14,47],'BE':[4,51],'BR':[-51,-10],'BG':[25,43],'CA':[-96,60],
+    'CL':[-71,-30],'CN':[105,35],'CO':[-74,4],'HR':[16,45],'CZ':[16,50],
+    'DK':[10,56],'EG':[30,27],'FI':[26,64],'FR':[2,46],'DE':[10,51],
+    'GR':[22,39],'HU':[19,47],'IN':[78,20],'ID':[120,-5],'IE':[-8,53],
+    'IL':[35,31],'IT':[12,42],'JP':[138,36],'JO':[37,31],'KE':[38,1],
+    'KW':[48,29],'LB':[36,34],'LT':[24,56],'LU':[6,50],'MY':[110,4],
+    'MX':[-102,24],'MA':[-5,32],'NL':[5,52],'NZ':[172,-41],'NG':[8,10],
+    'NO':[10,62],'OM':[57,21],'PK':[70,30],'PE':[-76,-10],'PH':[122,13],
+    'PL':[20,52],'PT':[-8,39],'QA':[51,25],'RO':[25,46],'RU':[105,60],
+    'SA':[45,24],'RS':[21,44],'SG':[104,1],'SK':[19,49],'ZA':[25,-29],
+    'ES':[-3,40],'SE':[18,62],'CH':[8,47],'TW':[121,24],'TH':[101,15],
+    'TN':[9,34],'TR':[35,39],'UA':[32,49],'AE':[54,24],'GB':[-2,54],
+    'US':[-98,39],'UY':[-56,-33],'VE':[-66,8],'VN':[108,14]
+  };
+
+  // Map projection (simple equirectangular)
+  const W=el.offsetWidth||700, H=340;
+  function project(lng,lat){
+    const x=(lng+180)*(W/360);
+    const y=(90-lat)*(H/180);
+    return[x,y];
+  }
+
+  // Build dots
+  const dots=sorted.map(([country,count])=>{
+    const iso=nameToISO[country]||country;
+    const coord=coords[iso];
+    if(!coord)return'';
+    const[x,y]=project(coord[0],coord[1]);
+    const r=Math.max(5,Math.min(22,5+Math.sqrt(count/maxCount)*18));
+    const opacity=0.4+0.6*(count/maxCount);
+    const alpha=Math.round(opacity*255).toString(16).padStart(2,'0');
+    return`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="#a855f7${alpha}" stroke="#a855f7" stroke-width="1" opacity="${opacity.toFixed(2)}">
+      <title>${country}: ${count} member${count!==1?'s':''}</title>
+    </circle>`;
+  }).join('');
+
+  // Grid lines
+  const gridLines=[];
+  for(let lng=-180;lng<=180;lng+=30){
+    const[x1]=project(lng,90);const[,y1]=project(lng,90);const[,y2]=project(lng,-90);
+    gridLines.push(`<line x1="${x1}" y1="${y1}" x2="${x1}" y2="${y2}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`);
+  }
+  for(let lat=-60;lat<=60;lat+=30){
+    const[x1,y1]=project(-180,lat);const[x2]=project(180,lat);
+    gridLines.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y1}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`);
+  }
+
+  el.innerHTML=`<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block">
+    <rect width="${W}" height="${H}" fill="transparent"/>
+    ${gridLines.join('')}
+    ${dots}
+  </svg>`;
 }
 
 loadMembers();
