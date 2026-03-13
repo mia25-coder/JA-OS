@@ -807,7 +807,7 @@ function renderWorldMap(){
     'US':[-98,39],'UY':[-56,-33],'VE':[-66,8],'VN':[108,14]
   };
 
-  const W=el.offsetWidth||700,H=320;
+  const W=el.getBoundingClientRect().width||el.parentElement?.getBoundingClientRect().width||800,H=320;
   function project(lng,lat){return[(lng+180)*(W/360),(90-lat)*(H/180)];}
 
   const gridLines=[];
@@ -909,7 +909,7 @@ function go(tab){
   if(!target)return;
   if(tab==='members'){target.style.display='flex';}
   else{target.classList.add('on');}
-  if(tab==='analytics')renderAnalytics();
+  if(tab==='analytics')setTimeout(renderAnalytics,50);
   if(tab==='care')renderCare();
 }
 
