@@ -1,7 +1,1 @@
-{
-  "functions": {
-    "api/paypal.js": {
-      "runtime": "nodejs20.x"
-    }
-  }
-}
+{}
