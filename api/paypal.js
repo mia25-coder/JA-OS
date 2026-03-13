@@ -76,6 +76,28 @@ async function supabaseFetch(path, method = 'GET', body = null) {
   return res.json();
 }
 
+
+// ISO 3166-1 alpha-2 → country name
+function isoToCountry(code) {
+  const map = {
+    'AF':'Afghanistan','AL':'Albania','DZ':'Algeria','AR':'Argentina','AU':'Australia',
+    'AT':'Austria','BE':'Belgium','BR':'Brazil','BG':'Bulgaria','CA':'Canada',
+    'CL':'Chile','CN':'China','CO':'Colombia','HR':'Croatia','CZ':'Czech Republic',
+    'DK':'Denmark','EG':'Egypt','FI':'Finland','FR':'France','DE':'Germany',
+    'GR':'Greece','HU':'Hungary','IN':'India','ID':'Indonesia','IE':'Ireland',
+    'IL':'Israel','IT':'Italy','JP':'Japan','JO':'Jordan','KE':'Kenya',
+    'KW':'Kuwait','LB':'Lebanon','LT':'Lithuania','LU':'Luxembourg','MY':'Malaysia',
+    'MX':'Mexico','MA':'Morocco','NL':'Netherlands','NZ':'New Zealand','NG':'Nigeria',
+    'NO':'Norway','OM':'Oman','PK':'Pakistan','PE':'Peru','PH':'Philippines',
+    'PL':'Poland','PT':'Portugal','QA':'Qatar','RO':'Romania','RU':'Russia',
+    'SA':'Saudi Arabia','RS':'Serbia','SG':'Singapore','SK':'Slovakia','ZA':'South Africa',
+    'ES':'Spain','SE':'Sweden','CH':'Switzerland','TW':'Taiwan','TH':'Thailand',
+    'TN':'Tunisia','TR':'Turkey','UA':'Ukraine','AE':'UAE','GB':'United Kingdom',
+    'US':'United States','UY':'Uruguay','VE':'Venezuela','VN':'Vietnam'
+  };
+  return map[code?.toUpperCase()] || code || '—';
+}
+
 async function upsertMember(detail, tier) {
   if (detail.status !== 'ACTIVE') return 'skipped';
 
@@ -83,6 +105,12 @@ async function upsertMember(detail, tier) {
   const name = detail.subscriber?.name?.given_name
     ? `${detail.subscriber.name.given_name} ${detail.subscriber.name.surname || ''}`.trim()
     : email;
+  // Extract country from PayPal address (ISO 2-letter code)
+  const countryCode =
+    detail.subscriber?.shipping_address?.country_code ||
+    detail.subscriber?.address?.country_code ||
+    null;
+  const country = countryCode ? isoToCountry(countryCode) : '—';
   const joinDateISO = detail.start_time
     ? detail.start_time.split('T')[0]
     : new Date().toISOString().split('T')[0];
@@ -92,16 +120,17 @@ async function upsertMember(detail, tier) {
   const existing = await supabaseFetch(`/members?paypal_subscription_id=eq.${subId}&select=id`);
 
   if (existing && existing.length > 0) {
-    await supabaseFetch(`/members?paypal_subscription_id=eq.${subId}`, 'PATCH', {
-      tier, paypal_status: 'ACTIVE'
-    });
+    // Update tier, status, and country if we have it
+    const patch = { tier, paypal_status: 'ACTIVE' };
+    if (country && country !== '—') patch.country = country;
+    await supabaseFetch(`/members?paypal_subscription_id=eq.${subId}`, 'PATCH', patch);
     return 'updated';
   } else {
     await supabaseFetch('/members', 'POST', {
       handle: name,
       tier,
       car: '—',
-      country: '—',
+      country,
       points: 0,
       featured: false,
       last_feature: null,
