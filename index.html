@@ -335,9 +335,9 @@ tr:hover td{background:var(--faint);}
   /* cards */
   .card{padding:14px;}
 
-  /* donut stacked */
+  /* donut stacked on mobile */
   .donut-wrap{flex-direction:column;align-items:flex-start;}
-  .dc{width:100px;height:100px;}
+  .dc{width:100%;height:180px;}
 
   /* big numbers smaller */
   .big{font-size:26px;}
@@ -887,9 +887,9 @@ function renderLeaderboard(){
 function renderDashAlerts(){
   const now=new Date();
   const alerts=[];
-  members.filter(m=>m.tier==='Basic'&&mos(m.joinDateISO)<=2).slice(0,2).forEach(m=>alerts.push({m,badge:mos(m.joinDateISO)+'mo',color:'#f0455a',detail:'At risk · Basic · '+mos(m.joinDateISO)+'mo'}));
-  members.filter(m=>m.joinDateISO&&(now-new Date(m.joinDateISO))<30*864e5).slice(0,2).forEach(m=>alerts.push({m,badge:'New',color:'#3d8ef0',detail:'New · '+m.tier+' · '+m.joinDate}));
-  members.filter(m=>{if(!m.joinDateISO)return false;const d=new Date(m.joinDateISO);return(now.getFullYear()-d.getFullYear())>0&&d.getMonth()===now.getMonth();}).slice(0,2).forEach(m=>alerts.push({m,badge:(now.getFullYear()-new Date(m.joinDateISO).getFullYear())+'yr',color:'#f0a500',detail:'Anniversary · '+m.tier}));
+  members.filter(m=>m.tier==='Basic'&&mos(m.joinDateISO)<=2).slice(0,3).forEach(m=>alerts.push({m,badge:mos(m.joinDateISO)+'mo',color:'#f0455a',detail:'At risk · Basic · '+mos(m.joinDateISO)+'mo'}));
+  members.filter(m=>m.joinDateISO&&(now-new Date(m.joinDateISO))<30*864e5).slice(0,3).forEach(m=>alerts.push({m,badge:'New',color:'#3d8ef0',detail:'New · '+m.tier+' · '+m.joinDate}));
+  members.filter(m=>{if(!m.joinDateISO)return false;const d=new Date(m.joinDateISO);return(now.getFullYear()-d.getFullYear())>0&&d.getMonth()===now.getMonth();}).slice(0,3).forEach(m=>alerts.push({m,badge:(now.getFullYear()-new Date(m.joinDateISO).getFullYear())+'yr',color:'#f0a500',detail:'Anniversary · '+m.tier}));
   const risk=members.filter(m=>m.tier==='Basic'&&mos(m.joinDateISO)<=2).length;
   const newM=members.filter(m=>m.joinDateISO&&(now-new Date(m.joinDateISO))<30*864e5).length;
   const anni=members.filter(m=>{if(!m.joinDateISO)return false;const d=new Date(m.joinDateISO);return(now.getFullYear()-d.getFullYear())>0&&d.getMonth()===now.getMonth();}).length;
@@ -925,7 +925,7 @@ function renderRevenue(){
   html('r-rins',`New Basic members (≤2mo) are most likely to cancel. <b>€${riskRev.toFixed(0)}/mo</b> is in the danger zone.`);
 
   set('r-ucs',basicLong.length+' total');
-  html('r-ulist',basicLong.slice(0,5).map(m=>{const mo=mos(m.joinDateISO);return`<div class="mi"><div class="mi-dot" style="background:var(--gold)"></div><div class="mi-body"><div class="mi-handle">${m.handle}</div><div class="mi-detail">Basic · ${mo}mo · +€${(9.99-3.50).toFixed(2)} if upgraded</div></div><span class="mi-badge" style="background:var(--ya);color:var(--gold)">${mo}mo</span></div>`}).join('')||'<div class="empty">No long-term Basic members yet.</div>');
+  html('r-ulist',basicLong.map(m=>{const mo=mos(m.joinDateISO);return`<div class="mi"><div class="mi-dot" style="background:var(--gold)"></div><div class="mi-body"><div class="mi-handle">${m.handle}</div><div class="mi-detail">Basic · ${mo}mo · +€${(9.99-3.50).toFixed(2)} if upgraded</div></div><span class="mi-badge" style="background:var(--ya);color:var(--gold)">${mo}mo</span></div>`}).join('')||'<div class="empty">No long-term Basic members yet.</div>');
   html('r-uins',basicLong.length?`<b>${basicLong.length} candidates</b> · upgrading half = <b>+€${(upgPot/2).toFixed(0)}/mo</b>`:'No candidates yet.');
 
   renderTierBars('r-tbars',null);
@@ -1110,7 +1110,7 @@ function renderCare(){
   // Upgrade
   const upg=members.filter(m=>m.tier==='Basic'&&mos(m.joinDateISO)>=6).map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo);
   set('care-upg-cs',upg.length+' candidates');
-  html('care-upg',upg.length?upg.slice(0,8).map(m=>`<div class="mi"><div class="mi-dot" style="background:var(--teal)"></div><div class="mi-body"><div class="mi-handle">${m.handle}</div><div class="mi-detail">Basic · joined ${m.joinDate||'—'}</div></div><span class="mi-badge" style="background:var(--ta);color:var(--teal)">${m.mo}mo</span></div>`).join(''):'<div class="empty">No long-term Basic members yet.</div>');
+  html('care-upg',upg.length?upg.map(m=>`<div class="mi"><div class="mi-dot" style="background:var(--teal)"></div><div class="mi-body"><div class="mi-handle">${m.handle}</div><div class="mi-detail">Basic · joined ${m.joinDate||'—'}</div></div><span class="mi-badge" style="background:var(--ta);color:var(--teal)">${m.mo}mo</span></div>`).join(''):'<div class="empty">No long-term Basic members yet.</div>');
   html('care-upg-ins',upg.length?`<b>${upg.length} loyal Basics</b> at 6+ months. If half upgraded: <b>+€${Math.round(upg.length/2*(9.99-3.50))}/mo</b>.`:'—');
 
   // Veterans
@@ -1137,9 +1137,11 @@ function go(tab){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   const pg=$('p-'+tab);if(pg)pg.classList.add('on');
   window.scrollTo(0,0);
-  if(tab==='analytics')setTimeout(renderAnalytics,60);
-  if(tab==='revenue')renderRevenue();
-  if(tab==='care')renderCare();
+  // Resize all charts after layout settles (fixes mobile 0-width canvas bug)
+  setTimeout(()=>Object.values(charts).forEach(c=>{try{c.resize();}catch(e){}}),50);
+  if(tab==='analytics')setTimeout(renderAnalytics,80);
+  if(tab==='revenue')setTimeout(renderRevenue,80);
+  if(tab==='care')setTimeout(renderCare,80);
 }
 document.querySelectorAll('.nav-btn,.mob-btn').forEach(n=>n.addEventListener('click',()=>go(n.dataset.tab)));
 
