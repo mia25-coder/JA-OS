@@ -6,6 +6,7 @@
 <title>JustAbarth OS</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
@@ -754,12 +755,22 @@ tr:hover td{background:var(--faint);}
   </div>
 
   <div class="card">
-    <div class="ch"><div class="ct">All Members — Loyalty</div><span class="cs" id="a-lcs"></span></div>
-    <div class="cw h280"><canvas id="c-loy2"></canvas></div>
-    <div class="legend">
-      <div class="leg-i"><div class="leg-d" style="background:var(--p)"></div>Premium+</div>
-      <div class="leg-i"><div class="leg-d" style="background:#5070f0"></div>Premium</div>
-      <div class="leg-i"><div class="leg-d" style="background:var(--s4)"></div>Basic</div>
+    <div class="ch">
+      <div><div class="ct">Members by Country — Breakdown</div><div class="csub" id="a-breakdown-sub">—</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <table id="a-breakdown-table">
+        <thead><tr>
+          <th>Country</th>
+          <th>Total</th>
+          <th style="color:#39ff14">Premium+</th>
+          <th style="color:#5070f0">Premium</th>
+          <th style="color:#f07030">Basic</th>
+          <th>MRR</th>
+          <th>Avg Loyalty</th>
+        </tr></thead>
+        <tbody id="a-breakdown-body"></tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -1136,42 +1147,110 @@ function renderAnalytics(){
   renderWorldMap();
   renderCountryChart();
   renderCountryBars();
-  renderLoyaltyChart();
+  renderBreakdownTable();
   const mapped=members.filter(m=>m.country&&m.country!=='—'&&m.country!=='-').length;
   set('a-sub',members.length+' members · '+mapped+' with country data');
 }
 
-function renderWorldMap(){
+async function renderWorldMap(){
   const el=$('world-map');
   if(!el)return;
+
   const counts={};
-  members.forEach(m=>{const c=(m.country&&m.country!=='—'&&m.country!=='-')?m.country.trim():null;if(c)counts[c]=(counts[c]||0)+1;});
+  const ISO_MAP={'afghanistan':'AFG','albania':'ALB','algeria':'DZA','argentina':'ARG','australia':'AUS','austria':'AUT','belgium':'BEL','brazil':'BRA','bulgaria':'BGR','canada':'CAN','chile':'CHL','china':'CHN','colombia':'COL','croatia':'HRV','czech republic':'CZE','czechia':'CZE','denmark':'DNK','egypt':'EGY','finland':'FIN','france':'FRA','germany':'DEU','greece':'GRC','hungary':'HUN','india':'IND','indonesia':'IDN','ireland':'IRL','israel':'ISR','italy':'ITA','italia':'ITA','japan':'JPN','jordan':'JOR','kenya':'KEN','kuwait':'KWT','lebanon':'LBN','lithuania':'LTU','luxembourg':'LUX','malaysia':'MYS','mexico':'MEX','morocco':'MAR','netherlands':'NLD','holland':'NLD','new zealand':'NZL','nigeria':'NGA','norway':'NOR','oman':'OMN','pakistan':'PAK','peru':'PER','philippines':'PHL','poland':'POL','portugal':'PRT','qatar':'QAT','romania':'ROU','russia':'RUS','saudi arabia':'SAU','serbia':'SRB','singapore':'SGP','slovakia':'SVK','south africa':'ZAF','spain':'ESP','españa':'ESP','espana':'ESP','sweden':'SWE','switzerland':'CHE','taiwan':'TWN','thailand':'THA','tunisia':'TUN','turkey':'TUR','ukraine':'UKR','uae':'ARE','united arab emirates':'ARE','united kingdom':'GBR','uk':'GBR','england':'GBR','united states':'USA','usa':'USA','america':'USA','uruguay':'URY','venezuela':'VEN','vietnam':'VNM','malta':'MLT','cyprus':'CYP','bulgaria':'BGR','slovakia':'SVK','slovenia':'SVN','latvia':'LVA','estonia':'EST','iceland':'ISL','serbia':'SRB','montenegro':'MNE','north macedonia':'MKD','albania':'ALB','bosnia':'BIH','moldova':'MDA','belarus':'BLR','georgia':'GEO','armenia':'ARM','azerbaijan':'AZE','iran':'IRN','iraq':'IRQ','syria':'SYR','turkey':'TUR'};
+
+  members.forEach(m=>{
+    const c=(m.country&&m.country!=='—'&&m.country!=='-')?m.country.trim():null;
+    if(!c)return;
+    const iso3=ISO_MAP[c.toLowerCase()]||null;
+    if(iso3)counts[iso3]=(counts[iso3]||0)+1;
+  });
+
   const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const maxC=sorted[0]?.[1]||1;
+  const totalMapped=Object.values(counts).reduce((a,b)=>a+b,0);
+
   if(!sorted.length){
-    html('world-map','<div style="height:280px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;color:var(--dim)">Add country data in the Members tab to see the map.</div>');
-    set('a-map-cs','No data');html('a-map-ins','Edit the Country field on each member to populate this map.');
+    el.innerHTML='<div style="height:300px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;color:var(--dim)">Add country data in the Members tab to see the map.</div>';
+    set('a-map-cs','No data');
+    html('a-map-ins','Edit the Country field on each member to populate this map.');
     return;
   }
-  set('a-map-cs',sorted.length+' countries · '+Object.values(counts).reduce((a,b)=>a+b,0)+' mapped');
-  html('a-map-ins',`Members across <b>${sorted.length} countries</b>. Largest: <b>${sorted.slice(0,3).map(([c,n])=>`${c} (${n})`).join(', ')}</b>.`);
-  const maxC=sorted[0][1];
-  const ISO={'afghanistan':'AF','albania':'AL','algeria':'DZ','argentina':'AR','australia':'AU','austria':'AT','belgium':'BE','brazil':'BR','bulgaria':'BG','canada':'CA','chile':'CL','china':'CN','colombia':'CO','croatia':'HR','czech republic':'CZ','czechia':'CZ','denmark':'DK','egypt':'EG','finland':'FI','france':'FR','germany':'DE','greece':'GR','hungary':'HU','india':'IN','indonesia':'ID','ireland':'IE','israel':'IL','italy':'IT','italia':'IT','japan':'JP','jordan':'JO','kenya':'KE','kuwait':'KW','lebanon':'LB','lithuania':'LT','luxembourg':'LU','malaysia':'MY','mexico':'MX','morocco':'MA','netherlands':'NL','holland':'NL','new zealand':'NZ','nigeria':'NG','norway':'NO','oman':'OM','pakistan':'PK','peru':'PE','philippines':'PH','poland':'PL','portugal':'PT','qatar':'QA','romania':'RO','russia':'RU','saudi arabia':'SA','serbia':'RS','singapore':'SG','slovakia':'SK','south africa':'ZA','spain':'ES','españa':'ES','espana':'ES','sweden':'SE','switzerland':'CH','taiwan':'TW','thailand':'TH','tunisia':'TN','turkey':'TR','ukraine':'UA','uae':'AE','united arab emirates':'AE','united kingdom':'GB','uk':'GB','england':'GB','united states':'US','usa':'US','america':'US','uruguay':'UY','venezuela':'VE','vietnam':'VN'};
-  const COORDS={'AF':[67,34],'AL':[20,41],'DZ':[3,28],'AR':[-64,-34],'AU':[133,-27],'AT':[14,47],'BE':[4,51],'BR':[-51,-10],'BG':[25,43],'CA':[-96,60],'CL':[-71,-30],'CN':[105,35],'CO':[-74,4],'HR':[16,45],'CZ':[16,50],'DK':[10,56],'EG':[30,27],'FI':[26,64],'FR':[2,46],'DE':[10,51],'GR':[22,39],'HU':[19,47],'IN':[78,20],'ID':[120,-5],'IE':[-8,53],'IL':[35,31],'IT':[12,42],'JP':[138,36],'JO':[37,31],'KE':[38,1],'KW':[48,29],'LB':[36,34],'LT':[24,56],'LU':[6,50],'MY':[110,4],'MX':[-102,24],'MA':[-5,32],'NL':[5,52],'NZ':[172,-41],'NG':[8,10],'NO':[10,62],'OM':[57,21],'PK':[70,30],'PE':[-76,-10],'PH':[122,13],'PL':[20,52],'PT':[-8,39],'QA':[51,25],'RO':[25,46],'RU':[105,60],'SA':[45,24],'RS':[21,44],'SG':[104,1],'SK':[19,49],'ZA':[25,-29],'ES':[-3,40],'SE':[18,62],'CH':[8,47],'TW':[121,24],'TH':[101,15],'TN':[9,34],'TR':[35,39],'UA':[32,49],'AE':[54,24],'GB':[-2,54],'US':[-98,39],'UY':[-56,-33],'VE':[-66,8],'VN':[108,14]};
-  const W=900,H=290;
-  function proj(lng,lat){return[(lng+180)*(W/360),(90-lat)*(H/180)];}
-  let grid='',dots='';
-  for(let lng=-180;lng<=180;lng+=30){const x=(lng+180)*(W/360);grid+=`<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`;}
-  for(let lat=-60;lat<=90;lat+=30){const y=(90-lat)*(H/180);grid+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`;}
-  grid+=`<line x1="0" y1="${(90)*(H/180)}" x2="${W}" y2="${(90)*(H/180)}" stroke="rgba(255,255,255,.08)" stroke-width="1"/>`;
-  sorted.forEach(([country,count])=>{
-    const iso=ISO[country.toLowerCase()];const coord=iso?COORDS[iso]:null;if(!coord)return;
-    const[x,y]=proj(coord[0],coord[1]);
-    const r=Math.max(5,Math.min(24,5+Math.sqrt(count/maxC)*20));
-    const op=(0.3+0.7*(count/maxC)).toFixed(2);
-    dots+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="#7c5cfc" opacity="${op}" stroke="#a08aff" stroke-width=".8"><title>${country}: ${count}</title></circle>`;
-    if(count>=3)dots+=`<text x="${x.toFixed(1)}" y="${(y+r+10).toFixed(1)}" text-anchor="middle" fill="rgba(255,255,255,.4)" font-size="9" font-family="IBM Plex Mono">${count}</text>`;
+
+  set('a-map-cs',sorted.length+' countries · '+totalMapped+' mapped');
+  html('a-map-ins',`Members across <b>${sorted.length} countries</b>. Top: <b>${sorted.slice(0,3).map(([iso,n])=>iso+' ('+n+')').join(', ')}</b>.`);
+
+  // Fetch world topojson
+  let world;
+  try {
+    const res=await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+    world=await res.json();
+  } catch(e) {
+    el.innerHTML='<div style="height:300px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;color:var(--dim)">Map failed to load. Check your connection.</div>';
+    return;
+  }
+
+  const countries=topojson.feature(world,world.objects.countries);
+
+  // Numeric ID → ISO3 lookup (UN M49 → ISO3)
+  const ID_ISO={'4':'AFG','8':'ALB','12':'DZA','32':'ARG','36':'AUS','40':'AUT','56':'BEL','76':'BRA','100':'BGR','124':'CAN','152':'CHL','156':'CHN','170':'COL','191':'HRV','203':'CZE','208':'DNK','818':'EGY','246':'FIN','250':'FRA','276':'DEU','300':'GRC','348':'HUN','356':'IND','360':'IDN','372':'IRL','376':'ISR','380':'ITA','392':'JPN','400':'JOR','404':'KEN','414':'KWT','422':'LBN','440':'LTU','442':'LUX','458':'MYS','484':'MEX','504':'MAR','528':'NLD','554':'NZL','566':'NGA','578':'NOR','512':'OMN','586':'PAK','604':'PER','608':'PHL','616':'POL','620':'PRT','634':'QAT','642':'ROU','643':'RUS','682':'SAU','688':'SRB','702':'SGP','703':'SVK','710':'ZAF','724':'ESP','752':'SWE','756':'CHE','158':'TWN','764':'THA','788':'TUN','792':'TUR','804':'UKR','784':'ARE','826':'GBR','840':'USA','858':'URY','862':'VEN','704':'VNM','470':'MLT','196':'CYP','705':'SVN','428':'LVA','233':'EST','352':'ISL','499':'MNE','807':'MKD','70':'BIH','498':'MDA','112':'BLR','268':'GEO','51':'ARM','31':'AZE','364':'IRN','368':'IRQ','760':'SYR','174':'COM','250':'FRA'};
+
+  const W=el.offsetWidth||900;
+  const H=Math.round(W*0.52);
+  const scale=W/6.28;
+
+  // Simple equirectangular projection
+  function project(lon,lat){
+    const x=(lon+180)*(W/360);
+    const y=(90-lat)*(H/180);
+    return[x,y];
+  }
+
+  // Build SVG paths from GeoJSON
+  function geoPath(geometry){
+    if(!geometry)return'';
+    function ringPath(ring){
+      return ring.map((pt,i)=>{
+        const[x,y]=project(pt[0],pt[1]);
+        return(i===0?'M':'L')+x.toFixed(1)+','+y.toFixed(1);
+      }).join(' ')+'Z';
+    }
+    if(geometry.type==='Polygon')return geometry.coordinates.map(ringPath).join(' ');
+    if(geometry.type==='MultiPolygon')return geometry.coordinates.map(r=>r.map(ringPath).join(' ')).join(' ');
+    return'';
+  }
+
+  let paths='';
+  countries.features.forEach(f=>{
+    const id=String(f.id);
+    const iso3=ID_ISO[id];
+    const count=iso3?counts[iso3]||0:0;
+    const d=geoPath(f.geometry);
+    if(!d)return;
+    let fill,stroke;
+    if(count>0){
+      const intensity=0.25+0.75*(count/maxC);
+      fill=`rgba(57,255,20,${intensity.toFixed(2)})`;
+      stroke='rgba(57,255,20,0.6)';
+    } else {
+      fill='rgba(255,255,255,0.04)';
+      stroke='rgba(255,255,255,0.08)';
+    }
+    const title=iso3&&counts[iso3]?`${iso3}: ${counts[iso3]} member${counts[iso3]>1?'s':''}`:'';
+    paths+=`<path d="${d}" fill="${fill}" stroke="${stroke}" stroke-width="0.4">${title?`<title>${title}</title>`:''}</path>`;
   });
-  html('world-map',`<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block">${grid}${dots}</svg>`);
+
+  // Add member count labels on highlighted countries
+  let labels='';
+  sorted.forEach(([iso3,count])=>{
+    const CENTROIDS={'AFG':[67,34],'ALB':[20,41],'DZA':[3,28],'ARG':[-64,-34],'AUS':[133,-27],'AUT':[14,47],'BEL':[4,51],'BRA':[-51,-10],'BGR':[25,43],'CAN':[-96,60],'CHL':[-71,-30],'CHN':[105,35],'COL':[-74,4],'HRV':[16,45],'CZE':[16,50],'DNK':[10,56],'EGY':[30,27],'FIN':[26,64],'FRA':[2,46],'DEU':[10,51],'GRC':[22,39],'HUN':[19,47],'IND':[78,20],'IDN':[120,-5],'IRL':[-8,53],'ISR':[35,31],'ITA':[12,42],'JPN':[138,36],'JOR':[37,31],'KEN':[38,1],'KWT':[48,29],'LBN':[36,34],'LTU':[24,56],'LUX':[6,50],'MYS':[110,4],'MEX':[-102,24],'MAR':[-5,32],'NLD':[5,52],'NZL':[172,-41],'NGA':[8,10],'NOR':[10,62],'OMN':[57,21],'PAK':[70,30],'PER':[-76,-10],'PHL':[122,13],'POL':[20,52],'PRT':[-8,39],'QAT':[51,25],'ROU':[25,46],'RUS':[105,60],'SAU':[45,24],'SRB':[21,44],'SGP':[104,1],'SVK':[19,49],'ZAF':[25,-29],'ESP':[-3,40],'SWE':[18,62],'CHE':[8,47],'TWN':[121,24],'THA':[101,15],'TUN':[9,34],'TUR':[35,39],'UKR':[32,49],'ARE':[54,24],'GBR':[-2,54],'USA':[-98,39],'URY':[-56,-33],'VEN':[-66,8],'VNM':[108,14],'MLT':[14,36],'CYP':[33,35]};
+    const coord=CENTROIDS[iso3];
+    if(!coord)return;
+    const[x,y]=project(coord[0],coord[1]);
+    labels+=`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" fill="rgba(0,0,0,0.8)" font-size="9" font-family="IBM Plex Mono" font-weight="600">${count}</text>`;
+  });
+
+  el.innerHTML=`<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;border-radius:6px">${paths}${labels}</svg>`;
 }
 
 function renderCountryChart(){
@@ -1196,15 +1275,33 @@ function renderCountryBars(){
   html('a-clbars',ls.map(([c,avg],i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="font-family:var(--mono);font-size:9px;color:var(--sub);width:76px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0">${c}</div><div style="flex:1;height:3px;background:var(--s3);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.round(avg/maxM*100)}%;background:${CPLT[i%10]};border-radius:2px"></div></div><div style="font-family:var(--mono);font-size:9px;color:var(--sub);min-width:28px;text-align:right;flex-shrink:0">${avg}mo</div></div>`).join(''));
 }
 
-function renderLoyaltyChart(){
-  const sorted=[...members].filter(m=>m.joinDateISO).map(m=>({...m,mo:mos(m.joinDateISO)})).sort((a,b)=>b.mo-a.mo);
-  if(!sorted.length)return;
-  set('a-lcs','Most loyal: '+sorted[0].handle+' · '+sorted[0].mo+'mo');
-  const isH=sorted.length>8;
-  killChart('loy2');
-  charts['loy2']=new Chart($('c-loy2').getContext('2d'),{type:'bar',data:{labels:sorted.map(m=>m.handle),datasets:[{data:sorted.map(m=>m.mo),backgroundColor:sorted.map(m=>TC[m.tier]),borderRadius:3,borderSkipped:false,barThickness:isH?10:Math.max(8,Math.min(26,Math.floor(360/Math.max(sorted.length,1))-4))}]},
-    options:{...COPT,indexAxis:isH?'y':'x',scales:{x:{grid:{color:'rgba(255,255,255,.03)'},ticks:{color:'#6b6b88',font:{family:'IBM Plex Mono',size:9}},border:{color:'rgba(255,255,255,.055)'}},y:{grid:{color:'rgba(255,255,255,.03)'},ticks:{color:'#6b6b88',font:{family:'IBM Plex Mono',size:9}},border:{color:'rgba(255,255,255,.055)'},beginAtZero:true}},
-    plugins:{...COPT.plugins,tooltip:{...COPT.plugins.tooltip,callbacks:{title:i=>sorted[i[0].dataIndex].handle,label:i=>`${i.raw}mo · ${sorted[i[0].dataIndex].tier}`}}}}});
+function renderBreakdownTable(){
+  const cnt={};
+  members.forEach(m=>{
+    const c=(m.country&&m.country!=='—'&&m.country!=='-')?m.country.trim():'Unknown';
+    if(!cnt[c])cnt[c]={'Basic':0,'Premium':0,'Premium+':0,mos:[]};
+    cnt[c][m.tier]=(cnt[c][m.tier]||0)+1;
+    cnt[c].mos.push(mos(m.joinDateISO));
+  });
+  const rows=Object.entries(cnt).map(([country,d])=>{
+    const total=d['Basic']+d['Premium']+d['Premium+'];
+    const mrr=(d['Basic']*3.50+d['Premium']*9.99+d['Premium+']*19.99);
+    const avgMos=d.mos.length?Math.round(d.mos.reduce((a,b)=>a+b,0)/d.mos.length):0;
+    return{country,total,pp:d['Premium+'],pr:d['Premium'],ba:d['Basic'],mrr,avgMos};
+  }).sort((a,b)=>b.total-a.total);
+
+  const totalMembers=rows.reduce((s,r)=>s+r.total,0);
+  set('a-breakdown-sub',rows.filter(r=>r.country!=='Unknown').length+' countries · '+totalMembers+' members mapped');
+
+  html('a-breakdown-body', rows.map(r=>`<tr>
+    <td style="font-weight:600">${r.country}</td>
+    <td style="font-family:var(--mono);font-size:11px">${r.total}</td>
+    <td style="font-family:var(--mono);font-size:11px;color:#39ff14">${r.pp||'—'}</td>
+    <td style="font-family:var(--mono);font-size:11px;color:#5070f0">${r.pr||'—'}</td>
+    <td style="font-family:var(--mono);font-size:11px;color:#f07030">${r.ba||'—'}</td>
+    <td style="font-family:var(--mono);font-size:11px;color:var(--green)">€${r.mrr.toFixed(0)}</td>
+    <td><span class="mo-tag">${r.avgMos}mo</span></td>
+  </tr>`).join(''));
 }
 
 // ── Member Care ──────────────────────────────────────────────────────────
