@@ -143,23 +143,23 @@ async function syncAllSubscriptions() {
   // Deduplicate by ID
   const unique = [...new Map(allSubs.map(s => [s.id, s])).values()];
 
-  for (const sub of unique) {
-    try {
-      const detail = await getSubscriptionDetail(token, sub.id);
-      const tier = PLAN_TIER_MAP[detail.plan_id];
-
-      if (!tier) {
-        results.skipped++;
-        continue;
+  // Process in batches of 10 in parallel to avoid timeout
+  const BATCH = 10;
+  for (let i = 0; i < unique.length; i += BATCH) {
+    const batch = unique.slice(i, i + BATCH);
+    await Promise.all(batch.map(async sub => {
+      try {
+        const detail = await getSubscriptionDetail(token, sub.id);
+        const tier = PLAN_TIER_MAP[detail.plan_id];
+        if (!tier) { results.skipped++; return; }
+        const action = await upsertMember(detail, tier);
+        if (action === 'added') results.added++;
+        else if (action === 'updated') results.updated++;
+        else results.skipped++;
+      } catch (err) {
+        results.errors.push({ sub: sub.id, error: err.message });
       }
-
-      const action = await upsertMember(detail, tier);
-      if (action === 'added') results.added++;
-      else if (action === 'updated') results.updated++;
-      else results.skipped++;
-    } catch (err) {
-      results.errors.push({ sub: sub.id, error: err.message });
-    }
+    }));
   }
 
   return results;
