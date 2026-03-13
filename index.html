@@ -942,7 +942,7 @@ async function syncCountries(){
   const btn=document.getElementById('btn-sync-countries');
   btn.textContent='updating…';btn.disabled=true;
   try{
-    const r=await fetch('/api/paypal?action=sync-countries');
+    const r=await fetch('/api/paypal?action=sync-countries&t='+Date.now());
     const d=await r.json();
     if(d.success){setStatus(`countries updated · ${d.updated} members`,'ok');await loadMembers();}
     else setStatus('country sync failed','err');
@@ -954,7 +954,7 @@ async function syncPayPal(){
   const btn=document.getElementById('btn-sync');
   btn.textContent='syncing…';btn.disabled=true;
   try{
-    const r=await fetch('/api/paypal?action=sync');
+    const r=await fetch('/api/paypal?action=sync&t='+Date.now());
     const d=await r.json();
     if(d.success){setStatus(`synced · +${d.added} added`,'ok');await loadMembers();}
     else setStatus('sync failed','err');
