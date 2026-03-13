@@ -880,9 +880,9 @@ function renderDonut(){
   const isMob=window.innerWidth<=768;
   if(isMob){canvas.width=160;canvas.height=160;}
   const ctx=canvas.getContext('2d');
-  charts['donut']=new Chart(ctx,{type:'doughnut',data:{labels:['Premium+','Premium','Basic'],datasets:[{data:[ppR,prR,baR],backgroundColor:['#39ff14','#5070f0','#f07030'],borderWidth:0,hoverOffset:4}]},
+  charts['donut']=new Chart(ctx,{type:'doughnut',data:{labels:['Premium+','Premium','Basic'],datasets:[{data:[ppR,prR,baR],backgroundColor:['#3d8ef0','#7c5cfc','#0bbfbf'],borderWidth:0,hoverOffset:4}]},
     options:{...COPT,maintainAspectRatio:true,cutout:'72%',plugins:{...COPT.plugins,tooltip:{...COPT.plugins.tooltip,callbacks:{label:i=>`€${i.raw.toFixed(0)}/mo`}}}}});
-  html('d-dlegend',[['Premium+','#39ff14',ppR,c['Premium+']],['Premium','#5070f0',prR,c['Premium']],['Basic','#f07030',baR,c['Basic']]].map(([n,col,r,cnt])=>
+  html('d-dlegend',[['Premium+','#3d8ef0',ppR,c['Premium+']],['Premium','#7c5cfc',prR,c['Premium']],['Basic','#0bbfbf',baR,c['Basic']]].map(([n,col,r,cnt])=>
     `<div class="dl-row"><div class="dl-l"><div class="dl-dot" style="background:${col}"></div><div><div class="dl-name">${n}<span class="dl-cnt">×${cnt}</span></div></div></div><div class="dl-r"><div class="dl-rev">€${r.toFixed(0)}</div><div class="dl-pct">${pct(r,tot)}%</div></div></div>`
   ).join(''));
 }
@@ -929,7 +929,7 @@ function renderLoyaltySegs(){
   const s={new:0,grow:0,loyal:0,vet:0};
   members.forEach(m=>{const mo=mos(m.joinDateISO);if(mo<=2)s.new++;else if(mo<=6)s.grow++;else if(mo<=18)s.loyal++;else s.vet++;});
   const total=members.length||1;
-  const cols=['#3d8ef0','#0bbfbf','#7c5cfc','#f0a500'];
+  const cols=['#3d8ef0','#7c5cfc','#0bbfbf','#0dba76'];
   const labels=['New (≤2mo)','Growing (3-6mo)','Loyal (7-18mo)','Veteran (18mo+)'];
   const vals=[s.new,s.grow,s.loyal,s.vet];
   set('d-lcs',s.vet+' veterans');
