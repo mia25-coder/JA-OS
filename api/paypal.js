@@ -223,8 +223,9 @@ export default async function handler(req, res) {
       const results = { updated: 0, skipped: 0, errors: [] };
 
       // Get all members from Supabase that have a subscription ID but no country
-      const existing = await supabaseFetch('/members?select=id,paypal_subscription_id,country&paypal_subscription_id=not.is.null');
-      const toUpdate = (existing || []).filter(m => !m.country || m.country === '—');
+      const existing = await supabaseFetch('/members?select=id,paypal_subscription_id,country&paypal_subscription_id=not.is.null&limit=200');
+      // Update all — overwrite even existing country values so we get fresh data
+      const toUpdate = (existing || []).filter(m => m.paypal_subscription_id);
 
       // Batch 10 at a time
       const BATCH = 10;
