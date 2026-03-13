@@ -511,6 +511,21 @@ tr:hover td{background:var(--faint);}
       <div class="mlist" id="d-att"></div>
     </div>
   </div>
+
+  <!-- Premium members table -->
+  <div class="card" style="margin-top:16px">
+    <div class="ch">
+      <div><div class="ct">Premium &amp; Premium+ Members</div><div class="csub" id="d-prem-sub">—</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Handle</th><th>Tier</th><th>Country</th><th>Email</th><th>Joined</th><th>Months</th>
+        </tr></thead>
+        <tbody id="d-prem-body"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <!-- ═══ REVENUE ══════════════════════════════════════════ -->
@@ -561,6 +576,21 @@ tr:hover td{background:var(--faint);}
       <div class="big cr" id="r-risk">€0</div>
       <div class="bsub" id="r-risk-s">Basic members ≤ 2mo</div>
       <div class="ins"><div class="ins-ico">⚠️</div><div class="ins-txt" id="r-rins">—</div></div>
+    </div>
+  </div>
+
+  <!-- Premium members table -->
+  <div class="card" style="margin-top:16px">
+    <div class="ch">
+      <div><div class="ct">Premium &amp; Premium+ Members</div><div class="csub" id="r-prem-sub">—</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Handle</th><th>Tier</th><th>Country</th><th>Email</th><th>Joined</th><th>Months</th>
+        </tr></thead>
+        <tbody id="r-prem-body"></tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -826,6 +856,7 @@ function renderAll(){
   renderLeaderboard();
   renderDashAlerts();
   renderTable();
+  renderPremiumTable('d-prem-body','d-prem-sub');
 }
 
 // ── Donut ─────────────────────────────────────────────────────────────
@@ -969,6 +1000,31 @@ function renderRevenue(){
     x:{stacked:true,grid:{display:false},ticks:{color:'#6b6b88',font:{family:'IBM Plex Mono',size:8},maxRotation:0,maxTicksLimit:8},border:{color:'rgba(255,255,255,.055)'}},
     y:{stacked:true,grid:{color:'rgba(255,255,255,.03)'},ticks:{color:'#6b6b88',font:{family:'IBM Plex Mono',size:9},callback:v=>'€'+v},border:{color:'rgba(255,255,255,.055)'},beginAtZero:true}
   },plugins:{...COPT.plugins,tooltip:{...COPT.plugins.tooltip,mode:'index',intersect:false}}}});
+  renderPremiumTable('r-prem-body','r-prem-sub');
+}
+
+// ── Premium Members Table ─────────────────────────────────────────────────
+function renderPremiumTable(bodyId, subId){
+  const prem=members.filter(m=>m.tier==='Premium+'||m.tier==='Premium')
+    .sort((a,b)=>{
+      if(a.tier==='Premium+'&&b.tier!=='Premium+')return -1;
+      if(b.tier==='Premium+'&&a.tier!=='Premium+')return 1;
+      return mos(b.joinDateISO)-mos(a.joinDateISO);
+    });
+  const pp=prem.filter(m=>m.tier==='Premium+').length;
+  const pr=prem.filter(m=>m.tier==='Premium').length;
+  set(subId,`${pp} Premium+ · ${pr} Premium · €${prem.reduce((s,m)=>s+(PRICES[m.tier]||0),0).toFixed(0)}/mo`);
+  html(bodyId, prem.length ? prem.map(m=>{
+    const mo=mos(m.joinDateISO);
+    return`<tr>
+      <td><span style="font-weight:600">${m.handle||'—'}</span></td>
+      <td><span class="badge ${bc(m.tier)}">${m.tier}</span></td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--sub)">${m.country||'—'}</td>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--dim)">${m.paypalEmail||'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--sub)">${m.joinDate||'—'}</td>
+      <td><span class="mo-tag">${mo}mo</span></td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--dim);font-family:var(--mono);font-size:10px;padding:20px">No premium members.</td></tr>');
 }
 
 // ── Members Table ────────────────────────────────────────────────────────
