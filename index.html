@@ -4,261 +4,852 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JustAbarth OS</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --bg: #08080d;
-  --surface: #111118;
-  --surface2: #18181f;
-  --border: #ffffff12;
-  --border2: #ffffff22;
-  --accent: #c17fff;
-  --accent2: #8f5fcc;
-  --accent-glow: #c17fff33;
-  --green: #00e09a;
-  --green-dim: #00e09a22;
-  --red: #ff4566;
-  --red-dim: #ff456622;
-  --gold: #ffba44;
-  --text: #f0eeff;
-  --muted: #8888aa;
-  --faint: #ffffff18;
+  --bg:       #060608;
+  --s1:       #0d0d12;
+  --s2:       #131318;
+  --s3:       #1a1a22;
+  --border:   rgba(255,255,255,.06);
+  --border2:  rgba(255,255,255,.12);
+  --accent:   #e8ff47;
+  --accent2:  #c8e800;
+  --red:      #ff3c5a;
+  --purple:   #9d6fff;
+  --teal:     #00d4aa;
+  --text:     #f2f0ff;
+  --muted:    #6b6b85;
+  --faint:    rgba(255,255,255,.04);
+  --pplus:    #e8ff47;
+  --prem:     #9d6fff;
+  --basic:    #3a3a52;
+  --font:     'Archivo', sans-serif;
+  --mono:     'JetBrains Mono', monospace;
+  --display:  'Archivo Black', sans-serif;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; min-height: 100vh; }
-body::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px); pointer-events: none; z-index: 9999; }
-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 32px; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; }
-.logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: .12em; color: var(--accent); text-shadow: 0 0 20px var(--accent-glow); }
-.logo span { color: var(--text); }
-.header-meta { font-size: 12px; color: var(--muted); letter-spacing: .06em; }
-.main { padding: 28px 32px; display: flex; flex-direction: column; gap: 28px; max-width: 1400px; margin: 0 auto; }
-.metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; }
-.metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; position: relative; overflow: hidden; transition: border-color .2s; }
-.metric-card:hover { border-color: var(--border2); }
-.metric-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); opacity: .5; }
-.metric-label { font-size: 11px; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
-.metric-value { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--text); line-height: 1; }
-.metric-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
-.section-label { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; }
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-.bar-label { font-size: 12px; color: var(--muted); width: 76px; flex-shrink: 0; }
-.bar-track { flex: 1; height: 6px; background: var(--faint); border-radius: 3px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 3px; transition: width .5s cubic-bezier(.4,0,.2,1); }
-.bar-count { font-size: 12px; color: var(--text); width: 20px; text-align: right; }
-.bar-rev { font-size: 11px; color: var(--muted); padding-left: 86px; margin-bottom: 14px; margin-top: -8px; }
-.sched-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--border); }
-.sched-row:last-child { border-bottom: none; }
-.avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; }
-.sched-handle { font-size: 13px; font-weight: 500; color: var(--text); }
-.sched-date { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.badge { font-size: 10px; font-weight: 500; letter-spacing: .04em; padding: 3px 8px; border-radius: 20px; margin-left: auto; flex-shrink: 0; }
-.badge-basic   { background: #ffffff12; color: #aaaacc; }
-.badge-premium { background: #c17fff22; color: var(--accent); border: 1px solid #c17fff33; }
-.badge-pplus   { background: #00e09a22; color: var(--green); border: 1px solid #00e09a33; }
-.lb-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
-.lb-row:last-child { border-bottom: none; }
-.lb-rank { font-family: 'Bebas Neue', sans-serif; font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
-.lb-handle { flex: 1; font-size: 13px; color: var(--text); }
-.lb-pts { font-size: 13px; font-weight: 500; color: var(--text); }
-.lb-bar { height: 3px; border-radius: 2px; margin-top: 3px; background: var(--accent); }
-.rank-1 { color: var(--gold); }
-.rank-2 { color: #c0c0d0; }
-.rank-3 { color: #cd7f32; }
-input, select { width: 100%; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 9px 12px; outline: none; transition: border-color .2s; }
-input:focus, select:focus { border-color: var(--accent2); }
-input::placeholder { color: var(--muted); }
-select option { background: var(--surface2); }
-input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(0.4); cursor: pointer; }
-.form-grid { display: flex; flex-direction: column; gap: 8px; }
-button { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; border-radius: 7px; transition: all .15s; }
-.btn-primary { background: var(--accent); color: #1a0a2e; border: none; padding: 9px 16px; width: 100%; margin-top: 4px; letter-spacing: .04em; }
-.btn-primary:hover { background: #d49aff; }
-.btn-sm { background: transparent; border: 1px solid var(--border2); color: var(--muted); padding: 3px 9px; font-size: 11px; }
-.btn-sm:hover { border-color: var(--accent2); color: var(--accent); }
-.btn-post { background: var(--green-dim); border: 1px solid #00e09a44; color: var(--green); padding: 3px 9px; font-size: 11px; }
-.btn-post:hover { background: #00e09a33; }
-.btn-del { background: var(--red-dim); border: 1px solid #ff456633; color: var(--red); padding: 3px 9px; font-size: 11px; }
-.btn-del:hover { background: #ff456633; }
-.btn-gen { background: transparent; border: 1px solid var(--accent2); color: var(--accent); padding: 8px 16px; font-size: 12px; letter-spacing: .04em; }
-.btn-gen:hover { background: var(--accent-glow); }
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
-thead th { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); font-weight: 400; }
-tbody td { padding: 10px 10px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover td { background: var(--faint); }
-.col-handle { width: 18%; }
-.col-tier   { width: 13%; }
-.col-car    { width: 14%; }
-.col-country{ width: 9%; }
-.col-joined { width: 10%; }
-.col-months { width: 8%; }
-.col-feat   { width: 10%; }
-.col-pts    { width: 10%; }
-.col-actions{ width: 11%; }
-.search-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-.sched-list { list-style: none; }
-.sched-item { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 8px; margin-bottom: 4px; background: var(--surface2); border: 1px solid var(--border); font-size: 13px; }
-.sched-item-date { color: var(--muted); font-size: 11px; width: 100px; flex-shrink: 0; }
-.sched-item-handle { flex: 1; font-weight: 500; }
-.sched-empty { color: var(--muted); font-size: 13px; padding: 12px 0; }
-.loyalty-wrap { position: relative; width: 100%; height: 300px; }
-.loyalty-legend { display: flex; gap: 20px; margin-top: 14px; flex-wrap: wrap; }
-.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
-.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.months-pill { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 20px; background: #c17fff22; color: var(--accent); font-weight: 500; }
 
-/* ── Tabs ── */
-.tab-nav { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--surface); padding: 0 32px; }
-.tab-btn { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 400; background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted); padding: 14px 20px; cursor: pointer; letter-spacing: .02em; margin-bottom: -1px; transition: color .15s, border-color .15s; border-radius: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Noise overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: .4;
+}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 36px;
+  height: 60px;
+  border-bottom: 1px solid var(--border);
+  background: var(--s1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-family: var(--display);
+  font-size: 20px;
+  letter-spacing: .04em;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 2px 7px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-dot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .06em;
+}
+
+.status-dot::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: background .3s;
+}
+
+.status-dot.connected::before { background: var(--teal); }
+.status-dot.error::before { background: var(--red); }
+
+.header-date {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .06em;
+}
+
+.btn-sync {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(232,255,71,.08);
+  border: 1px solid rgba(232,255,71,.25);
+  border-radius: 5px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.btn-sync:hover { background: rgba(232,255,71,.14); }
+.btn-sync:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── TABS ────────────────────────────────────────────────── */
+.tab-nav {
+  display: flex;
+  gap: 0;
+  padding: 0 36px;
+  border-bottom: 1px solid var(--border);
+  background: var(--s1);
+}
+
+.tab-btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  padding: 14px 20px;
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: color .15s, border-color .15s;
+}
+
 .tab-btn:hover { color: var(--text); }
-.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
-.tab-panel { display: none; }
-.tab-panel.active { display: flex; flex-direction: column; gap: 28px; }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-.card, .metric-card { animation: fadeIn .3s ease both; }
+.tab-panel { display: none; }
+.tab-panel.active { display: flex; flex-direction: column; gap: 24px; }
+
+/* ── MAIN LAYOUT ─────────────────────────────────────────── */
+.main {
+  padding: 28px 36px;
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── METRIC CARDS ────────────────────────────────────────── */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.metric-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s, transform .2s;
+}
+
+.metric-card:hover {
+  border-color: var(--border2);
+  transform: translateY(-1px);
+}
+
+.metric-card.accent { border-color: rgba(232,255,71,.2); }
+.metric-card.accent::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top left, rgba(232,255,71,.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.metric-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.metric-value {
+  font-family: var(--display);
+  font-size: 40px;
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: -.01em;
+}
+
+.metric-card.accent .metric-value { color: var(--accent); }
+
+.metric-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+  font-weight: 400;
+}
+
+.metric-delta {
+  position: absolute;
+  top: 22px;
+  right: 20px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .06em;
+}
+
+/* ── GRID LAYOUTS ────────────────────────────────────────── */
+.grid-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
+
+/* ── CARDS ───────────────────────────────────────────────── */
+.card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 22px 24px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-title {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.card-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* ── TIER BARS ───────────────────────────────────────────── */
+.tier-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.tier-row:last-child { margin-bottom: 0; }
+
+.tier-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .06em;
+  width: 64px;
+  flex-shrink: 0;
+  color: var(--text);
+}
+
+.tier-track {
+  flex: 1;
+  height: 4px;
+  background: var(--faint);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.tier-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+
+.tier-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  width: 24px;
+  text-align: right;
+}
+
+.tier-rev {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  width: 72px;
+  text-align: right;
+}
+
+/* ── LEADERBOARD ─────────────────────────────────────────── */
+.lb-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.lb-row:last-child { border-bottom: none; }
+
+.lb-num {
+  font-family: var(--display);
+  font-size: 22px;
+  width: 32px;
+  text-align: center;
+  color: var(--s3);
+  flex-shrink: 0;
+}
+
+.lb-num.gold { color: var(--accent); }
+.lb-num.silver { color: var(--muted); opacity: .8; }
+.lb-num.bronze { color: #cd7c3a; }
+
+.lb-info { flex: 1; min-width: 0; }
+.lb-handle { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-bar-wrap { margin-top: 4px; height: 2px; background: var(--faint); border-radius: 1px; }
+.lb-bar { height: 100%; background: var(--accent); border-radius: 1px; opacity: .5; transition: width .5s; }
+.lb-mos { font-family: var(--mono); font-size: 10px; color: var(--muted); white-space: nowrap; }
+
+/* ── UP NEXT ─────────────────────────────────────────────── */
+.upnext-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.upnext-row:last-child { border-bottom: none; }
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.upnext-info { flex: 1; min-width: 0; }
+.upnext-handle { font-size: 13px; font-weight: 500; color: var(--text); }
+.upnext-date { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+/* ── BADGES ──────────────────────────────────────────────── */
+.badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-pplus { background: rgba(232,255,71,.12); color: var(--pplus); border: 1px solid rgba(232,255,71,.2); }
+.badge-premium { background: rgba(157,111,255,.12); color: var(--prem); border: 1px solid rgba(157,111,255,.2); }
+.badge-basic { background: rgba(58,58,82,.4); color: var(--muted); border: 1px solid var(--border2); }
+
+/* ── SCHEDULE ────────────────────────────────────────────── */
+.sched-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sched-select {
+  font-family: var(--mono);
+  font-size: 10px;
+  background: var(--s2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 6px 10px;
+  flex: 1;
+  cursor: pointer;
+}
+
+.btn-gen {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  background: var(--s2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 7px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .2s;
+}
+
+.btn-gen:hover { border-color: var(--accent); color: var(--accent); }
+
+.sched-list { list-style: none; }
+
+.sched-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.sched-item:last-child { border-bottom: none; }
+
+.sched-date {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.sched-handle {
+  font-size: 13px;
+  font-weight: 500;
+  flex: 1;
+  color: var(--text);
+}
+
+.sched-empty {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  padding: 24px 0;
+  text-align: center;
+  letter-spacing: .08em;
+}
+
+/* ── MEMBER TABLE ────────────────────────────────────────── */
+.table-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.search-input {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--s2);
+  border: 1px solid var(--border2);
+  border-radius: 7px;
+  color: var(--text);
+  padding: 8px 14px;
+  width: 280px;
+  outline: none;
+  transition: border-color .2s;
+}
+
+.search-input:focus { border-color: rgba(232,255,71,.35); }
+.search-input::placeholder { color: var(--muted); }
+
+.table-wrap { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+
+th {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 12px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: middle;
+}
+
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--faint); }
+
+.months-pill {
+  font-family: var(--mono);
+  font-size: 10px;
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 7px;
+  color: var(--muted);
+}
+
+.tier-select {
+  font-family: var(--mono);
+  font-size: 10px;
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  padding: 4px 7px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.btn-post, .btn-del {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  padding: 4px 9px;
+  cursor: pointer;
+  border: 1px solid var(--border2);
+  transition: all .15s;
+}
+
+.btn-post { background: transparent; color: var(--muted); }
+.btn-post:hover { border-color: var(--accent); color: var(--accent); }
+.btn-post.active { background: rgba(232,255,71,.1); border-color: rgba(232,255,71,.3); color: var(--accent); }
+.btn-del { background: transparent; color: var(--muted); }
+.btn-del:hover { border-color: var(--red); color: var(--red); }
+
+/* ── CHART SECTIONS ──────────────────────────────────────── */
+.chart-wrap {
+  position: relative;
+  width: 100%;
+  height: 280px;
+}
+
+.loyalty-legend {
+  display: flex;
+  gap: 18px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── ANALYTICS BAR ROWS ──────────────────────────────────── */
+.abar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.abar-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  width: 90px;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.abar-track { flex: 1; height: 4px; background: var(--faint); border-radius: 2px; overflow: hidden; }
+.abar-fill { height: 100%; border-radius: 2px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+.abar-count { font-family: var(--mono); font-size: 10px; color: var(--muted); min-width: 30px; text-align: right; }
+
+/* ── LOADING STATE ───────────────────────────────────────── */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: opacity .4s;
+}
+
+.loading-overlay.hidden { opacity: 0; pointer-events: none; }
+
+.loading-logo {
+  font-family: var(--display);
+  font-size: 32px;
+  color: var(--text);
+  margin-bottom: 32px;
+  letter-spacing: .04em;
+}
+
+.loading-logo span { color: var(--accent); }
+
+.loading-bar {
+  width: 180px;
+  height: 2px;
+  background: var(--s3);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.loading-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 1px;
+  animation: load 1.4s ease-in-out infinite;
+}
+
+@keyframes load {
+  0% { width: 0; margin-left: 0; }
+  50% { width: 60%; margin-left: 20%; }
+  100% { width: 0; margin-left: 100%; }
+}
+
+/* ── COLUMN WIDTHS ───────────────────────────────────────── */
+.col-handle  { width: 18%; }
+.col-tier    { width: 13%; }
+.col-email   { width: 18%; }
+.col-joined  { width: 10%; }
+.col-months  { width: 8%; }
+.col-feat    { width: 10%; }
+.col-actions { width: 12%; }
+
+/* ── FADE IN ─────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.main > * {
+  animation: fadeUp .35s ease both;
+}
+
+.main > *:nth-child(1) { animation-delay: .05s; }
+.main > *:nth-child(2) { animation-delay: .1s; }
+.main > *:nth-child(3) { animation-delay: .15s; }
+.main > *:nth-child(4) { animation-delay: .2s; }
+.main > *:nth-child(5) { animation-delay: .25s; }
 </style>
 </head>
 <body>
 
+<!-- Loading -->
+<div class="loading-overlay" id="loading">
+  <div class="loading-logo">Just<span>Abarth</span> OS</div>
+  <div class="loading-bar"></div>
+</div>
+
 <header>
-  <div class="logo">Just<span>Abarth</span> OS</div>
-  <div style="display:flex;align-items:center;gap:16px">
-    <span id="db-status" style="font-size:11px;color:var(--accent2)">● connecting...</span>
-    <button onclick="migrateFromLocalStorage()" style="font-size:11px;padding:4px 10px;border-radius:6px;background:transparent;border:1px solid var(--border2);color:var(--muted);cursor:pointer;" title="One-time import of any existing localStorage data into Supabase">Import local data</button>
-    <button onclick="syncPayPal()" id="btn-sync-paypal" style="font-size:11px;padding:4px 10px;border-radius:6px;background:transparent;border:1px solid var(--accent2);color:var(--accent2);cursor:pointer;">&#8635; Sync PayPal</button>
-    <div class="header-meta" id="header-meta">Loading...</div>
+  <div class="logo">
+    JustAbarth OS
+    <span class="logo-badge">v2</span>
+  </div>
+  <div class="header-right">
+    <div class="status-dot" id="db-status">connecting</div>
+    <div class="header-date" id="header-date"></div>
+    <button class="btn-sync" id="btn-sync-paypal" onclick="syncPayPal()">⟳ Sync PayPal</button>
   </div>
 </header>
 
-<div class="main">
-
 <nav class="tab-nav">
   <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+  <button class="tab-btn" onclick="switchTab('schedule')">Schedule</button>
+  <button class="tab-btn" onclick="switchTab('members')">Members</button>
   <button class="tab-btn" onclick="switchTab('analytics')">Analytics</button>
 </nav>
 
+<div class="main">
+
+<!-- ── DASHBOARD TAB ─────────────────────────────────────── -->
 <div class="tab-panel active" id="tab-dashboard">
 
   <div class="metrics">
-    <div class="metric-card">
-      <div class="metric-label">Total members</div>
-      <div class="metric-value" id="m-total">0</div>
-      <div class="metric-sub">all tiers</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-label">Monthly revenue</div>
+    <div class="metric-card accent">
+      <div class="metric-label">Monthly Revenue</div>
       <div class="metric-value" id="m-rev">€0</div>
-      <div class="metric-sub">recurring</div>
+      <div class="metric-sub">recurring · all tiers</div>
     </div>
     <div class="metric-card">
-      <div class="metric-label">Premium members</div>
+      <div class="metric-label">Total Members</div>
+      <div class="metric-value" id="m-total">0</div>
+      <div class="metric-sub">active subscribers</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Premium</div>
       <div class="metric-value" id="m-premium">0</div>
       <div class="metric-sub">Premium + Premium+</div>
     </div>
-<div class="metric-card">
-      <div class="metric-label">Avg. loyalty</div>
+    <div class="metric-card">
+      <div class="metric-label">Avg. Loyalty</div>
       <div class="metric-value" id="m-loyalty">0</div>
       <div class="metric-sub">months subscribed</div>
     </div>
   </div>
 
-  <div class="two-col">
+  <div class="grid-3">
     <div class="card">
-      <div class="section-label">Tier breakdown</div>
+      <div class="card-header">
+        <span class="card-title">Tier Breakdown</span>
+        <span class="card-meta" id="tier-rev-total"></span>
+      </div>
       <div id="tier-bars"></div>
     </div>
+
     <div class="card">
-      <div class="section-label">Add member</div>
-      <div class="form-grid">
-        <input id="in-handle" placeholder="Instagram handle">
-        <select id="in-tier">
-          <option value="Basic">Basic — €3.50/mo</option>
-          <option value="Premium">Premium — €9.99/mo</option>
-          <option value="Premium+">Premium+ — €19.99/mo</option>
-        </select>
-        <input id="in-car" placeholder="Car model">
-        <input id="in-country" placeholder="Country">
-        <label style="font-size:11px;color:var(--muted);margin-top:2px">Join date (leave blank = today)</label>
-        <input id="in-joindate" type="date">
-        <button class="btn-primary" onclick="addMember()">Add member</button>
+      <div class="card-header">
+        <span class="card-title">Loyalty Leaderboard</span>
+        <span class="card-meta">top 5</span>
       </div>
-    </div>
-  </div>
-
-  <!-- Loyalty graph -->
-  <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)">
-      <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Member loyalty — months subscribed</div>
-      <div id="loyalty-top-label" style="font-size:11px;color:var(--muted)"></div>
-    </div>
-    <div id="loyalty-empty" class="sched-empty" style="display:none;text-align:center;padding:40px 0">Add members with a join date to see the loyalty graph.</div>
-    <div class="loyalty-wrap" id="loyalty-wrap">
-      <canvas id="loyalty-chart"></canvas>
-    </div>
-    <div class="loyalty-legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#c17fff"></div>Premium+</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#8f5fcc"></div>Premium</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#444460"></div>Basic</div>
-    </div>
-  </div>
-
-  <div class="two-col">
-    <div class="card">
-      <div class="section-label">Loyalty leaderboard</div>
       <div id="leaderboard"></div>
     </div>
+
     <div class="card">
-      <div class="section-label">Up next to feature</div>
+      <div class="card-header">
+        <span class="card-title">Up Next</span>
+        <span class="card-meta">by tier priority</span>
+      </div>
       <div id="up-next"></div>
     </div>
   </div>
 
-  <div class="two-col">
-    <div class="card">
-      <div class="section-label">Full schedule</div>
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
-        <span style="font-size:11px;color:var(--muted);white-space:nowrap;">Basic batch size</span>
-        <select id="batch-size" style="flex:1;padding:6px 10px;font-size:12px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);">
-          <option value="5">5 per day</option>
-          <option value="10">10 per day</option>
-        </select>
-        <button class="btn-gen" onclick="generateSchedule()" style="white-space:nowrap;padding:7px 14px;">Generate</button>
-      </div>
-      <ul class="sched-list" id="full-schedule"></ul>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Member Loyalty — months subscribed</span>
+      <span class="card-meta" id="loyalty-top-label"></span>
     </div>
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)">
-        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Premium schedule</div>
-        <div id="prem-month-label" style="font-size:11px;color:var(--muted)"></div>
-      </div>
-      <button class="btn-gen" onclick="generatePremiumSchedule()" style="margin-bottom:14px;width:100%">Generate for this month</button>
-      <ul class="sched-list" id="premium-schedule"></ul>
+    <div id="loyalty-empty" style="display:none" class="sched-empty">Add members with a join date to see loyalty.</div>
+    <div class="chart-wrap" id="loyalty-wrap">
+      <canvas id="loyalty-chart"></canvas>
+    </div>
+    <div class="loyalty-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--pplus)"></div>Premium+</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--prem)"></div>Premium</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#555570"></div>Basic</div>
     </div>
   </div>
 
+</div>
+
+<!-- ── SCHEDULE TAB ──────────────────────────────────────── -->
+<div class="tab-panel" id="tab-schedule">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Full Schedule</span>
+        <span class="card-meta">Premium individual · Basic carousel</span>
+      </div>
+      <div class="sched-controls">
+        <span style="font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap">Basic batch</span>
+        <select id="batch-size" class="sched-select">
+          <option value="5">5 per day</option>
+          <option value="10">10 per day</option>
+        </select>
+        <button class="btn-gen" onclick="generateSchedule()">Generate</button>
+      </div>
+      <ul class="sched-list" id="full-schedule"></ul>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Premium Schedule</span>
+        <span class="card-meta" id="prem-month-label"></span>
+      </div>
+      <button class="btn-gen" style="width:100%;margin-bottom:16px" onclick="generatePremiumSchedule()">Generate for this month</button>
+      <ul class="sched-list" id="premium-schedule"></ul>
+    </div>
+  </div>
+</div>
+
+<!-- ── MEMBERS TAB ───────────────────────────────────────── -->
+<div class="tab-panel" id="tab-members">
   <div class="card">
-    <div class="search-row">
-      <div class="section-label" style="margin:0">All members</div>
-      <input id="search" placeholder="Search by handle, tier, car..." oninput="renderTable()" style="width:260px;background:var(--surface2);border:1px solid var(--accent2);border-radius:8px;color:var(--text);font-size:13px;padding:8px 12px;">
+    <div class="table-controls">
+      <span class="card-title">All Members</span>
+      <input class="search-input" id="search" placeholder="Search handle, tier, email..." oninput="renderTable()">
     </div>
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
-            <th class="col-handle">Instagram</th>
+            <th class="col-handle">Handle</th>
             <th class="col-tier">Tier</th>
-            <th class="col-car">Car</th>
-            <th class="col-country">Country</th>
+            <th class="col-email">Email</th>
             <th class="col-joined">Joined</th>
             <th class="col-months">Months</th>
-            <th class="col-feat">Last post</th>
-            <th class="col-pts">Months</th>
+            <th class="col-feat">Last Post</th>
             <th class="col-actions">Actions</th>
           </tr>
         </thead>
@@ -266,63 +857,65 @@ tbody tr:hover td { background: var(--faint); }
       </table>
     </div>
   </div>
-
 </div>
 
+<!-- ── ANALYTICS TAB ─────────────────────────────────────── -->
 <div class="tab-panel" id="tab-analytics">
 
-  <!-- Country breakdown -->
   <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)">
-      <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Members by country</div>
-      <div id="country-top-label" style="font-size:11px;color:var(--muted)"></div>
+    <div class="card-header">
+      <span class="card-title">Members by Country</span>
+      <span class="card-meta" id="country-top-label"></span>
     </div>
-    <div id="country-empty" style="display:none;color:var(--muted);font-size:13px;padding:40px 0;text-align:center">No country data yet — add members with a country to see this chart.</div>
-    <div style="position:relative;width:100%;height:300px;" id="country-wrap">
+    <div id="country-empty" style="display:none" class="sched-empty">No country data — add members with a country to see this chart.</div>
+    <div class="chart-wrap" id="country-wrap">
       <canvas id="country-chart"></canvas>
     </div>
   </div>
 
-  <!-- Country + loyalty side by side -->
-  <div class="two-col">
+  <div class="grid-2">
     <div class="card">
-      <div class="section-label">Country breakdown</div>
+      <div class="card-header">
+        <span class="card-title">Country Breakdown</span>
+      </div>
       <div id="country-bars"></div>
     </div>
     <div class="card">
-      <div class="section-label">Avg. loyalty by country</div>
+      <div class="card-header">
+        <span class="card-title">Avg. Loyalty by Country</span>
+      </div>
       <div id="country-loyalty-bars"></div>
     </div>
   </div>
 
-  <!-- Loyalty graph repeated here too -->
   <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)">
-      <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Member loyalty — months subscribed</div>
-      <div id="loyalty-top-label-2" style="font-size:11px;color:var(--muted)"></div>
+    <div class="card-header">
+      <span class="card-title">Member Loyalty — months subscribed</span>
+      <span class="card-meta" id="loyalty-top-label-2"></span>
     </div>
-    <div id="loyalty-empty-2" style="display:none;color:var(--muted);font-size:13px;padding:40px 0;text-align:center">Add members with a join date to see the loyalty graph.</div>
-    <div style="position:relative;width:100%;height:300px;" id="loyalty-wrap-2">
+    <div id="loyalty-empty-2" style="display:none" class="sched-empty">No loyalty data available.</div>
+    <div class="chart-wrap" id="loyalty-wrap-2">
       <canvas id="loyalty-chart-2"></canvas>
     </div>
     <div class="loyalty-legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#c17fff"></div>Premium+</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#8f5fcc"></div>Premium</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#444460"></div>Basic</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--pplus)"></div>Premium+</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--prem)"></div>Premium</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#555570"></div>Basic</div>
     </div>
   </div>
 
 </div>
 
-</div>
+</div><!-- /main -->
 
 <script>
 const PRICES = { Basic: 3.50, Premium: 9.99, 'Premium+': 19.99 };
-const AVATAR_BG = ['#c17fff33','#00e09a22','#ff456622','#ffba4422','#378add22'];
-const AVATAR_FG = ['#c17fff','#00e09a','#ff4566','#ffba44','#378add'];
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MONTHS_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const TIER_COLORS = { Basic: '#444460', Premium: '#8f5fcc', 'Premium+': '#c17fff' };
+const TIER_COLORS = { Basic: '#555570', Premium: '#9d6fff', 'Premium+': '#e8ff47' };
+const AVATAR_BG = ['rgba(232,255,71,.15)','rgba(157,111,255,.15)','rgba(0,212,170,.15)','rgba(255,60,90,.15)','rgba(255,186,68,.15)'];
+const AVATAR_FG = ['#e8ff47','#9d6fff','#00d4aa','#ff3c5a','#ffba44'];
+const COUNTRY_PALETTE = ['#e8ff47','#9d6fff','#00d4aa','#ff3c5a','#ffba44','#378add','#ff8c42','#c17fff','#00e09a','#ff6b6b'];
 
 const SUPABASE_URL = 'https://dmiiwdfebyrdqjkirbsz.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtaWl3ZGZlYnlyZHFqa2lyYnN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzODg3NjYsImV4cCI6MjA4ODk2NDc2Nn0.I9uHe8cPAGQ1b2J4IOMkQ21lTV_4XKXdpG3z_3MDvFs';
@@ -333,20 +926,11 @@ let loyaltyChart = null;
 let countryChart = null;
 let loyaltyChart2 = null;
 
-function dbRow(m) {
-  return {
-    handle: m.handle,
-    tier: m.tier,
-    car: m.car || '—',
-    country: m.country || '—',
-    points: m.points || 0,
-    featured: m.featured || false,
-    last_feature: m.lastFeature || null,
-    join_date: m.joinDate || null,
-    join_date_iso: m.joinDateISO || null
-  };
-}
+// ── Header date
+document.getElementById('header-date').textContent =
+  new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
 
+// ── Helpers
 function fromRow(r) {
   return {
     id: r.id,
@@ -359,255 +943,157 @@ function fromRow(r) {
     lastFeature: r.last_feature,
     joinDate: r.join_date,
     joinDateISO: r.join_date_iso,
-    paid: true
+    paypalEmail: r.paypal_email,
+    paypalStatus: r.paypal_status,
   };
 }
 
-async function loadMembers() {
-  const { data, error } = await sb.from('members').select('*').order('created_at', { ascending: true });
-  if (error) { setStatus('● connection error', false); console.error('Load error:', error); return; }
-  members = (data || []).map(fromRow);
-  setStatus('● connected');
-  renderAll();
-}
-
-function setStatus(msg, ok=true) {
-  const el = document.getElementById('db-status');
-  if (!el) return;
-  el.textContent = msg;
-  el.style.color = ok ? 'var(--accent2)' : '#ff4566';
-  clearTimeout(el._t);
-  el._t = setTimeout(() => el.textContent = '● connected', 2000);
-}
-function initials(h) { return h.replace('@','').slice(0,2).toUpperCase(); }
-function avatarStyle(i) { return `background:${AVATAR_BG[i%5]};color:${AVATAR_FG[i%5]}`; }
-function fmtDate(d) { return `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS_NAMES[d.getMonth()]}`; }
 function badgeClass(t) { return t==='Premium+' ? 'badge-pplus' : t==='Premium' ? 'badge-premium' : 'badge-basic'; }
+function initials(h) { return (h||'??').replace('@','').slice(0,2).toUpperCase(); }
+function fmtDate(d) { return `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS_NAMES[d.getMonth()]}`; }
 
 function monthsSubscribed(isoDate) {
   if (!isoDate) return 0;
   const join = new Date(isoDate);
   const now = new Date();
-  return Math.max(0, (now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth()));
+  return Math.max(0, (now.getFullYear()-join.getFullYear())*12 + (now.getMonth()-join.getMonth()));
 }
 
+function setStatus(msg, state='ok') {
+  const el = document.getElementById('db-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'status-dot' + (state==='ok' ? ' connected' : state==='error' ? ' error' : '');
+  if (state==='ok' && msg !== 'connected') {
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.textContent = 'connected'; el.className = 'status-dot connected'; }, 3000);
+  }
+}
+
+// ── Load
+async function loadMembers() {
+  const { data, error } = await sb.from('members').select('*').order('created_at', { ascending: true });
+  if (error) { setStatus('connection error', 'error'); return; }
+  members = (data || []).map(fromRow);
+  setStatus('connected', 'ok');
+  document.getElementById('loading').classList.add('hidden');
+  renderAll();
+}
+
+// ── Render all
 function renderAll() {
   const total = members.length;
-  const rev = members.reduce((s,m) => s + PRICES[m.tier], 0);
-  const premCount = members.filter(m => m.tier==='Premium' || m.tier==='Premium+').length;
-  const loyalties = members.map(m => monthsSubscribed(m.joinDateISO)).filter(n => n > 0);
-  const avgLoyalty = loyalties.length ? Math.round(loyalties.reduce((a,b)=>a+b,0) / loyalties.length) : 0;
+  const rev = members.reduce((s,m) => s + (PRICES[m.tier]||0), 0);
+  const premCount = members.filter(m => m.tier==='Premium'||m.tier==='Premium+').length;
+  const loyalties = members.map(m => monthsSubscribed(m.joinDateISO)).filter(n=>n>0);
+  const avgLoyalty = loyalties.length ? Math.round(loyalties.reduce((a,b)=>a+b,0)/loyalties.length) : 0;
 
   document.getElementById('m-total').textContent = total;
-  document.getElementById('m-rev').textContent = '€' + rev.toFixed(2);
+  document.getElementById('m-rev').textContent = '€' + rev.toFixed(0);
   document.getElementById('m-premium').textContent = premCount;
   document.getElementById('m-loyalty').textContent = avgLoyalty;
 
-  document.getElementById('header-meta').textContent =
-    `${total} members · €${rev.toFixed(2)}/mo · ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}`;
-
-  const counts = { Basic: 0, Premium: 0, 'Premium+': 0 };
-  members.forEach(m => counts[m.tier]++);
+  // Tier bars
+  const counts = { 'Premium+': 0, Premium: 0, Basic: 0 };
+  members.forEach(m => { if (counts[m.tier] !== undefined) counts[m.tier]++; });
   const maxC = Math.max(...Object.values(counts), 1);
+  const totalRev = Object.entries(counts).reduce((s,[t,c]) => s + c*(PRICES[t]||0), 0);
+  document.getElementById('tier-rev-total').textContent = '€' + totalRev.toFixed(0) + '/mo';
   document.getElementById('tier-bars').innerHTML = Object.entries(counts).map(([t,c]) => `
-    <div class="bar-row">
-      <div class="bar-label">${t}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/maxC*100)}%;background:${TIER_COLORS[t]}"></div></div>
-      <div class="bar-count">${c}</div>
-    </div>
-    <div class="bar-rev">€${(c*PRICES[t]).toFixed(2)}/mo</div>
-  `).join('');
+    <div class="tier-row">
+      <div class="tier-label">${t}</div>
+      <div class="tier-track"><div class="tier-fill" style="width:${Math.round(c/maxC*100)}%;background:${TIER_COLORS[t]}"></div></div>
+      <div class="tier-count">${c}</div>
+      <div class="tier-rev">€${(c*(PRICES[t]||0)).toFixed(0)}</div>
+    </div>`).join('');
 
-  renderLoyaltyChart();
-
-  const lb = [...members]
-    .map(m => ({...m, months: monthsSubscribed(m.joinDateISO)}))
-    .sort((a,b) => b.months - a.months)
-    .slice(0,5);
+  // Leaderboard
+  const lb = [...members].map(m=>({...m,months:monthsSubscribed(m.joinDateISO)})).sort((a,b)=>b.months-a.months).slice(0,5);
   const maxMos = lb[0]?.months || 1;
-  const rankColors = ['rank-1','rank-2','rank-3','',''];
+  const numClass = ['gold','silver','bronze','',''];
   document.getElementById('leaderboard').innerHTML = lb.length
     ? lb.map((m,i) => `
-        <div class="lb-row">
-          <div class="lb-rank ${rankColors[i]}">#${i+1}</div>
-          <div style="flex:1">
-            <div class="lb-handle">${m.handle}</div>
-            <div class="lb-bar" style="width:${Math.round(m.months/maxMos*100)}%"></div>
-          </div>
-          <div class="lb-pts">${m.months} mo</div>
-        </div>`).join('')
-    : '<div class="sched-empty">No members yet.</div>';
+      <div class="lb-row">
+        <div class="lb-num ${numClass[i]}">${i+1}</div>
+        <div class="lb-info">
+          <div class="lb-handle">${m.handle}</div>
+          <div class="lb-bar-wrap"><div class="lb-bar" style="width:${Math.round(m.months/maxMos*100)}%"></div></div>
+        </div>
+        <div class="lb-mos">${m.months} mo</div>
+      </div>`).join('')
+    : '<div class="sched-empty">No data yet.</div>';
 
-  const upNext = [...members].sort((a,b) => { const o={'Premium+':1,'Premium':2,'Basic':3}; return o[a.tier]-o[b.tier]; }).slice(0,5);
+  // Up next
+  const upNext = [...members].sort((a,b)=>({'Premium+':1,'Premium':2,'Basic':3}[a.tier]-{'Premium+':1,'Premium':2,'Basic':3}[b.tier])).slice(0,5);
   document.getElementById('up-next').innerHTML = upNext.length
     ? upNext.map((m,i) => {
         const d = new Date(); d.setDate(d.getDate()+i+1);
-        return `<div class="sched-row">
-          <div class="avatar" style="${avatarStyle(i)}">${initials(m.handle)}</div>
-          <div><div class="sched-handle">${m.handle}</div><div class="sched-date">${fmtDate(d)}</div></div>
+        return `<div class="upnext-row">
+          <div class="avatar" style="background:${AVATAR_BG[i%5]};color:${AVATAR_FG[i%5]}">${initials(m.handle)}</div>
+          <div class="upnext-info">
+            <div class="upnext-handle">${m.handle}</div>
+            <div class="upnext-date">${fmtDate(d)}</div>
+          </div>
           <span class="badge ${badgeClass(m.tier)}">${m.tier}</span>
         </div>`;
       }).join('')
     : '<div class="sched-empty">No members yet.</div>';
 
+  renderLoyaltyChart();
   renderTable();
-  renderAnalytics();
 }
 
+// ── Loyalty chart
 function renderLoyaltyChart() {
-  const withDates = members.filter(m => m.joinDateISO);
-  const sorted = [...withDates]
-    .map(m => ({ ...m, months: monthsSubscribed(m.joinDateISO) }))
-    .sort((a,b) => b.months - a.months);
-
+  const sorted = [...members].filter(m=>m.joinDateISO).map(m=>({...m,months:monthsSubscribed(m.joinDateISO)})).sort((a,b)=>b.months-a.months);
   const emptyEl = document.getElementById('loyalty-empty');
   const wrapEl = document.getElementById('loyalty-wrap');
-
-  if (!sorted.length) {
-    emptyEl.style.display = 'block';
-    wrapEl.style.display = 'none';
-    document.getElementById('loyalty-top-label').textContent = '';
-    if (loyaltyChart) { loyaltyChart.destroy(); loyaltyChart = null; }
-    return;
-  }
-
-  emptyEl.style.display = 'none';
-  wrapEl.style.display = 'block';
-
-  const topMember = sorted[0];
-  document.getElementById('loyalty-top-label').textContent =
-    `Most loyal: ${topMember.handle} · ${topMember.months} month${topMember.months !== 1 ? 's' : ''}`;
-
-  const isHorizontal = sorted.length > 7;
-  const labels = sorted.map(m => m.handle);
-  const data = sorted.map(m => m.months);
-  const bgColors = sorted.map(m => TIER_COLORS[m.tier]);
-  const thickness = Math.max(12, Math.min(36, Math.floor(520 / Math.max(sorted.length, 1)) - 6));
-
+  if (!sorted.length) { emptyEl.style.display='block'; wrapEl.style.display='none'; if(loyaltyChart){loyaltyChart.destroy();loyaltyChart=null;} return; }
+  emptyEl.style.display='none'; wrapEl.style.display='block';
+  document.getElementById('loyalty-top-label').textContent = `Most loyal: ${sorted[0].handle} · ${sorted[0].months} mo`;
+  const isH = sorted.length > 7;
   if (loyaltyChart) loyaltyChart.destroy();
-
-  const ctx = document.getElementById('loyalty-chart').getContext('2d');
-  loyaltyChart = new Chart(ctx, {
+  loyaltyChart = new Chart(document.getElementById('loyalty-chart').getContext('2d'), {
     type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        data,
-        backgroundColor: bgColors,
-        borderColor: bgColors,
-        borderRadius: 5,
-        borderSkipped: false,
-        barThickness: isHorizontal ? 18 : thickness,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      indexAxis: isHorizontal ? 'y' : 'x',
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#18181f',
-          borderColor: '#ffffff22',
-          borderWidth: 1,
-          titleColor: '#f0eeff',
-          bodyColor: '#8888aa',
-          padding: 12,
-          callbacks: {
-            title: items => sorted[items[0].dataIndex].handle,
-            label: item => {
-              const m = sorted[item.dataIndex];
-              const lines = [`${item.raw} month${item.raw !== 1 ? 's' : ''} subscribed`, `Tier: ${m.tier}`];
-              if (m.car && m.car !== '—') lines.push(`Car: ${m.car}`);
-              return lines;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: { color: '#ffffff08' },
-          ticks: {
-            color: '#8888aa',
-            font: { family: 'DM Sans', size: 11 },
-            maxRotation: isHorizontal ? 0 : 20,
-            callback: isHorizontal ? v => (Number.isInteger(v) ? v + ' mo' : '') : undefined
-          },
-          border: { color: '#ffffff12' }
-        },
-        y: {
-          grid: { color: '#ffffff08' },
-          ticks: {
-            color: '#8888aa',
-            font: { family: 'DM Sans', size: 11 },
-            callback: isHorizontal ? undefined : (v => Number.isInteger(v) ? v + ' mo' : '')
-          },
-          border: { color: '#ffffff12' },
-          beginAtZero: true
-        }
-      }
-    }
+    data: { labels: sorted.map(m=>m.handle), datasets: [{ data: sorted.map(m=>m.months), backgroundColor: sorted.map(m=>TIER_COLORS[m.tier]), borderColor: sorted.map(m=>TIER_COLORS[m.tier]), borderRadius:4, borderSkipped:false, barThickness: isH?16:Math.max(12,Math.min(32,Math.floor(480/Math.max(sorted.length,1))-6)) }] },
+    options: { responsive:true, maintainAspectRatio:false, indexAxis:isH?'y':'x', plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#0d0d12', borderColor:'rgba(255,255,255,.1)', borderWidth:1, titleColor:'#f2f0ff', bodyColor:'#6b6b85', padding:12, callbacks:{ title:items=>sorted[items[0].dataIndex].handle, label:item=>`${item.raw} months · ${sorted[item.dataIndex].tier}` } } }, scales:{ x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6b6b85',font:{family:'JetBrains Mono',size:10}},border:{color:'rgba(255,255,255,.06)'}}, y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6b6b85',font:{family:'JetBrains Mono',size:10},callback:isH?undefined:v=>Number.isInteger(v)?v+' mo':''},border:{color:'rgba(255,255,255,.06)'},beginAtZero:true} } }
   });
 }
 
-async function changeTier(i, newTier) {
-  const m = members[i];
-  const { error } = await sb.from('members').update({ tier: newTier }).eq('id', m.id);
-  if (error) { setStatus('Update failed', false); return; }
-  setStatus('Tier updated');
-  await loadMembers();
-}
-
+// ── Table
 function renderTable() {
-  const q = (document.getElementById('search')?.value || '').toLowerCase();
-  const filtered = members.filter(m =>
-    [m.handle, m.tier, m.car, m.country].some(v => v.toLowerCase().includes(q))
-  );
+  const q = (document.getElementById('search')?.value||'').toLowerCase();
+  const filtered = members.filter(m => [m.handle,m.tier,m.paypalEmail,m.country].some(v=>(v||'').toLowerCase().includes(q)));
   document.getElementById('member-tbody').innerHTML = filtered.map(m => {
     const i = members.indexOf(m);
     const mos = monthsSubscribed(m.joinDateISO);
     return `<tr>
-      <td style="font-weight:500">${m.handle}</td>
+      <td style="font-weight:500">${m.handle||'—'}</td>
       <td>
-        <select onchange="changeTier(${i}, this.value)" style="width:100%;padding:4px 6px;font-size:11px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);cursor:pointer;">
-          <option value="Basic"    ${m.tier==='Basic'     ? 'selected' : ''}>Basic</option>
-          <option value="Premium"  ${m.tier==='Premium'   ? 'selected' : ''}>Premium</option>
-          <option value="Premium+" ${m.tier==='Premium+'  ? 'selected' : ''}>Premium+</option>
+        <select onchange="changeTier(${i},this.value)" class="tier-select">
+          <option value="Basic" ${m.tier==='Basic'?'selected':''}>Basic</option>
+          <option value="Premium" ${m.tier==='Premium'?'selected':''}>Premium</option>
+          <option value="Premium+" ${m.tier==='Premium+'?'selected':''}>Premium+</option>
         </select>
       </td>
-      <td>${m.car}</td>
-      <td>${m.country}</td>
-      <td>${m.joinDate}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${m.paypalEmail||'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${m.joinDate||'—'}</td>
       <td><span class="months-pill">${mos} mo</span></td>
-      <td>${m.lastFeature || '—'}</td>
-      <td><span class="months-pill">${monthsSubscribed(m.joinDateISO)} mo</span></td>
-      <td style="display:flex;gap:4px;padding-top:8px;padding-bottom:8px">
-        <button class="btn-post" onclick="toggleFeat(${i})">${m.featured ? 'Unpost' : 'Post'}</button>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${m.lastFeature||'—'}</td>
+      <td style="display:flex;gap:5px;padding-top:9px;padding-bottom:9px">
+        <button class="btn-post ${m.featured?'active':''}" onclick="toggleFeat(${i})">${m.featured?'Unpost':'Post'}</button>
         <button class="btn-del" onclick="del(${i})">Del</button>
       </td>
     </tr>`;
-  }).join('') || `<tr><td colspan="9" style="color:var(--muted);text-align:center;padding:20px">No members found.</td></tr>`;
+  }).join('') || `<tr><td colspan="7" class="sched-empty">No members found.</td></tr>`;
 }
 
-async function addMember() {
-  const h = document.getElementById('in-handle').value.trim();
-  if (!h) { document.getElementById('in-handle').focus(); return; }
-  const rawDate = document.getElementById('in-joindate').value;
-  const joinISO = rawDate || new Date().toISOString().split('T')[0];
-  const joinDisplay = new Date(joinISO + 'T12:00:00').toLocaleDateString('en-GB');
-  const newMember = {
-    handle: h.startsWith('@') ? h : '@' + h,
-    tier: document.getElementById('in-tier').value,
-    car: document.getElementById('in-car').value.trim() || '—',
-    country: document.getElementById('in-country').value.trim() || '—',
-    points: 0, featured: false, lastFeature: null,
-    joinDate: joinDisplay, joinDateISO: joinISO, paid: true
-  };
-  const { error } = await sb.from('members').insert(dbRow(newMember));
-  if (error) { setStatus('Save failed', false); console.error(error); return; }
-  setStatus('Member added');
-  ['in-handle','in-car','in-country'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('in-joindate').value = '';
+// ── Member actions
+async function changeTier(i, newTier) {
+  const m = members[i];
+  const { error } = await sb.from('members').update({ tier: newTier }).eq('id', m.id);
+  if (error) { setStatus('update failed', 'error'); return; }
+  setStatus('tier updated');
   await loadMembers();
 }
 
@@ -615,118 +1101,75 @@ async function del(i) {
   const m = members[i];
   if (!m.id) return;
   const { error } = await sb.from('members').delete().eq('id', m.id);
-  if (error) { setStatus('Delete failed', false); return; }
-  setStatus('Deleted');
+  if (error) { setStatus('delete failed', 'error'); return; }
+  setStatus('deleted');
   await loadMembers();
 }
+
 async function toggleFeat(i) {
   const m = members[i];
   const featured = !m.featured;
   const last_feature = featured ? new Date().toLocaleDateString('en-GB') : m.lastFeature;
   const { error } = await sb.from('members').update({ featured, last_feature }).eq('id', m.id);
-  if (error) { setStatus('Update failed', false); return; }
-  setStatus(featured ? 'Posted' : 'Unposted');
+  if (error) { setStatus('update failed', 'error'); return; }
+  setStatus(featured ? 'posted ✓' : 'unposted');
   await loadMembers();
 }
 
-
+// ── Schedules
 function generateSchedule() {
   const el = document.getElementById('full-schedule');
   if (!members.length) { el.innerHTML = '<div class="sched-empty">No members to schedule.</div>'; return; }
-
-  const batchSize = parseInt(document.getElementById('batch-size').value) || 5;
-  const premium = members.filter(m => m.tier==='Premium+' || m.tier==='Premium')
-    .sort((a,b) => a.tier==='Premium+' ? -1 : 1);
-  const basic = members.filter(m => m.tier==='Basic');
-
+  const batchSize = parseInt(document.getElementById('batch-size').value)||5;
+  const premium = members.filter(m=>m.tier==='Premium+'||m.tier==='Premium').sort((a,b)=>a.tier==='Premium+'?-1:1);
+  const basic = members.filter(m=>m.tier==='Basic');
   const rows = [];
-  let dayOffset = 0;
-
-  premium.forEach(m => {
-    const d = new Date(); d.setDate(d.getDate() + dayOffset++);
-    rows.push({ date: fmtDate(d), handles: [m.handle], tier: m.tier, carousel: false });
-  });
-
-  for (let i = 0; i < basic.length; i += batchSize) {
-    const batch = basic.slice(i, i + batchSize);
-    const d = new Date(); d.setDate(d.getDate() + dayOffset++);
-    rows.push({ date: fmtDate(d), handles: batch.map(m => m.handle), tier: 'Basic', carousel: true });
+  let day = 0;
+  premium.forEach(m => { const d=new Date(); d.setDate(d.getDate()+day++); rows.push({date:fmtDate(d),handles:[m.handle],tier:m.tier,carousel:false}); });
+  for (let i=0; i<basic.length; i+=batchSize) {
+    const batch = basic.slice(i,i+batchSize);
+    const d=new Date(); d.setDate(d.getDate()+day++);
+    rows.push({date:fmtDate(d),handles:batch.map(m=>m.handle),tier:'Basic',carousel:true});
   }
-
-  if (!rows.length) { el.innerHTML = '<div class="sched-empty">No members to schedule.</div>'; return; }
-
-  el.innerHTML = rows.map(row => {
-    if (!row.carousel) {
-      return `<li class="sched-item">
-        <span class="sched-item-date">${row.date}</span>
-        <span class="sched-item-handle">${row.handles[0]}</span>
-        <span class="badge ${badgeClass(row.tier)}">${row.tier}</span>
-      </li>`;
-    }
-    return `<li class="sched-item" style="flex-wrap:wrap;gap:6px;align-items:flex-start;">
-      <span class="sched-item-date" style="padding-top:2px">${row.date}</span>
-      <div style="flex:1;display:flex;flex-wrap:wrap;gap:5px;align-items:center;">
-        ${row.handles.map(h => `<span style="font-size:12px;font-weight:500;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:2px 8px;">${h}</span>`).join('')}
-      </div>
-      <span class="badge badge-basic" style="margin-left:0;align-self:flex-start;">Carousel \u00b7 ${row.handles.length}</span>
-    </li>`;
-  }).join('');
+  el.innerHTML = rows.map(row => !row.carousel
+    ? `<li class="sched-item"><span class="sched-date">${row.date}</span><span class="sched-handle">${row.handles[0]}</span><span class="badge ${badgeClass(row.tier)}">${row.tier}</span></li>`
+    : `<li class="sched-item" style="flex-wrap:wrap;gap:6px;align-items:flex-start">
+        <span class="sched-date" style="padding-top:2px">${row.date}</span>
+        <div style="flex:1;display:flex;flex-wrap:wrap;gap:4px">${row.handles.map(h=>`<span style="font-family:var(--mono);font-size:10px;background:var(--s2);border:1px solid var(--border2);border-radius:4px;padding:2px 7px">${h}</span>`).join('')}</div>
+        <span class="badge badge-basic">Carousel · ${row.handles.length}</span>
+      </li>`
+  ).join('');
 }
 
 function generatePremiumSchedule() {
   const el = document.getElementById('premium-schedule');
-  const filtered = members
-    .filter(m => m.tier==='Premium' || m.tier==='Premium+')
-    .sort((a,b) => a.tier==='Premium+' ? -1 : 1);
-
-  const monthName = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+  const filtered = members.filter(m=>m.tier==='Premium'||m.tier==='Premium+').sort((a,b)=>a.tier==='Premium+'?-1:1);
+  const monthName = new Date().toLocaleString('default',{month:'long',year:'numeric'});
   const labelEl = document.getElementById('prem-month-label');
   if (labelEl) labelEl.textContent = monthName;
-
-  if (!filtered.length) { el.innerHTML = '<div class="sched-empty">No Premium members yet.</div>'; return; }
-
+  if (!filtered.length) { el.innerHTML='<div class="sched-empty">No Premium members yet.</div>'; return; }
   const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const lastDay = new Date(year, month + 1, 0).getDate();
-  const todayDate = today.getDate();
-
-  // All remaining days in the current month including today
+  const lastDay = new Date(today.getFullYear(),today.getMonth()+1,0).getDate();
   const remaining = [];
-  for (let d = todayDate; d <= lastDay; d++) {
-    remaining.push(new Date(year, month, d));
-  }
-
-  if (filtered.length > remaining.length) {
-    el.innerHTML = `<div class="sched-empty">Not enough days left this month (${remaining.length} days, ${filtered.length} members). Try next month or reduce premium members.</div>`;
-    return;
-  }
-
-  // Spread members evenly across remaining days
-  const step = remaining.length / filtered.length;
-  const assigned = filtered.map((m, i) => {
-    const dayIndex = Math.min(Math.round(i * step), remaining.length - 1);
-    return { m, date: remaining[dayIndex] };
-  });
-
-  el.innerHTML = assigned.map(({ m, date }) =>
-    `<li class="sched-item">
-      <span class="sched-item-date">${fmtDate(date)}</span>
-      <span class="sched-item-handle">${m.handle}</span>
-      <span class="badge ${badgeClass(m.tier)}">${m.tier}</span>
-    </li>`
-  ).join('');
+  for (let d=today.getDate(); d<=lastDay; d++) remaining.push(new Date(today.getFullYear(),today.getMonth(),d));
+  if (filtered.length > remaining.length) { el.innerHTML=`<div class="sched-empty">Not enough days left (${remaining.length} days, ${filtered.length} members).</div>`; return; }
+  const step = remaining.length/filtered.length;
+  el.innerHTML = filtered.map((m,i)=>{
+    const date = remaining[Math.min(Math.round(i*step),remaining.length-1)];
+    return `<li class="sched-item"><span class="sched-date">${fmtDate(date)}</span><span class="sched-handle">${m.handle}</span><span class="badge ${badgeClass(m.tier)}">${m.tier}</span></li>`;
+  }).join('');
 }
 
-
+// ── Tab switching
 function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
   document.querySelector(`.tab-btn[onclick*="${tab}"]`).classList.add('active');
-  if (tab === 'analytics') renderAnalytics();
+  if (tab==='analytics') renderAnalytics();
 }
 
+// ── Analytics
 function renderAnalytics() {
   renderCountryChart();
   renderCountryBars();
@@ -734,204 +1177,80 @@ function renderAnalytics() {
 }
 
 function renderCountryChart() {
-  const countryCounts = {};
-  members.forEach(m => {
-    const c = (m.country && m.country !== '—') ? m.country.trim() : 'Unknown';
-    countryCounts[c] = (countryCounts[c] || 0) + 1;
-  });
-  const sorted = Object.entries(countryCounts).sort((a,b) => b[1]-a[1]);
-
-  const emptyEl = document.getElementById('country-empty');
-  const wrapEl  = document.getElementById('country-wrap');
-  const topLabel = document.getElementById('country-top-label');
-
-  if (!sorted.length) {
-    emptyEl.style.display = 'block'; wrapEl.style.display = 'none';
-    if (topLabel) topLabel.textContent = '';
-    if (countryChart) { countryChart.destroy(); countryChart = null; }
-    return;
-  }
-  emptyEl.style.display = 'none'; wrapEl.style.display = 'block';
-  if (topLabel) topLabel.textContent = `Top: ${sorted[0][0]} · ${sorted[0][1]} member${sorted[0][1]!==1?'s':''}`;
-
-  const COUNTRY_PALETTE = ['#c17fff','#8f5fcc','#6b3fa8','#00e09a','#00a870','#007a52','#378add','#1d6abf','#ff4566','#cc2244'];
-  const labels = sorted.map(([c]) => c);
-  const data   = sorted.map(([,n]) => n);
-  const colors = sorted.map((_,i) => COUNTRY_PALETTE[i % COUNTRY_PALETTE.length]);
-
+  const counts = {};
+  members.forEach(m => { const c=(m.country&&m.country!=='—')?m.country.trim():'Unknown'; counts[c]=(counts[c]||0)+1; });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const emptyEl=document.getElementById('country-empty');
+  const wrapEl=document.getElementById('country-wrap');
+  const topLabel=document.getElementById('country-top-label');
+  if (!sorted.length) { emptyEl.style.display='block'; wrapEl.style.display='none'; if(countryChart){countryChart.destroy();countryChart=null;} return; }
+  emptyEl.style.display='none'; wrapEl.style.display='block';
+  if (topLabel) topLabel.textContent=`Top: ${sorted[0][0]} · ${sorted[0][1]} members`;
+  const colors = sorted.map((_,i)=>COUNTRY_PALETTE[i%COUNTRY_PALETTE.length]);
+  const isH = sorted.length>6;
   if (countryChart) countryChart.destroy();
-  const ctx = document.getElementById('country-chart').getContext('2d');
-  const isHoriz = sorted.length > 6;
-  countryChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        data,
-        backgroundColor: colors,
-        borderColor: colors,
-        borderRadius: 5,
-        borderSkipped: false,
-        barThickness: isHoriz ? 20 : Math.max(14, Math.min(48, Math.floor(520/Math.max(sorted.length,1))-8)),
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      indexAxis: isHoriz ? 'y' : 'x',
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#18181f', borderColor: '#ffffff22', borderWidth: 1,
-          titleColor: '#f0eeff', bodyColor: '#8888aa', padding: 12,
-          callbacks: {
-            title: items => sorted[items[0].dataIndex][0],
-            label: item => `${item.raw} member${item.raw!==1?'s':''}`
-          }
-        }
-      },
-      scales: {
-        x: { grid:{color:'#ffffff08'}, ticks:{color:'#8888aa',font:{family:'DM Sans',size:11}}, border:{color:'#ffffff12'} },
-        y: { grid:{color:'#ffffff08'}, ticks:{color:'#8888aa',font:{family:'DM Sans',size:11}, callback: isHoriz ? undefined : v => Number.isInteger(v)?v:''}, border:{color:'#ffffff12'}, beginAtZero:true }
-      }
-    }
+  countryChart = new Chart(document.getElementById('country-chart').getContext('2d'), {
+    type:'bar',
+    data:{ labels:sorted.map(([c])=>c), datasets:[{ data:sorted.map(([,n])=>n), backgroundColor:colors, borderColor:colors, borderRadius:4, borderSkipped:false, barThickness:isH?18:Math.max(14,Math.min(44,Math.floor(480/Math.max(sorted.length,1))-8)) }] },
+    options:{ responsive:true, maintainAspectRatio:false, indexAxis:isH?'y':'x', plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#0d0d12', borderColor:'rgba(255,255,255,.1)', borderWidth:1, titleColor:'#f2f0ff', bodyColor:'#6b6b85', padding:12, callbacks:{ title:items=>sorted[items[0].dataIndex][0], label:item=>`${item.raw} member${item.raw!==1?'s':''}` } } }, scales:{ x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6b6b85',font:{family:'JetBrains Mono',size:10}},border:{color:'rgba(255,255,255,.06)'}}, y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6b6b85',font:{family:'JetBrains Mono',size:10},callback:isH?undefined:v=>Number.isInteger(v)?v:''},border:{color:'rgba(255,255,255,.06)'},beginAtZero:true} } }
   });
 }
 
 function renderCountryBars() {
-  const countryCounts = {};
-  const countryMonths = {};
+  const counts={}, months={};
   members.forEach(m => {
-    const c = (m.country && m.country !== '—') ? m.country.trim() : 'Unknown';
-    countryCounts[c] = (countryCounts[c] || 0) + 1;
-    const mos = monthsSubscribed(m.joinDateISO);
-    if (!countryMonths[c]) countryMonths[c] = [];
-    countryMonths[c].push(mos);
+    const c=(m.country&&m.country!=='—')?m.country.trim():'Unknown';
+    counts[c]=(counts[c]||0)+1;
+    if (!months[c]) months[c]=[];
+    months[c].push(monthsSubscribed(m.joinDateISO));
   });
-  const sorted = Object.entries(countryCounts).sort((a,b) => b[1]-a[1]);
-  const maxC = sorted[0]?.[1] || 1;
-
-  const COUNTRY_PALETTE = ['#c17fff','#8f5fcc','#6b3fa8','#00e09a','#00a870','#007a52','#378add','#1d6abf','#ff4566','#cc2244'];
-
-  const barsEl = document.getElementById('country-bars');
-  const loyalEl = document.getElementById('country-loyalty-bars');
-
-  if (!sorted.length) {
-    barsEl.innerHTML = '<div class="sched-empty">No data yet.</div>';
-    loyalEl.innerHTML = '<div class="sched-empty">No data yet.</div>';
-    return;
-  }
-
-  barsEl.innerHTML = sorted.map(([c,n], i) => `
-    <div class="bar-row">
-      <div class="bar-label" style="width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c}">${c}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/maxC*100)}%;background:${COUNTRY_PALETTE[i%10]}"></div></div>
-      <div class="bar-count">${n}</div>
-    </div>`).join('');
-
-  const loyalSorted = Object.entries(countryMonths)
-    .map(([c, arr]) => [c, Math.round(arr.reduce((a,b)=>a+b,0)/arr.length)])
-    .sort((a,b) => b[1]-a[1]);
-  const maxM = loyalSorted[0]?.[1] || 1;
-
-  loyalEl.innerHTML = loyalSorted.map(([c,avg], i) => `
-    <div class="bar-row">
-      <div class="bar-label" style="width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c}">${c}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(avg/maxM*100)}%;background:${COUNTRY_PALETTE[i%10]}"></div></div>
-      <div class="bar-count" style="width:36px">${avg} mo</div>
-    </div>`).join('');
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const maxC=sorted[0]?.[1]||1;
+  const barsEl=document.getElementById('country-bars');
+  const loyalEl=document.getElementById('country-loyalty-bars');
+  if (!sorted.length) { barsEl.innerHTML='<div class="sched-empty">No data.</div>'; loyalEl.innerHTML='<div class="sched-empty">No data.</div>'; return; }
+  barsEl.innerHTML = sorted.map(([c,n],i)=>`<div class="abar-row"><div class="abar-label" title="${c}">${c}</div><div class="abar-track"><div class="abar-fill" style="width:${Math.round(n/maxC*100)}%;background:${COUNTRY_PALETTE[i%10]}"></div></div><div class="abar-count">${n}</div></div>`).join('');
+  const loyalSorted=Object.entries(months).map(([c,arr])=>[c,Math.round(arr.reduce((a,b)=>a+b,0)/arr.length)]).sort((a,b)=>b[1]-a[1]);
+  const maxM=loyalSorted[0]?.[1]||1;
+  loyalEl.innerHTML=loyalSorted.map(([c,avg],i)=>`<div class="abar-row"><div class="abar-label" title="${c}">${c}</div><div class="abar-track"><div class="abar-fill" style="width:${Math.round(avg/maxM*100)}%;background:${COUNTRY_PALETTE[i%10]}"></div></div><div class="abar-count">${avg} mo</div></div>`).join('');
 }
 
 function renderLoyaltyChart2() {
-  const withDates = members.filter(m => m.joinDateISO);
-  const sorted = [...withDates].map(m => ({...m, months: monthsSubscribed(m.joinDateISO)})).sort((a,b) => b.months-a.months);
-
-  const emptyEl  = document.getElementById('loyalty-empty-2');
-  const wrapEl   = document.getElementById('loyalty-wrap-2');
-  const topLabel = document.getElementById('loyalty-top-label-2');
-
-  if (!sorted.length) {
-    emptyEl.style.display = 'block'; wrapEl.style.display = 'none';
-    if (topLabel) topLabel.textContent = '';
-    if (loyaltyChart2) { loyaltyChart2.destroy(); loyaltyChart2 = null; }
-    return;
-  }
-  emptyEl.style.display = 'none'; wrapEl.style.display = 'block';
-  if (topLabel) topLabel.textContent = `Most loyal: ${sorted[0].handle} · ${sorted[0].months} month${sorted[0].months!==1?'s':''}`;
-
-  const isHoriz = sorted.length > 7;
-  const bgColors = sorted.map(m => TIER_COLORS[m.tier]);
+  const sorted=[...members].filter(m=>m.joinDateISO).map(m=>({...m,months:monthsSubscribed(m.joinDateISO)})).sort((a,b)=>b.months-a.months);
+  const emptyEl=document.getElementById('loyalty-empty-2');
+  const wrapEl=document.getElementById('loyalty-wrap-2');
+  const topLabel=document.getElementById('loyalty-top-label-2');
+  if (!sorted.length) { emptyEl.style.display='block'; wrapEl.style.display='none'; if(loyaltyChart2){loyaltyChart2.destroy();loyaltyChart2=null;} return; }
+  emptyEl.style.display='none'; wrapEl.style.display='block';
+  if (topLabel) topLabel.textContent=`Most loyal: ${sorted[0].handle} · ${sorted[0].months} mo`;
+  const isH=sorted.length>7;
   if (loyaltyChart2) loyaltyChart2.destroy();
-  const ctx = document.getElementById('loyalty-chart-2').getContext('2d');
-  loyaltyChart2 = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: sorted.map(m => m.handle),
-      datasets: [{
-        data: sorted.map(m => m.months),
-        backgroundColor: bgColors, borderColor: bgColors,
-        borderRadius: 5, borderSkipped: false,
-        barThickness: isHoriz ? 18 : Math.max(14, Math.min(36, Math.floor(520/Math.max(sorted.length,1))-6)),
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      indexAxis: isHoriz ? 'y' : 'x',
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#18181f', borderColor: '#ffffff22', borderWidth: 1,
-          titleColor: '#f0eeff', bodyColor: '#8888aa', padding: 12,
-          callbacks: {
-            title: items => sorted[items[0].dataIndex].handle,
-            label: item => { const m=sorted[item.dataIndex]; return [`${item.raw} month${item.raw!==1?'s':''} subscribed`,`Tier: ${m.tier}`]; }
-          }
-        }
-      },
-      scales: {
-        x: { grid:{color:'#ffffff08'}, ticks:{color:'#8888aa',font:{family:'DM Sans',size:11},maxRotation:isHoriz?0:20, callback:isHoriz?v=>(Number.isInteger(v)?v+' mo':''):undefined}, border:{color:'#ffffff12'} },
-        y: { grid:{color:'#ffffff08'}, ticks:{color:'#8888aa',font:{family:'DM Sans',size:11}, callback:isHoriz?undefined:v=>Number.isInteger(v)?v+' mo':''}, border:{color:'#ffffff12'}, beginAtZero:true }
-      }
-    }
+  loyaltyChart2 = new Chart(document.getElementById('loyalty-chart-2').getContext('2d'),{
+    type:'bar',
+    data:{labels:sorted.map(m=>m.handle),datasets:[{data:sorted.map(m=>m.months),backgroundColor:sorted.map(m=>TIER_COLORS[m.tier]),borderColor:sorted.map(m=>TIER_COLORS[m.tier]),borderRadius:4,borderSkipped:false,barThickness:isH?16:Math.max(12,Math.min(32,Math.floor(480/Math.max(sorted.length,1))-6))}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:isH?'y':'x',plugins:{legend:{display:false},tooltip:{backgroundColor:'#0d0d12',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#f2f0ff',bodyColor:'#6b6b85',padding:12,callbacks:{title:items=>sorted[items[0].dataIndex].handle,label:item=>`${item.raw} months · ${sorted[item.dataIndex].tier}`}}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6b6b85',font:{family:'JetBrains Mono',size:10}},border:{color:'rgba(255,255,255,.06)'}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6b6b85',font:{family:'JetBrains Mono',size:10},callback:isH?undefined:v=>Number.isInteger(v)?v+' mo':''},border:{color:'rgba(255,255,255,.06)'},beginAtZero:true}}}
   });
 }
 
-
+// ── PayPal sync
 async function syncPayPal() {
   const btn = document.getElementById('btn-sync-paypal');
-  btn.textContent = '⟳ Syncing...';
+  btn.textContent = 'syncing...';
   btn.disabled = true;
   try {
     const res = await fetch('/api/paypal?action=sync');
     const data = await res.json();
     if (data.success) {
-      setStatus(`PayPal synced · +${data.added} added · ${data.updated} updated`);
+      setStatus(`synced · +${data.added} added · ${data.updated} updated`);
       await loadMembers();
     } else {
-      setStatus('Sync failed', false);
+      setStatus('sync failed', 'error');
     }
-  } catch (err) {
-    setStatus('Sync error — is the function deployed?', false);
+  } catch {
+    setStatus('sync error', 'error');
   }
   btn.textContent = '⟳ Sync PayPal';
   btn.disabled = false;
-}
-
-async function migrateFromLocalStorage() {
-  const local = JSON.parse(localStorage.getItem('jabarth_members') || '[]');
-  if (!local.length) { alert('No localStorage data found to migrate.'); return; }
-  const rows = local.map(m => {
-    if (!m.joinDateISO && m.joinDate) {
-      const parts = m.joinDate.split('/');
-      if (parts.length === 3) m.joinDateISO = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
-    }
-    return dbRow(m);
-  });
-  const { error } = await sb.from('members').insert(rows);
-  if (error) { alert('Migration failed: ' + error.message); return; }
-  localStorage.removeItem('jabarth_members');
-  alert(`Migrated ${rows.length} members to Supabase successfully!`);
-  await loadMembers();
 }
 
 loadMembers();
