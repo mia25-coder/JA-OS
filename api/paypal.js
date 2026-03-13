@@ -28,28 +28,30 @@ async function getPayPalToken() {
   return data.access_token;
 }
 
-async function getAllSubscriptions(token) {
-  // Fetch all subscriptions across all pages, all statuses
+async function fetchAllPages(token) {
+  // Fetch all pages, filter ACTIVE client-side
   const all = [];
-  const statuses = ['ACTIVE'];
+  let page = 1;
+  let hasMore = true;
 
-  for (const status of statuses) {
-    let page = 1;
-    let hasMore = true;
-    while (hasMore) {
-      const res = await fetch(
-        `${PAYPAL_BASE}/v1/billing/subscriptions?status=${status}&page_size=20&page=${page}`,
-        { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
-      );
-      const data = await res.json();
-      const subs = data.subscriptions || [];
-      all.push(...subs);
-      hasMore = subs.length === 20;
-      page++;
-    }
+  while (hasMore) {
+    const res = await fetch(
+      `${PAYPAL_BASE}/v1/billing/subscriptions?page_size=20&page=${page}`,
+      { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
+    );
+    const data = await res.json();
+    const subs = data.subscriptions || [];
+    all.push(...subs);
+    // Check if there's a next page link
+    const hasNext = (data.links || []).some(l => l.rel === 'next');
+    hasMore = hasNext && subs.length > 0;
+    page++;
+    if (page > 50) break; // safety limit
   }
 
-  return all;
+  // Deduplicate and filter ACTIVE only
+  const unique = [...new Map(all.map(s => [s.id, s])).values()];
+  return unique.filter(s => s.status === 'ACTIVE');
 }
 
 async function getSubscriptionDetail(token, subscriptionId) {
@@ -75,8 +77,8 @@ async function supabaseFetch(path, method = 'GET', body = null) {
 }
 
 async function upsertMember(detail, tier) {
-  // Only import active subscriptions
   if (detail.status !== 'ACTIVE') return 'skipped';
+
   const email = detail.subscriber?.email_address || '';
   const name = detail.subscriber?.name?.given_name
     ? `${detail.subscriber.name.given_name} ${detail.subscriber.name.surname || ''}`.trim()
@@ -91,7 +93,7 @@ async function upsertMember(detail, tier) {
 
   if (existing && existing.length > 0) {
     await supabaseFetch(`/members?paypal_subscription_id=eq.${subId}`, 'PATCH', {
-      tier, paypal_status: detail.status
+      tier, paypal_status: 'ACTIVE'
     });
     return 'updated';
   } else {
@@ -107,7 +109,7 @@ async function upsertMember(detail, tier) {
       join_date_iso: joinDateISO,
       paypal_email: email,
       paypal_subscription_id: subId,
-      paypal_status: detail.status || 'ACTIVE',
+      paypal_status: 'ACTIVE',
     });
     return 'added';
   }
@@ -115,38 +117,15 @@ async function upsertMember(detail, tier) {
 
 async function syncAllSubscriptions() {
   const token = await getPayPalToken();
-  const results = { added: 0, updated: 0, skipped: 0, errors: [] };
+  const results = { added: 0, updated: 0, skipped: 0, errors: [], total_active: 0 };
 
-  // Fetch once without plan filter, deduplicate by ID
-  const res = await fetch(
-    `${PAYPAL_BASE}/v1/billing/subscriptions?status=ACTIVE&page_size=100`,
-    { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
-  );
-  const data = await res.json();
-  const subs = data.subscriptions || [];
+  const activeSubs = await fetchAllPages(token);
+  results.total_active = activeSubs.length;
 
-  // Page through all results
-  let allSubs = [...subs];
-  let page = 2;
-  while (allSubs.length > 0 && allSubs.length % 100 === 0) {
-    const r2 = await fetch(
-      `${PAYPAL_BASE}/v1/billing/subscriptions?status=ACTIVE&page_size=100&page=${page}`,
-      { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
-    );
-    const d2 = await r2.json();
-    const more = d2.subscriptions || [];
-    allSubs = [...allSubs, ...more];
-    if (more.length < 100) break;
-    page++;
-  }
-
-  // Deduplicate by ID
-  const unique = [...new Map(allSubs.map(s => [s.id, s])).values()];
-
-  // Process in batches of 10 in parallel to avoid timeout
+  // Process in batches of 10 in parallel
   const BATCH = 10;
-  for (let i = 0; i < unique.length; i += BATCH) {
-    const batch = unique.slice(i, i + BATCH);
+  for (let i = 0; i < activeSubs.length; i += BATCH) {
+    const batch = activeSubs.slice(i, i + BATCH);
     await Promise.all(batch.map(async sub => {
       try {
         const detail = await getSubscriptionDetail(token, sub.id);
@@ -212,12 +191,12 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET' && req.query.action === 'debug') {
       const token = await getPayPalToken();
-      const res2 = await fetch(
-        `${PAYPAL_BASE}/v1/billing/subscriptions?status=ACTIVE&page_size=20`,
-        { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
-      );
-      const raw = await res2.json();
-      return res.status(200).json({ raw });
+      const active = await fetchAllPages(token);
+      const sample = await Promise.all(active.slice(0, 3).map(s => getSubscriptionDetail(token, s.id)));
+      return res.status(200).json({
+        total_active: active.length,
+        sample: sample.map(d => ({ id: d.id, plan_id: d.plan_id, tier: PLAN_TIER_MAP[d.plan_id] || 'UNKNOWN', email: d.subscriber?.email_address }))
+      });
     }
 
     if (req.method === 'POST') {
