@@ -270,11 +270,138 @@ tr:hover td{background:var(--faint);}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--s4);border-radius:2px;}
+
+/* ── MOBILE NAV BAR ── */
+#mob-bar{display:none;}
+
+/* ── MOBILE RESPONSIVE ── */
+@media(max-width:768px){
+  /* hide desktop sidebar */
+  #sidebar{display:none;}
+
+  /* full width app */
+  #app{margin-left:0;padding-bottom:80px;}
+  .page{padding:16px 16px 24px;}
+
+  /* bottom nav bar */
+  #mob-bar{
+    display:flex;position:fixed;bottom:0;left:0;right:0;
+    background:var(--s1);border-top:1px solid var(--b1);
+    z-index:200;padding:8px 4px calc(8px + env(safe-area-inset-bottom));
+    gap:2px;
+  }
+  .mob-btn{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+    padding:6px 2px;border-radius:var(--r2);cursor:pointer;
+    color:var(--sub);font-family:var(--mono);font-size:8px;letter-spacing:.04em;
+    border:1px solid transparent;transition:all .12s;user-select:none;
+  }
+  .mob-btn.on{color:var(--p);background:var(--pa);border-color:rgba(124,92,252,.15);}
+  .mob-btn-ico{font-size:16px;line-height:1;}
+
+  /* mobile header */
+  #mob-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px 0;margin-bottom:16px;
+  }
+  .mob-brand{display:flex;align-items:center;gap:10px;}
+  .mob-mark{width:28px;height:28px;border-radius:8px;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;box-shadow:0 0 16px var(--pglow);flex-shrink:0;}
+  .mob-title{font-size:15px;font-weight:700;letter-spacing:-.02em;}
+  .mob-right{display:flex;align-items:center;gap:8px;}
+  .mob-status{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:8px;color:var(--sub);}
+  .mob-sync-btn{font-family:var(--mono);font-size:8px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;border-radius:6px;border:1px solid rgba(124,92,252,.28);background:var(--pb);color:var(--p);cursor:pointer;}
+
+  /* page title smaller */
+  .pt{font-size:20px;}
+  .ps{font-size:9px;}
+  .ph{margin-bottom:18px;}
+
+  /* all multi-col grids → single col */
+  .grid.g4,.grid.g3,.grid.g2,.grid.g21,.grid.g12,.grid.g13,.grid.g31,
+  .grid.g211,.grid.g113,.grid.g321,.grid.g132,
+  .rev-kpis,
+  [style*="grid-template-columns"]{
+    grid-template-columns:1fr !important;
+  }
+  /* 2-col grids that work on mobile */
+  .grid.g2-mob{grid-template-columns:1fr 1fr !important;}
+
+  /* revenue kpis 2x2 on mobile */
+  .rev-kpis{grid-template-columns:1fr 1fr !important;}
+
+  /* dashboard KPI row 2x2 */
+  #p-dashboard .grid.g4{grid-template-columns:1fr 1fr !important;}
+
+  /* cards */
+  .card{padding:14px;}
+
+  /* donut stacked */
+  .donut-wrap{flex-direction:column;align-items:flex-start;}
+  .dc{width:100px;height:100px;}
+
+  /* big numbers smaller */
+  .big{font-size:26px;}
+  .rkpi-val{font-size:22px;}
+
+  /* search full width */
+  .tbl-top{flex-direction:column;align-items:flex-start;}
+  .search{width:100%;}
+
+  /* table — hide less critical cols on mobile */
+  th:nth-child(4),td:nth-child(4),
+  th:nth-child(5),td:nth-child(5){display:none;}
+
+  /* country input narrower */
+  .country-inp{width:80px;}
+
+  /* care section grids */
+  .care-sec .grid.g2{grid-template-columns:1fr !important;}
+
+  /* chart heights smaller on mobile */
+  .h200{height:160px;}
+  .h240{height:180px;}
+  .h280{height:200px;}
+  .h320{height:220px;}
+
+  /* world map height */
+  #world-map svg{height:200px !important;}
+
+  /* schedule grid */
+  #p-schedule .grid.g2{grid-template-columns:1fr !important;}
+
+  /* analytics grids */
+  #p-analytics .grid{grid-template-columns:1fr !important;}
+
+  /* hide desktop page header since mob-header replaces it */
+  .ph{display:none;}
+}
 </style>
 </head>
 <body>
 <div class="orb orb1"></div>
 <div class="orb orb2"></div>
+
+<!-- MOBILE HEADER (shown only on mobile) -->
+<div id="mob-header">
+  <div class="mob-brand">
+    <div class="mob-mark">JA</div>
+    <div class="mob-title">JustAbarth <span style="color:var(--p)">OS</span></div>
+  </div>
+  <div class="mob-right">
+    <div class="mob-status"><div class="sdot" id="sdot-mob"></div><span id="stext-mob">…</span></div>
+    <button class="mob-sync-btn" onclick="syncPayPal()">⟳ Sync</button>
+  </div>
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav id="mob-bar">
+  <div class="mob-btn on" data-tab="dashboard"><div class="mob-btn-ico">◈</div>Home</div>
+  <div class="mob-btn" data-tab="revenue"><div class="mob-btn-ico">◎</div>Revenue</div>
+  <div class="mob-btn" data-tab="members"><div class="mob-btn-ico">◻</div>Members</div>
+  <div class="mob-btn" data-tab="schedule"><div class="mob-btn-ico">◷</div>Schedule</div>
+  <div class="mob-btn" data-tab="care"><div class="mob-btn-ico">◇</div>Care</div>
+  <div class="mob-btn" data-tab="analytics"><div class="mob-btn-ico">◉</div>Analytics</div>
+</nav>
 
 <!-- LOADING -->
 <div id="loading">
@@ -620,10 +747,17 @@ function mrr(){return members.reduce((s,m)=>s+(PRICES[m.tier]||0),0);}
 
 function setStatus(msg,state='idle'){
   const dot=document.getElementById('sdot'),txt=document.getElementById('stext');
-  if(!dot||!txt)return;
-  txt.textContent=msg;
-  dot.className='sdot'+(state==='ok'?' ok':state==='err'?' err':'');
-  if(state==='ok'&&msg!=='connected'){clearTimeout(dot._t);dot._t=setTimeout(()=>{txt.textContent='connected';},3000);}
+  const dotM=document.getElementById('sdot-mob'),txtM=document.getElementById('stext-mob');
+  const cls='sdot'+(state==='ok'?' ok':state==='err'?' err':'');
+  if(dot){dot.className=cls;}
+  if(dotM){dotM.className=cls;}
+  if(txt)txt.textContent=msg;
+  if(txtM)txtM.textContent=msg;
+  if(state==='ok'&&msg!=='connected'){
+    clearTimeout(dot?._t);
+    const t=setTimeout(()=>{if(txt)txt.textContent='connected';if(txtM)txtM.textContent='connected';},3000);
+    if(dot)dot._t=t;
+  }
 }
 
 function $(id){return document.getElementById(id);}
@@ -999,14 +1133,15 @@ function renderCare(){
 // ── Tab Switching ──────────────────────────────────────────────────────────
 function go(tab){
   currentTab=tab;
-  document.querySelectorAll('.nav-btn').forEach(n=>n.classList.toggle('on',n.dataset.tab===tab));
+  document.querySelectorAll('.nav-btn,.mob-btn').forEach(n=>n.classList.toggle('on',n.dataset.tab===tab));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   const pg=$('p-'+tab);if(pg)pg.classList.add('on');
+  window.scrollTo(0,0);
   if(tab==='analytics')setTimeout(renderAnalytics,60);
   if(tab==='revenue')renderRevenue();
   if(tab==='care')renderCare();
 }
-document.querySelectorAll('.nav-btn').forEach(n=>n.addEventListener('click',()=>go(n.dataset.tab)));
+document.querySelectorAll('.nav-btn,.mob-btn').forEach(n=>n.addEventListener('click',()=>go(n.dataset.tab)));
 
 // ── Member Actions ──────────────────────────────────────────────────────────
 async function changeTier(i,t){
