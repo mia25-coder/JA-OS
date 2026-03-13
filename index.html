@@ -131,6 +131,7 @@ tbody tr:hover td { background: var(--faint); }
   <div style="display:flex;align-items:center;gap:16px">
     <span id="db-status" style="font-size:11px;color:var(--accent2)">● connecting...</span>
     <button onclick="migrateFromLocalStorage()" style="font-size:11px;padding:4px 10px;border-radius:6px;background:transparent;border:1px solid var(--border2);color:var(--muted);cursor:pointer;" title="One-time import of any existing localStorage data into Supabase">Import local data</button>
+    <button onclick="syncPayPal()" id="btn-sync-paypal" style="font-size:11px;padding:4px 10px;border-radius:6px;background:transparent;border:1px solid var(--accent2);color:var(--accent2);cursor:pointer;">&#8635; Sync PayPal</button>
     <div class="header-meta" id="header-meta">Loading...</div>
   </div>
 </header>
@@ -893,6 +894,27 @@ function renderLoyaltyChart2() {
       }
     }
   });
+}
+
+
+async function syncPayPal() {
+  const btn = document.getElementById('btn-sync-paypal');
+  btn.textContent = '⟳ Syncing...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/paypal?action=sync');
+    const data = await res.json();
+    if (data.success) {
+      setStatus(`PayPal synced · +${data.added} added · ${data.updated} updated`);
+      await loadMembers();
+    } else {
+      setStatus('Sync failed', false);
+    }
+  } catch (err) {
+    setStatus('Sync error — is the function deployed?', false);
+  }
+  btn.textContent = '⟳ Sync PayPal';
+  btn.disabled = false;
 }
 
 async function migrateFromLocalStorage() {
