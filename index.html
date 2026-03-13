@@ -183,7 +183,7 @@ body::before{content:'';position:fixed;inset:0;opacity:.022;pointer-events:none;
 /* ── BADGES ── */
 .b-pp{background:var(--pa);color:var(--p);border:1px solid rgba(124,92,252,.25);}
 .b-pr{background:rgba(61,100,240,.13);color:#7090ff;border:1px solid rgba(61,100,240,.25);}
-.b-ba{background:var(--s3);color:var(--sub);border:1px solid var(--b2);}
+.b-ba{background:rgba(240,112,48,.13);color:#f07030;border:1px solid rgba(240,112,48,.25);}
 .badge{font-family:var(--mono);font-size:9px;font-weight:600;padding:3px 8px;border-radius:4px;white-space:nowrap;}
 
 /* ── SCHEDULE ── */
@@ -739,7 +739,7 @@ tr:hover td{background:var(--faint);}
 <script>
 // ── Constants ──────────────────────────────────────────────────────
 const PRICES={'Basic':3.50,'Premium':9.99,'Premium+':19.99};
-const TC={'Basic':'#2a2a3d','Premium':'#5070f0','Premium+':'#7c5cfc'};
+const TC={'Basic':'#f07030','Premium':'#5070f0','Premium+':'#7c5cfc'};
 const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const CPLT=['#7c5cfc','#5070f0','#0bbfbf','#f0a500','#f0455a','#0dba76','#e879f9','#f97316','#34d399','#60a5fa'];
@@ -838,9 +838,9 @@ function renderDonut(){
   const isMob=window.innerWidth<=768;
   if(isMob){canvas.width=160;canvas.height=160;}
   const ctx=canvas.getContext('2d');
-  charts['donut']=new Chart(ctx,{type:'doughnut',data:{labels:['Premium+','Premium','Basic'],datasets:[{data:[ppR,prR,baR],backgroundColor:['#7c5cfc','#5070f0','#2a2a3d'],borderWidth:0,hoverOffset:4}]},
+  charts['donut']=new Chart(ctx,{type:'doughnut',data:{labels:['Premium+','Premium','Basic'],datasets:[{data:[ppR,prR,baR],backgroundColor:['#7c5cfc','#5070f0','#f07030'],borderWidth:0,hoverOffset:4}]},
     options:{...COPT,maintainAspectRatio:true,cutout:'72%',plugins:{...COPT.plugins,tooltip:{...COPT.plugins.tooltip,callbacks:{label:i=>`€${i.raw.toFixed(0)}/mo`}}}}});
-  html('d-dlegend',[['Premium+','#7c5cfc',ppR,c['Premium+']],['Premium','#5070f0',prR,c['Premium']],['Basic','#2a2a3d',baR,c['Basic']]].map(([n,col,r,cnt])=>
+  html('d-dlegend',[['Premium+','#7c5cfc',ppR,c['Premium+']],['Premium','#5070f0',prR,c['Premium']],['Basic','#f07030',baR,c['Basic']]].map(([n,col,r,cnt])=>
     `<div class="dl-row"><div class="dl-l"><div class="dl-dot" style="background:${col}"></div><div><div class="dl-name">${n}<span class="dl-cnt">×${cnt}</span></div></div></div><div class="dl-r"><div class="dl-rev">€${r.toFixed(0)}</div><div class="dl-pct">${pct(r,tot)}%</div></div></div>`
   ).join(''));
 }
@@ -964,7 +964,7 @@ function renderRevenue(){
   charts['cohort']=new Chart($('c-cohort').getContext('2d'),{type:'bar',data:{labels,datasets:[
     {label:'Premium+',data:keys.map(k=>byM[k]['Premium+']),backgroundColor:'#7c5cfc',borderRadius:3,borderSkipped:false},
     {label:'Premium',data:keys.map(k=>byM[k]['Premium']),backgroundColor:'#5070f0',borderRadius:3,borderSkipped:false},
-    {label:'Basic',data:keys.map(k=>byM[k]['Basic']),backgroundColor:'#2a2a3d',borderRadius:3,borderSkipped:false}
+    {label:'Basic',data:keys.map(k=>byM[k]['Basic']),backgroundColor:'#f07030',borderRadius:3,borderSkipped:false}
   ]},options:{...COPT,scales:{
     x:{stacked:true,grid:{display:false},ticks:{color:'#6b6b88',font:{family:'IBM Plex Mono',size:8},maxRotation:0,maxTicksLimit:8},border:{color:'rgba(255,255,255,.055)'}},
     y:{stacked:true,grid:{color:'rgba(255,255,255,.03)'},ticks:{color:'#6b6b88',font:{family:'IBM Plex Mono',size:9},callback:v=>'€'+v},border:{color:'rgba(255,255,255,.055)'},beginAtZero:true}
@@ -1020,7 +1020,7 @@ function genGroups(){
       <span class="si-date" style="padding-top:2px">${r.date}</span>
       <div style="flex:1;display:flex;flex-wrap:wrap;gap:4px">
         ${r.members.map(m=>`<span style="display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;background:var(--s3);border:1px solid var(--b2);border-radius:3px;padding:2px 7px">
-          <span style="width:5px;height:5px;border-radius:50%;background:${m.tier==='Premium+'?'var(--p)':m.tier==='Premium'?'#5070f0':'var(--dim)'}"></span>
+          <span style="width:5px;height:5px;border-radius:50%;background:${m.tier==='Premium+'?'var(--p)':m.tier==='Premium'?'#5070f0':'#f07030'}"></span>
           ${m.handle}
         </span>`).join('')}
       </div>
@@ -1050,13 +1050,8 @@ function genPremSched(){
   const rem=[];
   for(let d=t.getDate();d<=ld;d++)rem.push(new Date(t.getFullYear(),t.getMonth(),d));
 
-  if(slots.length>rem.length){
-    html('prem-sched',`<div class="empty">Not enough days this month (${rem.length} days left, ${slots.length} slots needed). Try next month.</div>`);
-    return;
-  }
-
-  // Spread evenly across remaining days
-  const step=rem.length/slots.length;
+  // Spread evenly across remaining days — dates can repeat if more slots than days
+  const step=rem.length>1?rem.length/slots.length:1;
   html('prem-sched',slots.map((s,i)=>{
     const date=rem[Math.min(Math.floor(i*step),rem.length-1)];
     const label=s.second?'<span style="font-family:var(--mono);font-size:8px;opacity:.5;margin-left:4px">2nd slot</span>':'';
