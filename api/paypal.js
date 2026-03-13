@@ -192,10 +192,16 @@ export default async function handler(req, res) {
     if (req.method === 'GET' && req.query.action === 'debug') {
       const token = await getPayPalToken();
       const active = await fetchAllPages(token);
-      const sample = await Promise.all(active.slice(0, 3).map(s => getSubscriptionDetail(token, s.id)));
+      const details = await Promise.all(active.map(s => getSubscriptionDetail(token, s.id)));
+      const unknown = details.filter(d => !PLAN_TIER_MAP[d.plan_id]);
+      const known = details.filter(d => PLAN_TIER_MAP[d.plan_id]);
+      const tierCount = {};
+      known.forEach(d => { const t = PLAN_TIER_MAP[d.plan_id]; tierCount[t] = (tierCount[t]||0)+1; });
       return res.status(200).json({
         total_active: active.length,
-        sample: sample.map(d => ({ id: d.id, plan_id: d.plan_id, tier: PLAN_TIER_MAP[d.plan_id] || 'UNKNOWN', email: d.subscriber?.email_address }))
+        tier_counts: tierCount,
+        unknown_plan_ids: [...new Set(unknown.map(d => d.plan_id))],
+        unknown_subs: unknown.map(d => ({ id: d.id, plan_id: d.plan_id, email: d.subscriber?.email_address }))
       });
     }
 
