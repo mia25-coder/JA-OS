@@ -72,8 +72,10 @@ async function supabaseFetch(path, method = 'GET', body = null) {
     },
     body: body ? JSON.stringify(body) : null,
   });
-  if (res.status === 204) return null;
-  return res.json();
+  if (res.status === 204 || res.status === 201) return null;
+  const text = await res.text();
+  if (!text || !text.trim()) return null;
+  return JSON.parse(text);
 }
 
 
@@ -316,7 +318,7 @@ export default async function handler(req, res) {
           results.skipped++;
           continue;
         }
-        const res2 = await supabaseFetch('/members', 'POST', {
+        const insertRes = await supabaseFetch('/members', 'POST', {
           handle: m.handle,
           tier: m.tier,
           paypal_email: m.paypal_email,
@@ -328,8 +330,9 @@ export default async function handler(req, res) {
           points: 0,
           featured: false,
         });
-        if (res2 && res2[0]?.code) {
-          results.errors.push({ email: m.paypal_email, error: res2[0].message });
+        // null = success (201), anything else = error object
+        if (insertRes && insertRes[0]?.code) {
+          results.errors.push({ email: m.paypal_email, error: insertRes[0].message });
         } else {
           results.inserted++;
         }
