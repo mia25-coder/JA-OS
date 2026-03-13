@@ -197,6 +197,8 @@ body::before{content:'';position:fixed;inset:0;opacity:.022;pointer-events:none;
 .btn-go{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--pb);border:1px solid rgba(124,92,252,.28);border-radius:var(--r2);color:var(--p);padding:8px 16px;cursor:pointer;transition:all .15s;white-space:nowrap;}
 .btn-go:hover{background:var(--pa);}
 .btn-go-full{display:block;width:100%;text-align:center;margin-bottom:14px;}
+.sched-tab{opacity:.45;transition:opacity .15s,background .15s;}
+.sched-tab.on{opacity:1;background:var(--pa);border-color:rgba(124,92,252,.4);}
 
 /* ── MEMBERS TABLE ── */
 .tbl-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;}
@@ -590,23 +592,39 @@ tr:hover td{background:var(--faint);}
 <div class="page" id="p-schedule">
   <div class="ph">
     <div class="pt">Schedule</div>
-    <div class="ps">Post calendar · Premium individual · Basic carousel</div>
+    <div class="ps">Post calendar generator</div>
   </div>
-  <div class="grid g2">
+
+  <!-- Tab switcher -->
+  <div style="display:flex;gap:8px;margin-bottom:20px">
+    <button class="btn-go sched-tab on" id="st-groups" onclick="schedTab('groups')">Groups of 10</button>
+    <button class="btn-go sched-tab" id="st-monthly" onclick="schedTab('monthly')">Monthly Premium</button>
+  </div>
+
+  <!-- Groups of 10 -->
+  <div id="sp-groups">
     <div class="card">
-      <div class="ch"><div class="ct">Full Schedule</div></div>
-      <div class="ctrl-row">
-        <span style="font-family:var(--mono);font-size:10px;color:var(--sub);white-space:nowrap">Basic batch</span>
-        <select id="batch-size" class="ctrl-sel">
-          <option value="5">5 per day</option>
-          <option value="10">10 per day</option>
-        </select>
-        <button class="btn-go" onclick="genSched()">Generate</button>
+      <div class="ch">
+        <div>
+          <div class="ct">All Members — Groups of 10</div>
+          <div class="csub">All tiers batched together · 10 per day · one day per group</div>
+        </div>
+        <button class="btn-go" onclick="genGroups()">Generate</button>
       </div>
-      <ul class="slist" id="full-sched"><div class="empty">Click Generate.</div></ul>
+      <ul class="slist" id="sched-groups"><div class="empty">Click Generate.</div></ul>
     </div>
+  </div>
+
+  <!-- Monthly Premium -->
+  <div id="sp-monthly" style="display:none">
     <div class="card">
-      <div class="ch"><div class="ct">Premium This Month</div><span class="cs" id="prem-month-lbl"></span></div>
+      <div class="ch">
+        <div>
+          <div class="ct">Premium This Month</div>
+          <div class="csub">Premium → 1 post date · Premium+ → 2 post dates · spread across remaining days</div>
+        </div>
+        <span class="cs" id="prem-month-lbl"></span>
+      </div>
       <button class="btn-go btn-go-full" onclick="genPremSched()">Generate for this month</button>
       <ul class="slist" id="prem-sched"><div class="empty">Click Generate.</div></ul>
     </div>
@@ -980,31 +998,74 @@ function renderTable(){
 function copyH(h){navigator.clipboard?.writeText(h);setStatus('copied','ok');}
 
 // ── Schedule ──────────────────────────────────────────────────────────────
-function genSched(){
-  const el=$('full-sched');
-  if(!members.length){html('full-sched','<div class="empty">No members.</div>');return;}
-  const bs=parseInt($('batch-size').value)||5;
-  const prem=members.filter(m=>m.tier!=='Basic').sort((a,b)=>b.tier==='Premium+'?1:-1);
-  const basic=members.filter(m=>m.tier==='Basic');
+function schedTab(t){
+  document.querySelectorAll('.sched-tab').forEach(b=>b.classList.remove('on'));
+  $('st-'+t).classList.add('on');
+  $('sp-groups').style.display = t==='groups'?'':'none';
+  $('sp-monthly').style.display = t==='monthly'?'':'none';
+}
+
+function genGroups(){
+  if(!members.length){html('sched-groups','<div class="empty">No members.</div>');return;}
+  // Shuffle all members regardless of tier, batch into groups of 10
+  const all=[...members].sort(()=>Math.random()-.5);
   const rows=[];let day=0;
-  prem.forEach(m=>{const d=new Date();d.setDate(d.getDate()+day++);rows.push({date:fmt(d),handle:m.handle,tier:m.tier,carousel:false});});
-  for(let i=0;i<basic.length;i+=bs){const b=basic.slice(i,i+bs);const d=new Date();d.setDate(d.getDate()+day++);rows.push({date:fmt(d),handles:b.map(m=>m.handle),tier:'Basic',carousel:true});}
-  html('full-sched',rows.map(r=>!r.carousel
-    ?`<li class="si"><span class="si-date">${r.date}</span><span class="si-handle">${r.handle}</span><span class="badge ${bc(r.tier)}">${r.tier}</span></li>`
-    :`<li class="si" style="flex-wrap:wrap;gap:5px;align-items:flex-start"><span class="si-date" style="padding-top:2px">${r.date}</span><div style="flex:1;display:flex;flex-wrap:wrap;gap:4px">${r.handles.map(h=>`<span style="font-family:var(--mono);font-size:9px;background:var(--s3);border:1px solid var(--b2);border-radius:3px;padding:2px 6px">${h}</span>`).join('')}</div><span class="badge b-ba">×${r.handles.length}</span></li>`
+  for(let i=0;i<all.length;i+=10){
+    const group=all.slice(i,i+10);
+    const d=new Date();d.setDate(d.getDate()+day++);
+    rows.push({date:fmt(d),members:group});
+  }
+  html('sched-groups',rows.map((r,gi)=>`
+    <li class="si" style="flex-wrap:wrap;gap:5px;align-items:flex-start">
+      <span class="si-date" style="padding-top:2px">${r.date}</span>
+      <div style="flex:1;display:flex;flex-wrap:wrap;gap:4px">
+        ${r.members.map(m=>`<span style="display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;background:var(--s3);border:1px solid var(--b2);border-radius:3px;padding:2px 7px">
+          <span style="width:5px;height:5px;border-radius:50%;background:${m.tier==='Premium+'?'var(--p)':m.tier==='Premium'?'#5070f0':'var(--dim)'}"></span>
+          ${m.handle}
+        </span>`).join('')}
+      </div>
+      <span class="badge b-ba">×${r.members.length}</span>
+    </li>`
   ).join(''));
 }
 
 function genPremSched(){
-  const f=members.filter(m=>m.tier!=='Basic').sort((a,b)=>a.tier==='Premium+'?-1:1);
+  // Premium gets 1 slot, Premium+ gets 2 slots — spread across remaining days this month
+  const pp=members.filter(m=>m.tier==='Premium+');
+  const pr=members.filter(m=>m.tier==='Premium');
+
+  // Build flat list of slots: PP first (2 each), then Premium (1 each)
+  const slots=[];
+  pp.forEach(m=>{slots.push({handle:m.handle,tier:m.tier});slots.push({handle:m.handle,tier:m.tier,second:true});});
+  pr.forEach(m=>slots.push({handle:m.handle,tier:m.tier}));
+
   const mn=new Date().toLocaleString('default',{month:'long',year:'numeric'});
   set('prem-month-lbl',mn);
-  if(!f.length){html('prem-sched','<div class="empty">No Premium members.</div>');return;}
-  const t=new Date(),ld=new Date(t.getFullYear(),t.getMonth()+1,0).getDate(),rem=[];
+
+  if(!slots.length){html('prem-sched','<div class="empty">No Premium members.</div>');return;}
+
+  // Remaining days this month
+  const t=new Date();
+  const ld=new Date(t.getFullYear(),t.getMonth()+1,0).getDate();
+  const rem=[];
   for(let d=t.getDate();d<=ld;d++)rem.push(new Date(t.getFullYear(),t.getMonth(),d));
-  if(f.length>rem.length){html('prem-sched',`<div class="empty">Not enough days (${rem.length} left, ${f.length} members).</div>`);return;}
-  const step=rem.length/f.length;
-  html('prem-sched',f.map((m,i)=>{const date=rem[Math.min(Math.round(i*step),rem.length-1)];return`<li class="si"><span class="si-date">${fmt(date)}</span><span class="si-handle">${m.handle}</span><span class="badge ${bc(m.tier)}">${m.tier}</span></li>`;}).join(''));
+
+  if(slots.length>rem.length){
+    html('prem-sched',`<div class="empty">Not enough days this month (${rem.length} days left, ${slots.length} slots needed). Try next month.</div>`);
+    return;
+  }
+
+  // Spread evenly across remaining days
+  const step=rem.length/slots.length;
+  html('prem-sched',slots.map((s,i)=>{
+    const date=rem[Math.min(Math.floor(i*step),rem.length-1)];
+    const label=s.second?'<span style="font-family:var(--mono);font-size:8px;opacity:.5;margin-left:4px">2nd slot</span>':'';
+    return`<li class="si">
+      <span class="si-date">${fmt(date)}</span>
+      <span class="si-handle">${s.handle}${label}</span>
+      <span class="badge ${bc(s.tier)}">${s.tier}</span>
+    </li>`;
+  }).join(''));
 }
 
 // ── Analytics ────────────────────────────────────────────────────────────
