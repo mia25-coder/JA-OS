@@ -1,4 +1,5 @@
 // api/paypal.js — JustAbarth OS · PayPal subscription sync
+
 const PAYPAL_BASE = 'https://api-m.paypal.com';
 
 const PLAN_TIER_MAP = {
@@ -11,8 +12,6 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID;
 const PAYPAL_SECRET = process.env.PAYPAL_SECRET;
-
-// ── PayPal auth ──────────────────────────────────────────────────────────────
 
 async function getPayPalToken() {
   const credentials = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`).toString('base64');
@@ -29,7 +28,29 @@ async function getPayPalToken() {
   return data.access_token;
 }
 
-// ── Get subscription detail by ID ────────────────────────────────────────────
+async function getAllSubscriptions(token) {
+  // Fetch all subscriptions across all pages, all statuses
+  const all = [];
+  const statuses = ['ACTIVE'];
+
+  for (const status of statuses) {
+    let page = 1;
+    let hasMore = true;
+    while (hasMore) {
+      const res = await fetch(
+        `${PAYPAL_BASE}/v1/billing/subscriptions?status=${status}&page_size=20&page=${page}`,
+        { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
+      );
+      const data = await res.json();
+      const subs = data.subscriptions || [];
+      all.push(...subs);
+      hasMore = subs.length === 20;
+      page++;
+    }
+  }
+
+  return all;
+}
 
 async function getSubscriptionDetail(token, subscriptionId) {
   const res = await fetch(`${PAYPAL_BASE}/v1/billing/subscriptions/${subscriptionId}`, {
@@ -37,8 +58,6 @@ async function getSubscriptionDetail(token, subscriptionId) {
   });
   return res.json();
 }
-
-// ── Supabase helpers ─────────────────────────────────────────────────────────
 
 async function supabaseFetch(path, method = 'GET', body = null) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1${path}`, {
@@ -56,6 +75,8 @@ async function supabaseFetch(path, method = 'GET', body = null) {
 }
 
 async function upsertMember(detail, tier) {
+  // Only import active subscriptions
+  if (detail.status !== 'ACTIVE') return 'skipped';
   const email = detail.subscriber?.email_address || '';
   const name = detail.subscriber?.name?.given_name
     ? `${detail.subscriber.name.given_name} ${detail.subscriber.name.surname || ''}`.trim()
@@ -92,47 +113,36 @@ async function upsertMember(detail, tier) {
   }
 }
 
-// ── Sync by fetching each plan's subscriptions ───────────────────────────────
-// PayPal list-subscriptions requires the subscription IDs to be known.
-// We use the Subscriptions API with each plan ID and page through results.
-
 async function syncAllSubscriptions() {
   const token = await getPayPalToken();
-  const results = { added: 0, updated: 0, errors: [] };
+  const results = { added: 0, updated: 0, skipped: 0, errors: [] };
 
-  for (const [planId, tier] of Object.entries(PLAN_TIER_MAP)) {
-    let page = 1;
-    let hasMore = true;
+  const subs = await getAllSubscriptions(token);
 
-    while (hasMore) {
-      const url = `${PAYPAL_BASE}/v1/billing/subscriptions?plan_id=${planId}&status=ACTIVE&page_size=20&page=${page}`;
-      const res = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-      });
-      const data = await res.json();
-      console.log(`Plan ${planId} page ${page}:`, JSON.stringify(data));
+  // Deduplicate by ID
+  const unique = [...new Map(subs.map(s => [s.id, s])).values()];
 
-      const subs = data.subscriptions || [];
-      hasMore = subs.length === 20;
-      page++;
+  for (const sub of unique) {
+    try {
+      const detail = await getSubscriptionDetail(token, sub.id);
+      const tier = PLAN_TIER_MAP[detail.plan_id];
 
-      for (const sub of subs) {
-        try {
-          const detail = await getSubscriptionDetail(token, sub.id);
-          const action = await upsertMember(detail, tier);
-          if (action === 'added') results.added++;
-          else results.updated++;
-        } catch (err) {
-          results.errors.push({ sub: sub.id, error: err.message });
-        }
+      if (!tier) {
+        results.skipped++;
+        continue; // subscription not for one of our plans
       }
+
+      const action = await upsertMember(detail, tier);
+      if (action === 'added') results.added++;
+      else if (action === 'updated') results.updated++;
+      else results.skipped++;
+    } catch (err) {
+      results.errors.push({ sub: sub.id, error: err.message });
     }
   }
 
   return results;
 }
-
-// ── Webhook handler ───────────────────────────────────────────────────────────
 
 async function handleWebhook(body) {
   const token = await getPayPalToken();
@@ -141,12 +151,11 @@ async function handleWebhook(body) {
   if (!resource) return { ignored: true };
 
   const subId = resource.id;
-  const planId = resource.plan_id;
-  const tier = PLAN_TIER_MAP[planId];
 
   if (eventType === 'BILLING.SUBSCRIPTION.ACTIVATED' || eventType === 'BILLING.SUBSCRIPTION.CREATED') {
     const detail = await getSubscriptionDetail(token, subId);
-    await upsertMember(detail, tier || 'Basic');
+    const tier = PLAN_TIER_MAP[detail.plan_id] || 'Basic';
+    await upsertMember(detail, tier);
     return { action: 'member_added', tier };
   }
 
@@ -156,6 +165,8 @@ async function handleWebhook(body) {
   }
 
   if (eventType === 'BILLING.SUBSCRIPTION.UPDATED') {
+    const detail = await getSubscriptionDetail(token, subId);
+    const tier = PLAN_TIER_MAP[detail.plan_id];
     if (tier) {
       await supabaseFetch(`/members?paypal_subscription_id=eq.${subId}`, 'PATCH', { tier, paypal_status: 'ACTIVE' });
       return { action: 'tier_updated', tier };
@@ -164,8 +175,6 @@ async function handleWebhook(body) {
 
   return { ignored: true, eventType };
 }
-
-// ── Main handler ─────────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -182,15 +191,19 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET' && req.query.action === 'debug') {
       const token = await getPayPalToken();
-      const debug = {};
-      for (const [planId, tier] of Object.entries(PLAN_TIER_MAP)) {
-        const url = `${PAYPAL_BASE}/v1/billing/subscriptions?plan_id=${planId}&status=ACTIVE&page_size=20`;
-        const res2 = await fetch(url, {
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-        });
-        debug[tier] = await res2.json();
-      }
-      return res.status(200).json(debug);
+      const subs = await getAllSubscriptions(token);
+      const active = subs.filter(s => s.status === 'ACTIVE').slice(0, 3);
+      const details = await Promise.all(active.map(s => getSubscriptionDetail(token, s.id)));
+      return res.status(200).json({
+        total: subs.length,
+        active_sample: details.map(d => ({
+          id: d.id,
+          plan_id: d.plan_id,
+          status: d.status,
+          email: d.subscriber?.email_address,
+          tier_mapped: PLAN_TIER_MAP[d.plan_id] || 'UNKNOWN'
+        }))
+      });
     }
 
     if (req.method === 'POST') {
