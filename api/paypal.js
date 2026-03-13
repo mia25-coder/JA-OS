@@ -117,10 +117,31 @@ async function syncAllSubscriptions() {
   const token = await getPayPalToken();
   const results = { added: 0, updated: 0, skipped: 0, errors: [] };
 
-  const subs = await getAllSubscriptions(token);
+  // Fetch once without plan filter, deduplicate by ID
+  const res = await fetch(
+    `${PAYPAL_BASE}/v1/billing/subscriptions?status=ACTIVE&page_size=100`,
+    { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
+  );
+  const data = await res.json();
+  const subs = data.subscriptions || [];
+
+  // Page through all results
+  let allSubs = [...subs];
+  let page = 2;
+  while (allSubs.length > 0 && allSubs.length % 100 === 0) {
+    const r2 = await fetch(
+      `${PAYPAL_BASE}/v1/billing/subscriptions?status=ACTIVE&page_size=100&page=${page}`,
+      { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
+    );
+    const d2 = await r2.json();
+    const more = d2.subscriptions || [];
+    allSubs = [...allSubs, ...more];
+    if (more.length < 100) break;
+    page++;
+  }
 
   // Deduplicate by ID
-  const unique = [...new Map(subs.map(s => [s.id, s])).values()];
+  const unique = [...new Map(allSubs.map(s => [s.id, s])).values()];
 
   for (const sub of unique) {
     try {
@@ -129,7 +150,7 @@ async function syncAllSubscriptions() {
 
       if (!tier) {
         results.skipped++;
-        continue; // subscription not for one of our plans
+        continue;
       }
 
       const action = await upsertMember(detail, tier);
