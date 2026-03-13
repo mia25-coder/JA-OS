@@ -212,19 +212,12 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET' && req.query.action === 'debug') {
       const token = await getPayPalToken();
-      const subs = await getAllSubscriptions(token);
-      const active = subs.filter(s => s.status === 'ACTIVE').slice(0, 3);
-      const details = await Promise.all(active.map(s => getSubscriptionDetail(token, s.id)));
-      return res.status(200).json({
-        total: subs.length,
-        active_sample: details.map(d => ({
-          id: d.id,
-          plan_id: d.plan_id,
-          status: d.status,
-          email: d.subscriber?.email_address,
-          tier_mapped: PLAN_TIER_MAP[d.plan_id] || 'UNKNOWN'
-        }))
-      });
+      const res2 = await fetch(
+        `${PAYPAL_BASE}/v1/billing/subscriptions?status=ACTIVE&page_size=20`,
+        { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
+      );
+      const raw = await res2.json();
+      return res.status(200).json({ raw });
     }
 
     if (req.method === 'POST') {
