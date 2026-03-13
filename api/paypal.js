@@ -294,50 +294,6 @@ export default async function handler(req, res) {
       });
     }
 
-    if (req.method === 'GET' && req.query.action === 'insert-missing') {
-      const missing = [
-        { handle: '@abarth.ini',      tier: 'Basic',   paypal_email: 'joshua.hary@yahoo.fr' },
-        { handle: '@goldbarth_595',   tier: 'Basic',   paypal_email: 'dokpietro@gmail.com' },
-        { handle: '@low_abarth',      tier: 'Basic',   paypal_email: 'derekmasters@ymail.com' },
-        { handle: '@emily__coskin',   tier: 'Premium', paypal_email: 'coskinemily05@gmail.com' },
-        { handle: '@vale595abarth',   tier: 'Basic',   paypal_email: 'ladyorange056df@gmail.com' },
-      ];
-
-      const today = new Date();
-      const join_date_iso = today.toISOString().split('T')[0];
-      const join_date = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-
-      const results = { inserted: 0, skipped: 0, errors: [] };
-
-      for (const m of missing) {
-        // Check if already exists by email
-        const existing = await supabaseFetch(`/members?paypal_email=ilike.${encodeURIComponent(m.paypal_email)}&select=id`);
-        if (existing && existing.length > 0) {
-          results.skipped++;
-          continue;
-        }
-        const res2 = await supabaseFetch('/members', 'POST', {
-          handle: m.handle,
-          tier: m.tier,
-          paypal_email: m.paypal_email,
-          paypal_status: 'ACTIVE',
-          join_date,
-          join_date_iso,
-          car: '—',
-          country: '—',
-          points: 0,
-          featured: false,
-        });
-        if (res2 && res2[0]?.code) {
-          results.errors.push({ email: m.paypal_email, error: res2[0].message });
-        } else {
-          results.inserted++;
-        }
-      }
-
-      return res.status(200).json({ success: true, ...results });
-    }
-
     if (req.method === 'POST') {
       const result = await handleWebhook(req.body);
       return res.status(200).json({ success: true, ...result });
