@@ -13,7 +13,7 @@ const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID;
 const PAYPAL_SECRET = process.env.PAYPAL_SECRET;
 
-// ── PayPal auth ──────────────────────────────────────────────────────────────
+// ── PayPal auth ───────────────────────────────────────────────────────────────
 
 async function getPayPalToken() {
   const credentials = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`).toString('base64');
@@ -26,23 +26,13 @@ async function getPayPalToken() {
     body: 'grant_type=client_credentials',
   });
   const data = await res.json();
-  if (!data.access_token) {
-    throw new Error(`PayPal auth failed: ${JSON.stringify(data)}`);
-  }
+  if (!data.access_token) throw new Error(`PayPal auth failed: ${JSON.stringify(data)}`);
   return data.access_token;
 }
 
-// ── PayPal API helpers ───────────────────────────────────────────────────────
-
-// PayPal does NOT have a "list subscriptions by plan" endpoint.
-// The correct approach is to list transactions/subscriptions via the
-// Subscriptions API by fetching each subscription by ID — but since
-// we don't store IDs, we use the Transactions Search API to find all
-// billing agreement transactions, then fetch each subscription detail.
+// ── PayPal helpers ────────────────────────────────────────────────────────────
 
 async function searchSubscriptionsByPlan(token, planId) {
-  // Use the billing subscriptions list endpoint with plan_id filter
-  // This IS supported but requires specific API permissions & pagination
   const subs = [];
   let page = 1;
   let hasMore = true;
@@ -55,10 +45,7 @@ async function searchSubscriptionsByPlan(token, planId) {
     url.searchParams.set('page', String(page));
 
     const res = await fetch(url.toString(), {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
     });
 
     const text = await res.text();
@@ -67,7 +54,6 @@ async function searchSubscriptionsByPlan(token, planId) {
 
     if (data.subscriptions && data.subscriptions.length > 0) {
       subs.push(...data.subscriptions);
-      // Check if there are more pages
       const totalPages = data.total_pages || 1;
       hasMore = page < totalPages;
       page++;
@@ -80,15 +66,14 @@ async function searchSubscriptionsByPlan(token, planId) {
 }
 
 async function getSubscriptionDetail(token, subscriptionId) {
-  const res = await fetch(
-    `${PAYPAL_BASE}/v1/billing/subscriptions/${subscriptionId}`,
-    { headers: { 'Authorization': `Bearer ${token}` } }
-  );
+  const res = await fetch(`${PAYPAL_BASE}/v1/billing/subscriptions/${subscriptionId}`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
   const text = await res.text();
   try { return JSON.parse(text); } catch { return {}; }
 }
 
-// ── Supabase helpers ─────────────────────────────────────────────────────────
+// ── Supabase helpers ──────────────────────────────────────────────────────────
 
 async function supabaseFetch(path, method = 'GET', body = null) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1${path}`, {
@@ -106,7 +91,7 @@ async function supabaseFetch(path, method = 'GET', body = null) {
   try { return JSON.parse(text); } catch { return null; }
 }
 
-// ── Sync all active subscriptions ────────────────────────────────────────────
+// ── Sync: only ACTIVE subscriptions ──────────────────────────────────────────
 
 async function syncAllSubscriptions() {
   const token = await getPayPalToken();
@@ -115,19 +100,19 @@ async function syncAllSubscriptions() {
   for (const [planId, tier] of Object.entries(PLAN_TIER_MAP)) {
     results.debug.push(`Fetching plan ${planId} (${tier})...`);
     const subs = await searchSubscriptionsByPlan(token, planId);
-    results.debug.push(`Found ${subs.length} subscriptions for ${tier} (will verify status of each)`);
+    results.debug.push(`Found ${subs.length} subscriptions for ${tier} — verifying each status...`);
 
     for (const sub of subs) {
       try {
-        // Always fetch full detail to get the REAL current status
+        // Always get full detail to check the REAL current status
         const detail = await getSubscriptionDetail(token, sub.id);
-        const actualStatus = detail.status; // ACTIVE, CANCELLED, SUSPENDED, EXPIRED etc.
+        const actualStatus = detail.status;
 
         const existing = await supabaseFetch(
-          `/members?paypal_subscription_id=eq.${sub.id}&select=id,paypal_status`
+          `/members?paypal_subscription_id=eq.${sub.id}&select=id`
         );
 
-        // If not ACTIVE — mark as cancelled in DB or skip entirely
+        // Not ACTIVE — mark existing record or skip new ones
         if (actualStatus !== 'ACTIVE') {
           if (existing && existing.length > 0) {
             await supabaseFetch(
@@ -137,13 +122,12 @@ async function syncAllSubscriptions() {
             );
             results.cancelled++;
           } else {
-            // Never add cancelled/expired subscribers
             results.skipped++;
           }
           continue;
         }
 
-        // Status is ACTIVE — proceed to add or update
+        // ACTIVE — add or update
         const email = detail.subscriber?.email_address || '';
         const name = detail.subscriber?.name?.given_name
           ? `${detail.subscriber.name.given_name} ${detail.subscriber.name.surname || ''}`.trim()
@@ -151,8 +135,7 @@ async function syncAllSubscriptions() {
         const joinDateISO = detail.start_time
           ? detail.start_time.split('T')[0]
           : new Date().toISOString().split('T')[0];
-        const joinDate = new Date(joinDateISO + 'T12:00:00')
-          .toLocaleDateString('en-GB');
+        const joinDate = new Date(joinDateISO + 'T12:00:00').toLocaleDateString('en-GB');
 
         if (existing && existing.length > 0) {
           await supabaseFetch(
@@ -187,12 +170,47 @@ async function syncAllSubscriptions() {
   return results;
 }
 
+// ── Cleanup: delete any member whose PayPal sub is no longer ACTIVE ───────────
+
+async function cleanupCancelledMembers() {
+  const token = await getPayPalToken();
+
+  const allMembers = await supabaseFetch(
+    `/members?paypal_subscription_id=not.is.null&select=id,handle,paypal_subscription_id`
+  );
+
+  if (!allMembers || !allMembers.length) {
+    return { deleted: 0, kept: 0, removed: [], message: 'No members with PayPal subscriptions.' };
+  }
+
+  let deleted = 0;
+  let kept = 0;
+  const removedHandles = [];
+
+  for (const member of allMembers) {
+    try {
+      const detail = await getSubscriptionDetail(token, member.paypal_subscription_id);
+      const status = detail.status;
+      if (status !== 'ACTIVE') {
+        await supabaseFetch(`/members?id=eq.${member.id}`, 'DELETE');
+        removedHandles.push(`${member.handle} (${status || 'unknown'})`);
+        deleted++;
+      } else {
+        kept++;
+      }
+    } catch (err) {
+      kept++; // can't verify — leave them in
+    }
+  }
+
+  return { deleted, kept, removed: removedHandles };
+}
+
 // ── Webhook handler ───────────────────────────────────────────────────────────
 
 async function handleWebhook(body) {
   const eventType = body.event_type;
   const resource = body.resource;
-
   if (!resource) return { ignored: true };
 
   const subId = resource.id;
@@ -210,46 +228,32 @@ async function handleWebhook(body) {
     const joinDate = new Date(joinDateISO + 'T12:00:00').toLocaleDateString('en-GB');
 
     await supabaseFetch('/members', 'POST', {
-      handle: name,
-      tier: tier || 'Basic',
-      car: '—',
-      country: '—',
-      points: 0,
-      featured: false,
-      last_feature: null,
-      join_date: joinDate,
-      join_date_iso: joinDateISO,
-      paypal_email: email,
-      paypal_subscription_id: subId,
-      paypal_status: 'ACTIVE',
+      handle: name, tier: tier || 'Basic', car: '—', country: '—',
+      points: 0, featured: false, last_feature: null,
+      join_date: joinDate, join_date_iso: joinDateISO,
+      paypal_email: email, paypal_subscription_id: subId, paypal_status: 'ACTIVE',
     });
     return { action: 'member_added', handle: name, tier };
   }
 
   if (eventType === 'BILLING.SUBSCRIPTION.CANCELLED' || eventType === 'BILLING.SUBSCRIPTION.SUSPENDED') {
+    await supabaseFetch(`/members?paypal_subscription_id=eq.${subId}`, 'DELETE');
+    return { action: 'member_deleted', subId };
+  }
+
+  if (eventType === 'BILLING.SUBSCRIPTION.UPDATED' && tier) {
     await supabaseFetch(
       `/members?paypal_subscription_id=eq.${subId}`,
       'PATCH',
-      { paypal_status: 'CANCELLED' }
+      { tier, paypal_status: 'ACTIVE' }
     );
-    return { action: 'member_cancelled', subId };
-  }
-
-  if (eventType === 'BILLING.SUBSCRIPTION.UPDATED') {
-    if (tier) {
-      await supabaseFetch(
-        `/members?paypal_subscription_id=eq.${subId}`,
-        'PATCH',
-        { tier, paypal_status: 'ACTIVE' }
-      );
-      return { action: 'tier_updated', tier };
-    }
+    return { action: 'tier_updated', tier };
   }
 
   return { ignored: true, eventType };
 }
 
-// ── Main handler ─────────────────────────────────────────────────────────────
+// ── Main handler ──────────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -262,12 +266,19 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       const action = req.query.action;
 
+      // Sync: pull all active subs from PayPal, add/update in Supabase
       if (action === 'sync') {
         const results = await syncAllSubscriptions();
         return res.status(200).json({ success: true, ...results });
       }
 
-      // Debug endpoint — visit /api/paypal?action=debug in browser to test
+      // Cleanup: verify every existing member's sub status, delete non-active
+      if (action === 'cleanup') {
+        const results = await cleanupCancelledMembers();
+        return res.status(200).json({ success: true, ...results });
+      }
+
+      // Debug: check token + count subs per plan
       if (action === 'debug') {
         const token = await getPayPalToken();
         const debugInfo = { tokenOk: !!token, plans: {} };
@@ -279,11 +290,10 @@ export default async function handler(req, res) {
       }
 
       if (action === 'sync-countries') {
-        // Placeholder — country sync is handled client-side
         return res.status(200).json({ success: true, updated: 0 });
       }
 
-      return res.status(400).json({ error: 'Unknown action. Use ?action=sync or ?action=debug' });
+      return res.status(400).json({ error: 'Unknown action. Use ?action=sync, ?action=cleanup, or ?action=debug' });
     }
 
     if (req.method === 'POST') {
