@@ -110,16 +110,40 @@ async function supabaseFetch(path, method = 'GET', body = null) {
 
 async function syncAllSubscriptions() {
   const token = await getPayPalToken();
-  const results = { added: 0, updated: 0, errors: [], debug: [] };
+  const results = { added: 0, updated: 0, skipped: 0, cancelled: 0, errors: [], debug: [] };
 
   for (const [planId, tier] of Object.entries(PLAN_TIER_MAP)) {
     results.debug.push(`Fetching plan ${planId} (${tier})...`);
     const subs = await searchSubscriptionsByPlan(token, planId);
-    results.debug.push(`Found ${subs.length} active subscriptions for ${tier}`);
+    results.debug.push(`Found ${subs.length} subscriptions for ${tier} (will verify status of each)`);
 
     for (const sub of subs) {
       try {
+        // Always fetch full detail to get the REAL current status
         const detail = await getSubscriptionDetail(token, sub.id);
+        const actualStatus = detail.status; // ACTIVE, CANCELLED, SUSPENDED, EXPIRED etc.
+
+        const existing = await supabaseFetch(
+          `/members?paypal_subscription_id=eq.${sub.id}&select=id,paypal_status`
+        );
+
+        // If not ACTIVE — mark as cancelled in DB or skip entirely
+        if (actualStatus !== 'ACTIVE') {
+          if (existing && existing.length > 0) {
+            await supabaseFetch(
+              `/members?paypal_subscription_id=eq.${sub.id}`,
+              'PATCH',
+              { paypal_status: actualStatus }
+            );
+            results.cancelled++;
+          } else {
+            // Never add cancelled/expired subscribers
+            results.skipped++;
+          }
+          continue;
+        }
+
+        // Status is ACTIVE — proceed to add or update
         const email = detail.subscriber?.email_address || '';
         const name = detail.subscriber?.name?.given_name
           ? `${detail.subscriber.name.given_name} ${detail.subscriber.name.surname || ''}`.trim()
@@ -129,10 +153,6 @@ async function syncAllSubscriptions() {
           : new Date().toISOString().split('T')[0];
         const joinDate = new Date(joinDateISO + 'T12:00:00')
           .toLocaleDateString('en-GB');
-
-        const existing = await supabaseFetch(
-          `/members?paypal_subscription_id=eq.${sub.id}&select=id`
-        );
 
         if (existing && existing.length > 0) {
           await supabaseFetch(
