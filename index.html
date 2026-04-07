@@ -1395,10 +1395,13 @@ async function updateCountry(i,val){
 // ── Sync ────────────────────────────────────────────────────────────────────
 async function syncPayPal(){
   const btn=$('btn-sync');btn.textContent='syncing…';btn.disabled=true;
-  try{const r=await fetch('/api/paypal?action=sync&t='+Date.now());const d=await r.json();
-    if(d.success){setStatus('synced · +'+d.added+' added','ok');await loadMembers();}
-    else setStatus('sync failed','err');
-  }catch{setStatus('sync error','err');}
+  try{
+    const r=await fetch('/api/paypal?action=sync&t='+Date.now());
+    if(!r.ok){setStatus('sync failed ('+r.status+')','err');btn.textContent='⟳ Sync PayPal';btn.disabled=false;return;}
+    const d=await r.json();
+    if(d.success){setStatus('synced · +'+d.added+' added · '+d.updated+' updated','ok');await loadMembers();}
+    else setStatus('sync failed: '+(d.error||'unknown'),'err');
+  }catch(e){setStatus('sync error: '+e.message,'err');}
   btn.textContent='⟳ Sync PayPal';btn.disabled=false;
 }
 async function syncCountries(){
