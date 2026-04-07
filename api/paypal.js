@@ -13,8 +13,6 @@ const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID;
 const PAYPAL_SECRET = process.env.PAYPAL_SECRET;
 
-// ── PayPal auth ───────────────────────────────────────────────────────────────
-
 async function getPayPalToken() {
   const credentials = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`).toString('base64');
   const res = await fetch(`${PAYPAL_BASE}/v1/oauth2/token`, {
@@ -30,24 +28,16 @@ async function getPayPalToken() {
   return data.access_token;
 }
 
-// ── PayPal helpers ────────────────────────────────────────────────────────────
-
-// Fetch ALL subscription IDs for a plan using cursor-based pagination
+// Fetch ALL subscription IDs by paginating through every page
 async function getAllSubscriptionIds(token, planId) {
   const ids = [];
-  let nextPageToken = null;
   let page = 1;
 
   while (true) {
-    const url = new URL(`${PAYPAL_BASE}/v1/billing/subscriptions`);
-    url.searchParams.set('plan_id', planId);
-    url.searchParams.set('page_size', '20');
-    url.searchParams.set('page', String(page));
-    if (nextPageToken) url.searchParams.set('start_id', nextPageToken);
-
-    const res = await fetch(url.toString(), {
-      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    });
+    const res = await fetch(
+      `${PAYPAL_BASE}/v1/billing/subscriptions?plan_id=${planId}&page_size=20&page=${page}`,
+      { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
+    );
 
     const text = await res.text();
     let data;
@@ -56,21 +46,12 @@ async function getAllSubscriptionIds(token, planId) {
     const subs = data.subscriptions || [];
     subs.forEach(s => ids.push(s.id));
 
-    // Check for next page via links
-    const nextLink = (data.links || []).find(l => l.rel === 'next');
-    if (nextLink && subs.length === 20) {
-      page++;
-      // Extract start_id from next link if available
-      try {
-        const nextUrl = new URL(nextLink.href);
-        nextPageToken = nextUrl.searchParams.get('start_id');
-      } catch {
-        nextPageToken = null;
-      }
-      if (!nextPageToken) page++; // fallback to page increment
-    } else {
-      break;
-    }
+    // Stop if we got fewer than 20 — means we're on the last page
+    if (subs.length < 20) break;
+    page++;
+
+    // Safety cap at 20 pages (400 members)
+    if (page > 20) break;
   }
 
   return ids;
@@ -83,8 +64,6 @@ async function getSubscriptionDetail(token, subscriptionId) {
   const text = await res.text();
   try { return JSON.parse(text); } catch { return {}; }
 }
-
-// ── Supabase helpers ──────────────────────────────────────────────────────────
 
 async function supabaseFetch(path, method = 'GET', body = null) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1${path}`, {
@@ -102,16 +81,13 @@ async function supabaseFetch(path, method = 'GET', body = null) {
   try { return JSON.parse(text); } catch { return null; }
 }
 
-// ── Sync ──────────────────────────────────────────────────────────────────────
-
 async function syncAllSubscriptions() {
   const token = await getPayPalToken();
   const results = { added: 0, updated: 0, skipped: 0, cancelled: 0, errors: [], debug: [] };
 
   for (const [planId, tier] of Object.entries(PLAN_TIER_MAP)) {
-    results.debug.push(`Fetching all IDs for ${tier}...`);
     const ids = await getAllSubscriptionIds(token, planId);
-    results.debug.push(`Got ${ids.length} IDs for ${tier}, checking each status...`);
+    results.debug.push(`${tier}: found ${ids.length} subscriptions`);
 
     for (const subId of ids) {
       try {
@@ -167,17 +143,14 @@ async function syncAllSubscriptions() {
   return results;
 }
 
-// ── Cleanup ───────────────────────────────────────────────────────────────────
-
 async function cleanupCancelledMembers() {
   const token = await getPayPalToken();
-
   const allMembers = await supabaseFetch(
     `/members?paypal_subscription_id=not.is.null&select=id,handle,paypal_subscription_id`
   );
 
   if (!allMembers || !allMembers.length) {
-    return { deleted: 0, kept: 0, removed: [], message: 'No members with PayPal subscriptions.' };
+    return { deleted: 0, kept: 0, removed: [] };
   }
 
   let deleted = 0, kept = 0;
@@ -198,8 +171,6 @@ async function cleanupCancelledMembers() {
 
   return { deleted, kept, removed: removedHandles };
 }
-
-// ── Webhook ───────────────────────────────────────────────────────────────────
 
 async function handleWebhook(body) {
   const eventType = body.event_type;
@@ -241,8 +212,6 @@ async function handleWebhook(body) {
 
   return { ignored: true, eventType };
 }
-
-// ── Main handler ──────────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
