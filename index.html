@@ -890,27 +890,86 @@ function renderDonut(){
 // ── Growth ────────────────────────────────────────────────────────────
 function renderGrowth(){
   const byM={};
-  members.forEach(m=>{if(!m.joinDateISO)return;const d=new Date(m.joinDateISO);const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;byM[k]=(byM[k]||0)+1;});
+  members.forEach(m=>{
+    if(!m.joinDateISO)return;
+    const d=new Date(m.joinDateISO);
+    const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if(!byM[k])byM[k]={'Premium+':0,'Premium':0,'Basic':0};
+    byM[k][m.tier]=(byM[k][m.tier]||0)+1;
+  });
   const keys=Object.keys(byM).sort();
   if(!keys.length)return;
-  let cum=0;const cumData=keys.map(k=>{cum+=byM[k];return cum;});
+ 
+  // Build cumulative data per tier
+  let cumPP=0,cumPR=0,cumBA=0;
+  const cumPPd=[],cumPRd=[],cumBAd=[],cumTot=[];
+  keys.forEach(k=>{
+    cumPP+=byM[k]['Premium+']||0;
+    cumPR+=byM[k]['Premium']||0;
+    cumBA+=byM[k]['Basic']||0;
+    cumPPd.push(cumPP);
+    cumPRd.push(cumPR);
+    cumBAd.push(cumBA);
+    cumTot.push(cumPP+cumPR+cumBA);
+  });
+ 
   const labels=keys.map(k=>{const[y,m]=k.split('-');return`${MON[parseInt(m)-1]} ${y.slice(2)}`;});
-  let best=keys[0],bestV=0;keys.forEach(k=>{if(byM[k]>bestV){bestV=byM[k];best=k;}});
+  const newPerMonth=keys.map(k=>(byM[k]['Premium+']||0)+(byM[k]['Premium']||0)+(byM[k]['Basic']||0));
+ 
+  let best=keys[0],bestV=0;
+  keys.forEach((k,i)=>{if(newPerMonth[i]>bestV){bestV=newPerMonth[i];best=k;}});
   const[by,bm]=best.split('-');
-  set('d-glbl',keys.length+' months of history');
-  html('d-gins',`Best month: <b>${MON[parseInt(bm)-1]} ${by} (+${bestV})</b>. Club at <b>${cum} members</b>.`);
+  set('d-glbl',keys.length+' months · '+cumTot[cumTot.length-1]+' total');
+  html('d-gins',`Best month: <b>${MON[parseInt(bm)-1]} ${by} (+${bestV})</b>. Club at <b>${cumTot[cumTot.length-1]} members</b> across all tiers.`);
+ 
   killChart('growth');
   const ctx=$('c-growth').getContext('2d');
-  const grad=ctx.createLinearGradient(0,0,0,200);grad.addColorStop(0,'rgba(108,68,240,.18)');grad.addColorStop(1,'rgba(108,68,240,.0)');
+ 
+  const gradPP=ctx.createLinearGradient(0,0,0,200);
+  gradPP.addColorStop(0,'rgba(41,112,214,.35)');
+  gradPP.addColorStop(1,'rgba(41,112,214,.0)');
+  const gradPR=ctx.createLinearGradient(0,0,0,200);
+  gradPR.addColorStop(0,'rgba(108,68,240,.35)');
+  gradPR.addColorStop(1,'rgba(108,68,240,.0)');
+  const gradBA=ctx.createLinearGradient(0,0,0,200);
+  gradBA.addColorStop(0,'rgba(8,152,160,.35)');
+  gradBA.addColorStop(1,'rgba(8,152,160,.0)');
+ 
   charts['growth']=new Chart(ctx,{type:'line',data:{labels,datasets:[
-    {data:cumData,borderColor:'#6c44f0',backgroundColor:grad,borderWidth:2,fill:true,tension:.4,pointRadius:0,pointHoverRadius:4},
-    {data:keys.map(k=>byM[k]),borderColor:'rgba(108,68,240,.25)',backgroundColor:'transparent',borderWidth:1,borderDash:[3,3],tension:.4,pointRadius:0,yAxisID:'y2'}
-  ]},options:{...COPT,scales:{
-    x:{grid:{color:'rgba(0,0,0,.06)'},ticks:{color:'#6a6580',font:{family:'IBM Plex Mono',size:8},maxRotation:0,maxTicksLimit:7},border:{color:'rgba(0,0,0,.10)'}},
-    y:{grid:{color:'rgba(0,0,0,.06)'},ticks:{color:'#6a6580',font:{family:'IBM Plex Mono',size:9}},border:{color:'rgba(0,0,0,.10)'},beginAtZero:true},
-    y2:{position:'right',grid:{display:false},ticks:{color:'#6a6580',font:{family:'IBM Plex Mono',size:9}},border:{color:'rgba(0,0,0,.10)'},beginAtZero:true}
-  },plugins:{...COPT.plugins,tooltip:{...COPT.plugins.tooltip,mode:'index',intersect:false}}}});
+    {label:'Total',data:cumTot,borderColor:'rgba(255,255,255,.15)',backgroundColor:'transparent',borderWidth:1,borderDash:[3,3],tension:.4,pointRadius:0,yAxisID:'y',order:0},
+    {label:'Premium+',data:cumPPd,borderColor:'#2970d6',backgroundColor:gradPP,borderWidth:2,fill:true,tension:.4,pointRadius:0,pointHoverRadius:5,yAxisID:'y',order:1},
+    {label:'Premium',data:cumPRd,borderColor:'#6c44f0',backgroundColor:gradPR,borderWidth:2,fill:true,tension:.4,pointRadius:0,pointHoverRadius:5,yAxisID:'y',order:2},
+    {label:'Basic',data:cumBAd,borderColor:'#0898a0',backgroundColor:gradBA,borderWidth:2,fill:true,tension:.4,pointRadius:0,pointHoverRadius:5,yAxisID:'y',order:3},
+    {label:'New/mo',data:newPerMonth,borderColor:'rgba(240,165,0,.5)',backgroundColor:'transparent',borderWidth:1,borderDash:[2,4],tension:.4,pointRadius:0,yAxisID:'y2',order:4},
+  ]},options:{
+    ...COPT,
+    interaction:{mode:'index',intersect:false},
+    scales:{
+      x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#6a6580',font:{family:'IBM Plex Mono',size:8},maxRotation:0,maxTicksLimit:10},border:{color:'rgba(0,0,0,.08)'}},
+      y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#6a6580',font:{family:'IBM Plex Mono',size:9},callback:v=>Number.isInteger(v)?v:''},border:{color:'rgba(0,0,0,.08)'},beginAtZero:true,position:'left'},
+      y2:{grid:{display:false},ticks:{color:'rgba(240,165,0,.6)',font:{family:'IBM Plex Mono',size:8},callback:v=>Number.isInteger(v)?'+'+v:''},border:{color:'rgba(0,0,0,.08)'},beginAtZero:true,position:'right'}
+    },
+    plugins:{
+      ...COPT.plugins,
+      legend:{
+        display:true,
+        position:'top',
+        align:'end',
+        labels:{color:'#6a6580',font:{family:'IBM Plex Mono',size:9},boxWidth:8,boxHeight:8,padding:12,usePointStyle:true,pointStyle:'rect'}
+      },
+      tooltip:{
+        ...COPT.plugins.tooltip,
+        callbacks:{
+          label:i=>{
+            if(i.dataset.label==='New/mo')return` +${i.raw} new this month`;
+            return` ${i.dataset.label}: ${i.raw} members`;
+          }
+        }
+      }
+    }
+  }});
 }
+ 
 
 // ── Tier bars ──────────────────────────────────────────────────────────
 function renderTierBars(elId,csId){
