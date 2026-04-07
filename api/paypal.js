@@ -60,7 +60,6 @@ async function getActiveSubscriptionIds(token) {
     const url = new URL(`${PAYPAL_BASE}/v1/reporting/transactions`);
     url.searchParams.set('start_date', fmt(startDate));
     url.searchParams.set('end_date', fmt(endDate));
-    url.searchParams.set('transaction_type', 'T0002'); // recurring payment
     url.searchParams.set('fields', 'all');
     url.searchParams.set('page_size', '500');
     url.searchParams.set('page', String(page));
