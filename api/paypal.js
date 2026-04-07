@@ -32,17 +32,18 @@ async function getPayPalToken() {
 
 // ── PayPal helpers ────────────────────────────────────────────────────────────
 
-async function searchSubscriptionsByPlan(token, planId) {
-  const subs = [];
+// Fetch ALL subscription IDs for a plan using cursor-based pagination
+async function getAllSubscriptionIds(token, planId) {
+  const ids = [];
+  let nextPageToken = null;
   let page = 1;
-  let hasMore = true;
 
-  while (hasMore) {
+  while (true) {
     const url = new URL(`${PAYPAL_BASE}/v1/billing/subscriptions`);
     url.searchParams.set('plan_id', planId);
-    url.searchParams.set('status', 'ACTIVE');
     url.searchParams.set('page_size', '20');
     url.searchParams.set('page', String(page));
+    if (nextPageToken) url.searchParams.set('start_id', nextPageToken);
 
     const res = await fetch(url.toString(), {
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -52,17 +53,27 @@ async function searchSubscriptionsByPlan(token, planId) {
     let data;
     try { data = JSON.parse(text); } catch { break; }
 
-    if (data.subscriptions && data.subscriptions.length > 0) {
-      subs.push(...data.subscriptions);
-      const totalPages = data.total_pages || 1;
-      hasMore = page < totalPages;
+    const subs = data.subscriptions || [];
+    subs.forEach(s => ids.push(s.id));
+
+    // Check for next page via links
+    const nextLink = (data.links || []).find(l => l.rel === 'next');
+    if (nextLink && subs.length === 20) {
       page++;
+      // Extract start_id from next link if available
+      try {
+        const nextUrl = new URL(nextLink.href);
+        nextPageToken = nextUrl.searchParams.get('start_id');
+      } catch {
+        nextPageToken = null;
+      }
+      if (!nextPageToken) page++; // fallback to page increment
     } else {
-      hasMore = false;
+      break;
     }
   }
 
-  return subs;
+  return ids;
 }
 
 async function getSubscriptionDetail(token, subscriptionId) {
@@ -91,35 +102,29 @@ async function supabaseFetch(path, method = 'GET', body = null) {
   try { return JSON.parse(text); } catch { return null; }
 }
 
-// ── Sync: only ACTIVE subscriptions ──────────────────────────────────────────
+// ── Sync ──────────────────────────────────────────────────────────────────────
 
 async function syncAllSubscriptions() {
   const token = await getPayPalToken();
   const results = { added: 0, updated: 0, skipped: 0, cancelled: 0, errors: [], debug: [] };
 
   for (const [planId, tier] of Object.entries(PLAN_TIER_MAP)) {
-    results.debug.push(`Fetching plan ${planId} (${tier})...`);
-    const subs = await searchSubscriptionsByPlan(token, planId);
-    results.debug.push(`Found ${subs.length} subscriptions for ${tier} — verifying each status...`);
+    results.debug.push(`Fetching all IDs for ${tier}...`);
+    const ids = await getAllSubscriptionIds(token, planId);
+    results.debug.push(`Got ${ids.length} IDs for ${tier}, checking each status...`);
 
-    for (const sub of subs) {
+    for (const subId of ids) {
       try {
-        // Always get full detail to check the REAL current status
-        const detail = await getSubscriptionDetail(token, sub.id);
+        const detail = await getSubscriptionDetail(token, subId);
         const actualStatus = detail.status;
 
         const existing = await supabaseFetch(
-          `/members?paypal_subscription_id=eq.${sub.id}&select=id`
+          `/members?paypal_subscription_id=eq.${subId}&select=id`
         );
 
-        // Not ACTIVE — mark existing record or skip new ones
         if (actualStatus !== 'ACTIVE') {
           if (existing && existing.length > 0) {
-            await supabaseFetch(
-              `/members?paypal_subscription_id=eq.${sub.id}`,
-              'PATCH',
-              { paypal_status: actualStatus }
-            );
+            await supabaseFetch(`/members?id=eq.${existing[0].id}`, 'DELETE');
             results.cancelled++;
           } else {
             results.skipped++;
@@ -127,7 +132,6 @@ async function syncAllSubscriptions() {
           continue;
         }
 
-        // ACTIVE — add or update
         const email = detail.subscriber?.email_address || '';
         const name = detail.subscriber?.name?.given_name
           ? `${detail.subscriber.name.given_name} ${detail.subscriber.name.surname || ''}`.trim()
@@ -139,30 +143,23 @@ async function syncAllSubscriptions() {
 
         if (existing && existing.length > 0) {
           await supabaseFetch(
-            `/members?paypal_subscription_id=eq.${sub.id}`,
+            `/members?paypal_subscription_id=eq.${subId}`,
             'PATCH',
             { tier, paypal_status: 'ACTIVE' }
           );
           results.updated++;
         } else {
           await supabaseFetch('/members', 'POST', {
-            handle: name,
-            tier,
-            car: '—',
-            country: '—',
-            points: 0,
-            featured: false,
-            last_feature: null,
-            join_date: joinDate,
-            join_date_iso: joinDateISO,
-            paypal_email: email,
-            paypal_subscription_id: sub.id,
+            handle: name, tier, car: '—', country: '—',
+            points: 0, featured: false, last_feature: null,
+            join_date: joinDate, join_date_iso: joinDateISO,
+            paypal_email: email, paypal_subscription_id: subId,
             paypal_status: 'ACTIVE',
           });
           results.added++;
         }
       } catch (err) {
-        results.errors.push({ sub: sub.id, error: err.message });
+        results.errors.push({ sub: subId, error: err.message });
       }
     }
   }
@@ -170,7 +167,7 @@ async function syncAllSubscriptions() {
   return results;
 }
 
-// ── Cleanup: delete any member whose PayPal sub is no longer ACTIVE ───────────
+// ── Cleanup ───────────────────────────────────────────────────────────────────
 
 async function cleanupCancelledMembers() {
   const token = await getPayPalToken();
@@ -183,30 +180,26 @@ async function cleanupCancelledMembers() {
     return { deleted: 0, kept: 0, removed: [], message: 'No members with PayPal subscriptions.' };
   }
 
-  let deleted = 0;
-  let kept = 0;
+  let deleted = 0, kept = 0;
   const removedHandles = [];
 
   for (const member of allMembers) {
     try {
       const detail = await getSubscriptionDetail(token, member.paypal_subscription_id);
-      const status = detail.status;
-      if (status !== 'ACTIVE') {
+      if (detail.status !== 'ACTIVE') {
         await supabaseFetch(`/members?id=eq.${member.id}`, 'DELETE');
-        removedHandles.push(`${member.handle} (${status || 'unknown'})`);
+        removedHandles.push(`${member.handle} (${detail.status || 'unknown'})`);
         deleted++;
       } else {
         kept++;
       }
-    } catch (err) {
-      kept++; // can't verify — leave them in
-    }
+    } catch { kept++; }
   }
 
   return { deleted, kept, removed: removedHandles };
 }
 
-// ── Webhook handler ───────────────────────────────────────────────────────────
+// ── Webhook ───────────────────────────────────────────────────────────────────
 
 async function handleWebhook(body) {
   const eventType = body.event_type;
@@ -242,11 +235,7 @@ async function handleWebhook(body) {
   }
 
   if (eventType === 'BILLING.SUBSCRIPTION.UPDATED' && tier) {
-    await supabaseFetch(
-      `/members?paypal_subscription_id=eq.${subId}`,
-      'PATCH',
-      { tier, paypal_status: 'ACTIVE' }
-    );
+    await supabaseFetch(`/members?paypal_subscription_id=eq.${subId}`, 'PATCH', { tier, paypal_status: 'ACTIVE' });
     return { action: 'tier_updated', tier };
   }
 
@@ -266,25 +255,22 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       const action = req.query.action;
 
-      // Sync: pull all active subs from PayPal, add/update in Supabase
       if (action === 'sync') {
         const results = await syncAllSubscriptions();
         return res.status(200).json({ success: true, ...results });
       }
 
-      // Cleanup: verify every existing member's sub status, delete non-active
       if (action === 'cleanup') {
         const results = await cleanupCancelledMembers();
         return res.status(200).json({ success: true, ...results });
       }
 
-      // Debug: check token + count subs per plan
       if (action === 'debug') {
         const token = await getPayPalToken();
         const debugInfo = { tokenOk: !!token, plans: {} };
         for (const [planId, tier] of Object.entries(PLAN_TIER_MAP)) {
-          const subs = await searchSubscriptionsByPlan(token, planId);
-          debugInfo.plans[tier] = { planId, count: subs.length, ids: subs.map(s => s.id) };
+          const ids = await getAllSubscriptionIds(token, planId);
+          debugInfo.plans[tier] = { planId, totalFound: ids.length, ids };
         }
         return res.status(200).json(debugInfo);
       }
@@ -293,7 +279,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ success: true, updated: 0 });
       }
 
-      return res.status(400).json({ error: 'Unknown action. Use ?action=sync, ?action=cleanup, or ?action=debug' });
+      return res.status(400).json({ error: 'Unknown action' });
     }
 
     if (req.method === 'POST') {
