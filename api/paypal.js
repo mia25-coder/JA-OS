@@ -1,5 +1,5 @@
 // JustAbarth PayPal integration. Server only: never put secrets in index.html.
-import { timingSafeEqual } from 'node:crypto';
+import { timingSafeEqual, createHash } from 'node:crypto';
 
 const LEGACY_PLAN_TIERS = {
   'P-5LS643056L917673CNBXI3PA': 'Premium+',
@@ -37,7 +37,22 @@ function settings() {
   if (Object.keys(plans).some(id => !/^P-[A-Z0-9]+$/.test(id))) throw new IntegrationError('PayPal plan IDs must start with P-.', 503);
   return { base: environment === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com', database: process.env.SUPABASE_URL.replace(/\/$/, ''), key: process.env.SUPABASE_SERVICE_KEY, plans, prices };
 }
-function requireAdmin(req) {
+async function requireAdmin(req) {
+  const authorization = req.headers?.authorization;
+  if (typeof authorization === 'string' && authorization.startsWith('Bearer ')) {
+    const base = process.env.SUPABASE_URL?.replace(/\/$/, '');
+    const key = process.env.SUPABASE_SERVICE_KEY;
+    if (!base || !key) throw new IntegrationError('Supabase server configuration is missing.', 503);
+    const access = authorization.slice(7);
+    // Validate with Auth; never trust client-provided JWT claims or user IDs.
+    const response = await fetch(base + '/auth/v1/user', { headers: {apikey:key,Authorization:'Bearer '+access}, signal:AbortSignal.timeout(8000) });
+    if (!response.ok) throw new IntegrationError('Your session expired. Sign in again.',401);
+    const user = await response.json();
+    if (!user?.id || !/^[0-9a-f-]{36}$/i.test(user.id)) throw new IntegrationError('Invalid sign-in session.',401);
+    const admin = await jsonRequest(base + '/rest/v1/ops_admins?user_id=eq.' + encodeURIComponent(user.id) + '&select=user_id', {headers:{apikey:key,Authorization:'Bearer '+key}}, 'Access check');
+    if (!Array.isArray(admin) || admin.length !== 1) throw new IntegrationError('This account cannot sync the Club.',403);
+    return;
+  }
   const expected = process.env.SYNC_ADMIN_TOKEN;
   if (!expected || expected.length < 24) throw new IntegrationError('Set SYNC_ADMIN_TOKEN to a random value of at least 24 characters in Vercel.', 503);
   const supplied = req.headers?.['x-club-sync-key'];
@@ -132,7 +147,17 @@ async function syncPage(config, access, page, countriesOnly) {
   }));
   results.unknownPlans = [...new Set(results.unknownPlans)];
   const more = Array.isArray(listed.links) && listed.links.some(link => link.rel === 'next');
-  return { ...results, page, nextPage: more ? page + 1 : null, complete: !more, partial: results.errors.length > 0 };
+  return { ...results, page, pageFingerprint: createHash('sha256').update(listed.subscriptions.map(x=>x.id).sort().join(',')).digest('hex'), nextPage: more ? page + 1 : null, complete: !more, partial: results.errors.length > 0 };
+}
+// Recheck stored subscription IDs independently of discovery. Cancelled subscriptions
+// missing from PayPal's list still receive their current status; 404s are errors,
+// never inferred cancellations or deletions.
+async function syncExisting(config, access, page, countriesOnly) {
+  const rows = await database(config, '/members?select=paypal_subscription_id&paypal_subscription_id=not.is.null&order=id&limit='+PAGE_SIZE+'&offset='+((page-1)*PAGE_SIZE));
+  if (!Array.isArray(rows)) throw new IntegrationError('Invalid stored subscription list.');
+  const result={added:0,updated:0,inactive:0,skipped:0,processed:0,errors:[],unknownPlans:[]};
+  await Promise.all(rows.map(async row=>{try{const id=validateId(row.paypal_subscription_id),detail=await paypal(config,access,'/v1/billing/subscriptions/'+id);validateDetail(detail,id);const r=await applySubscription(config,detail,countriesOnly);result[r.action]++;if(r.inactive)result.inactive++;if(r.unknownPlan)result.unknownPlans.push(r.unknownPlan);}catch(e){result.errors.push({subscription:row.paypal_subscription_id,error:e.message});}finally{result.processed++;}}));
+  return {...result,page,nextPage:rows.length===PAGE_SIZE?page+1:null,complete:rows.length<PAGE_SIZE,partial:result.errors.length>0};
 }
 async function webhook(req, config, access) {
   const webhookId = process.env.PAYPAL_WEBHOOK_ID;
@@ -158,7 +183,7 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   try {
     if (req.method === 'GET') {
-      requireAdmin(req);
+      await requireAdmin(req);
       const config = settings(), action = req.query?.action;
       if (action === 'cleanup') throw new IntegrationError('Automatic deletion is disabled. Sync now retains members and updates their PayPal status.', 410);
       if (!['sync', 'sync-countries', 'debug'].includes(action)) throw new IntegrationError('Unknown action.', 400);
@@ -166,7 +191,7 @@ export default async function handler(req, res) {
       if (!Number.isSafeInteger(page) || page < 1 || page > 10000000) throw new IntegrationError('Invalid page.', 400);
       const access = await token(config);
       if (action === 'debug') return res.status(200).json({ success: true, tokenOk: true, environment: process.env.PAYPAL_ENVIRONMENT || 'live', configuredPlans: config.plans, webhookConfigured: !!process.env.PAYPAL_WEBHOOK_ID });
-      const results = await syncPage(config, access, page, action === 'sync-countries');
+      const results = req.query?.phase === 'existing' ? await syncExisting(config, access, page, action === 'sync-countries') : await syncPage(config, access, page, action === 'sync-countries');
       return res.status(200).json({ success: true, ...results });
     }
     if (req.method === 'POST') {

@@ -1,0 +1,4 @@
+window.sb=window.supabase?.createClient(
+  'https://dmiiwdfebyrdqjkirbsz.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtaWl3ZGZlYnlyZHFqa2lyYnN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzODg3NjYsImV4cCI6MjA4ODk2NDc2Nn0.I9uHe8cPAGQ1b2J4IOMkQ21lTV_4XKXdpG3z_3MDvFs'
+);
