@@ -94,3 +94,5 @@ body,.shell,.workspace{background:#0A0810;color:var(--text)}.page{background:rad
 @keyframes country-glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.2)}}
 @keyframes map-arrive{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.map-stage>svg,.country-path.lit{animation:none}.country-path.lit{transition:none}}
+.round-progress-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:20px;padding:22px 0;border-block:1px solid var(--line);margin:22px 0 30px}.round-progress-grid .metric{min-width:0}.round-progress-grid .metric strong{font-size:clamp(19px,2vw,25px);overflow-wrap:anywhere}.care-charts{margin-top:28px}.care-charts .data-studio,.care-view .data-studio{min-width:0;padding:25px}
+@media(max-width:650px){.round-progress-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.round-progress-grid .metric strong{font-size:20px}}
