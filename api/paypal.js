@@ -108,6 +108,15 @@ async function applySubscription(config, detail, countriesOnly = false) {
     if (!Array.isArray(changed) || !changed.length) throw new IntegrationError('Country update was not saved.');
     return { action: 'updated' };
   }
+  // Keep dated history even for subscriptions that ended before this dashboard existed.
+  // Pending approvals have never established membership and are not historical members.
+  if (!['APPROVAL_PENDING','APPROVED'].includes(detail.status)) {
+    const validDate=v=>typeof v==='string'&&Number.isFinite(Date.parse(v))?v:null;
+    await database(config, '/ops_subscription_history?on_conflict=id', 'POST', {
+      id,started_at:validDate(detail.start_time),status:detail.status,
+      status_changed_at:validDate(detail.status_update_time),synced_at:new Date().toISOString()
+    }, 'resolution=merge-duplicates,return=representation');
+  }
   // Never delete a member on sync. Keep their profile, history and actual status.
   if (existing.length) {
     const patch = { tier, paypal_status: detail.status, paypal_plan_id:detail.plan_id, monthly_price:config.prices[detail.plan_id] };

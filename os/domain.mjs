@@ -57,3 +57,23 @@ export function workForDay(posts,reposts,care,sponsors,today=day()){
  const rows=[...posts.filter(p=>p.status!=='Skipped').map(p=>({...p,kind:'content',due:p.date,done:p.status==='Published',completed:p.published_at})),...reposts.filter(p=>p.round_date).map(p=>({...p,kind:'repost',due:p.due_date||p.round_date,done:!!p.completed_at,completed:p.completed_at})),...care.filter(p=>p.round_date).map(p=>({...p,kind:'care',due:p.due_date||p.round_date,done:!!p.completed_at,completed:p.completed_at})),...sponsors.filter(p=>!['Lost','Completed'].includes(p.stage)).map(p=>({...p,kind:'sponsor',due:p.due_date,done:!!p.task_completed_at,completed:p.task_completed_at}))];
  return rows.filter(p=>p.due&&((!p.done&&p.due<=today)||(p.done&&(p.due===today||completedToday(p.completed))))).sort((a,b)=>a.due.localeCompare(b.due)||a.kind.localeCompare(b.kind));
 }
+
+// Earlier counts are reconstructed from subscription intervals, not a full PayPal event log.
+export function membershipTrend(members,history=[],now=new Date()){
+ const end=now.toISOString().slice(0,10),valid=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}/.test(v)&&Number.isFinite(Date.parse(v))&&v.slice(0,10)<=end?v.slice(0,10):null;
+ const changes=new Map(),covered=new Set(),unknown=[];
+ const add=(date,delta,id,label)=>{if(!changes.has(date))changes.set(date,{date,joined:[],left:[],delta:0});const r=changes.get(date);r.delta+=delta;r[delta>0?'joined':'left'].push({id,label});};
+ for(const h of history){covered.add(h.id);const m=members.find(m=>m.paypal_subscription_id===h.id),label=m?.handle||h.id,id=m?.id||null,start=valid(h.started_at),transitions=Array.isArray(h.transitions)&&h.transitions.length?h.transitions:[{status:h.status,at:h.status_changed_at}];
+  if(!start){unknown.push(label);continue;}
+  // A missing end date cannot be represented as still active for an inactive subscription.
+  if(h.status!=='ACTIVE'&&!valid(h.status_changed_at)){unknown.push(label);continue;}
+  let state=true;const events=[];let uncertain=false;
+  for(const t of transitions){const next=t.status==='ACTIVE';if(next===state)continue;const date=valid(t.at);if(!date||date<start){uncertain=true;break;}events.push({date,delta:next?1:-1});state=next;}
+  if(uncertain||state!==(h.status==='ACTIVE')){unknown.push(label);continue;}
+  add(start,1,id,label);for(const t of events)add(t.date,t.delta,id,label);
+ }
+ for(const m of members){if(covered.has(m.paypal_subscription_id))continue;const start=valid(m.join_date_iso);if(!start||!active(m)){unknown.push(m.handle||String(m.id));continue;}add(start,1,m.id,m.handle||String(m.id));}
+ let count=0;const points=[...changes.values()].sort((a,b)=>a.date.localeCompare(b.date)).map(r=>({...r,count:(count+=r.delta)}));
+ if(points.length){const before=new Date(points[0].date+'T12:00:00Z');before.setUTCDate(before.getUTCDate()-1);points.unshift({date:before.toISOString().slice(0,10),count:0,joined:[],left:[],delta:0,baseline:true});}
+ return {points,current:members.filter(active).length,reconstructed:count,unknown,asOf:end,latestSync:history.map(h=>h.synced_at).filter(Boolean).sort().at(-1)||null};
+}
