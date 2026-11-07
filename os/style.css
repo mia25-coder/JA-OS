@@ -136,3 +136,15 @@ body,.shell,.workspace{background:#0A0810;color:var(--text)}.page{background:rad
 @media(max-width:850px){.club-size-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.club-plan-summary{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:550px){.club-scheduler-modal .dialog-body{padding:20px 15px}.club-size-grid{grid-template-columns:1fr 1fr;gap:11px}.club-groups{grid-template-columns:1fr}.club-plan-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.club-tier-heading{align-items:flex-start;flex-direction:column}.club-planner-footer{flex-direction:column;align-items:stretch;bottom:0}.club-planner-footer .actions{justify-content:stretch}.club-planner-footer .btn.primary{flex:1}.club-builder-intro strong{font-size:25px}}
 
+
+/* Canva and Instagram production controls / generated Club groups. */
+.club-production-actions,.club-card-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:15px 0 22px}.club-card-actions{margin:18px 0 0}.club-production-actions .btn{min-height:39px;font-size:12px}.club-group-card{display:flex;flex-direction:column}.club-card-actions{margin-top:auto;padding-top:15px}.club-card-actions .btn{width:100%}.club-group-top{align-items:flex-start}.club-group-top strong{max-width:75%;line-height:1.5}.club-group-handles span{user-select:text;-webkit-user-select:text}@media(max-width:550px){.club-production-actions{display:grid;grid-template-columns:1fr}.club-production-actions .btn{width:100%}}
+
+
+/* Prominent per-group copy buttons for Canva production (generated, saved, and daily). */
+.club-copy-hint{display:block;width:100%;font-size:12px;line-height:1.4;color:#c9b0da;margin-bottom:3px}
+.club-card-actions{display:flex;flex-direction:column;align-items:stretch;gap:8px;padding-top:16px;margin-top:auto}
+.club-card-actions .btn{width:100%;min-height:48px;font-size:13px;font-weight:700;letter-spacing:.015em;background:#b57af5;color:#180c23;border:1px solid #c694fd;border-radius:9px}
+.club-card-actions .btn:hover{background:#c99bff}
+.daily-canva-copy{margin:4px 0 18px}
+.daily-canva-copy .btn{width:100%;min-height:44px;border-radius:10px;font-size:13px;font-weight:700}
